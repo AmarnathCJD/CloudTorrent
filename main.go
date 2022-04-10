@@ -15,6 +15,7 @@ const (
 
 func main() {
 	http.HandleFunc("/downloads/", File)
+	http.HandleFunc("/", MainPage)
 	http.ListenAndServe(":80", nil)
 }
 
@@ -69,7 +70,7 @@ func GetHTMLDir(f map[string]os.FileInfo, IP string) string {
 			FileType = "Folder"
 			Size = "-"
 		}
-		files = strings.Replace(files, "{{name}}", "<a href=\"/downloads/"+v.Name()+"\">"+strings.Title(v.Name())+"</a>", -1)
+		files = strings.Replace(files, "{{name}}", "<a href=\"/downloads/"+v.Name()+"\">"+strings.Title(GetFileName(v.Name()))+"</a>", -1)
 		files = strings.Replace(files, "{{size}}", Size, -1)
 		files = strings.Replace(files, "{{type}}", FileType, -1)
 		files = strings.Replace(files, "{{date}}", strings.ReplaceAll(v.ModTime().String(), "+0000 GMT", ""), -1)
@@ -141,4 +142,16 @@ func GetFileType(f string) string {
 	} else {
 		return "Unknown"
 	}
+}
+func GetFileName(f string) string {
+	return strings.TrimSuffix(f, filepath.Ext(f))
+}
+
+func MainPage(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	w.Write([]byte(torrents))
 }

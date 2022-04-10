@@ -161,4 +161,137 @@ const (
 
 </html>
 `
+	torrents = `
+
+    <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Torrents Cloud</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #0088cc;
+            color: #fff;
+            padding: 10px 0;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: normal;
+            line-height: 1.5;
+        }
+        header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: normal;
+            line-height: 1.5;
+        }
+        add-magnet {
+            background-color: MediumSeaGreen;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        add-magnet:hover {
+            opacity: 0.8;
+        }
+        magnet.input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 0 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+        magnet.input:focus {
+            outline: none;
+        }
+        .container {
+            width: 960px;
+            margin: 0 auto;
+            box-shadow: 0 5px 10px -5px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            padding: 10px 0;
+        }
+        .content h2 {
+            margin: auto;
+            font-size: 18px;
+            font-weight: normal;
+            line-height: 1.5;
+        }
+        input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 0 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+        input:focus {
+            outline: none;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        submit {
+            background-color: MediumSeaGreen;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        submit:hover {
+            opacity: 0.8;
+        }
+        </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>☁️Cloud Torrents</h1>
+            <h2>{{count}} Torrents</h2>
+        </header>
+
+    <div class="content">
+        <h2>Add Magnet</h2>
+        <form action="/add-magnet" method="post">
+            <input class="magnet.input" type="text" name="magnet" placeholder="magnet link">
+            <input type="submit" value="Add">
+        </form>
+    </div>
+    <div class="content">
+        <h2>Torrents</h2>
+</div>
+</div>
+</body>
+</html>
+`
 )
