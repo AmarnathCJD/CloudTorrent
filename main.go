@@ -16,6 +16,7 @@ const (
 
 func main() {
 	http.HandleFunc("/downloads/", File)
+        http.HandleFunc("/", MainPage)
 	log.Fatal(http.ListenAndServe(":80", nil))
 }
 
