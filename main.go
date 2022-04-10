@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,7 +16,7 @@ const (
 
 func main() {
 	http.HandleFunc("/downloads/", File)
-	http.ListenAndServe(":80", nil)
+	log.Fatal(http.ListenAndServe(":80", nil))
 }
 
 func File(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +42,9 @@ func serveDir(w http.ResponseWriter, r *http.Request, path string) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -54,7 +57,10 @@ func serveDir(w http.ResponseWriter, r *http.Request, path string) {
 		list[file.Name()] = file
 	}
 	IP := GetIP(r)
-	w.Write([]byte(GetHTMLDir(list, IP)))
+	_, err = w.Write([]byte(GetHTMLDir(list, IP)))
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func GetHTMLDir(f map[string]os.FileInfo, IP string) string {
@@ -63,7 +69,7 @@ func GetHTMLDir(f map[string]os.FileInfo, IP string) string {
 	tbl := `<tr> <td>{{name}}</td> <td>{{size}}</td> <td>{{type}}</td> <td>{{date}}</td> </tr>`
 	for _, v := range f {
 		files += tbl
-		Size := ByteCountSI(int64(v.Size()))
+		Size := ByteCountSI(v.Size())
 		FileType := GetFileType(v.Name())
 		if v.IsDir() {
 			FileType = "Folder"
