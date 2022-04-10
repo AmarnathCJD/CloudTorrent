@@ -194,6 +194,7 @@ const (
             font-size: 18px;
             font-weight: normal;
             line-height: 1.5;
+            align-self: right;
         }
         add-magnet {
             background-color: MediumSeaGreen;
@@ -275,22 +276,28 @@ const (
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>☁️Cloud Torrents</h1>
-            <h2>{{count}} Torrents</h2>
-        </header>
-
-    <div class="content">
-        <h2>Add Magnet</h2>
-        <form action="/add-magnet" method="post">
-            <input class="magnet.input" type="text" name="magnet" placeholder="magnet link">
-            <input type="submit" value="Add">
-        </form>
+        <div class="header">
+            <h1>Torrents Cloud</h1>
+            <h2>{{ip}}</h2>
+            <form action="/torrents/add" method="post">
+                <input type="text" name="magnet" placeholder="Magnet Link" class="magnet-input">
+                <input type="submit" value="Add">
+            </form>
+        </div>
+        <div class="content">
+            <h2>Torrents</h2>
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>Size</th>
+                    <th>Seeders</th>
+                    <th>Leechers</th>
+                    <th>Status</th>
+                </tr>
+                {{torrents}}
+            </table>
+        </div>
     </div>
-    <div class="content">
-        <h2>Torrents</h2>
-</div>
-</div>
 </body>
 </html>
 `
