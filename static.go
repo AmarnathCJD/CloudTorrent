@@ -254,6 +254,7 @@ const (
             width: 95%;
             padding: 12px 20px;
             margin: 19px 26px;
+            margin-bottom: 8px;
             display: inline-block;
             border: 1px solid #ccc;
             border-radius: 4px;
