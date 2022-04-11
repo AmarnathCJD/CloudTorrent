@@ -5,15 +5,18 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strconv"
 	"strings"
 )
 
 const (
 	root = "C:/Users/rj/Downloads"
-	// dir to server
+	// dir to serve
 )
 
 func main() {
+	fmt.Println("Server started on port 8080")
 	http.HandleFunc("/downloads/", File)
 	http.HandleFunc("/", MainPage)
 	http.ListenAndServe(":80", nil)
@@ -80,78 +83,35 @@ func GetHTMLDir(f map[string]os.FileInfo, IP string) string {
 	return html
 }
 
-func GetIP(r *http.Request) string {
-	forwarded := r.Header.Get("X-FORWARDED-FOR")
-	if forwarded != "" {
-		return forwarded
-	}
-	return r.RemoteAddr
-}
-
-func ByteCountSI(b int64) string {
-	const unit = 1000
-	if b < unit {
-		return fmt.Sprintf("%d B", b)
-	}
-	div, exp := int64(unit), 0
-	for n := b / unit; n >= unit; n /= unit {
-		div *= unit
-		exp++
-	}
-	return fmt.Sprintf("%.1f %cB",
-		float64(b)/float64(div), "kMGTPE"[exp])
-}
-
-func GetFileType(f string) string {
-	if strings.HasSuffix(f, ".pdf") {
-		return "PDF/Document"
-	} else if strings.HasSuffix(f, ".doc") || strings.HasSuffix(f, ".docx") {
-		return "Word/Document"
-	} else if strings.HasSuffix(f, ".xls") || strings.HasSuffix(f, ".xlsx") {
-		return "Excel/Document"
-	} else if strings.HasSuffix(f, ".ppt") || strings.HasSuffix(f, ".pptx") {
-		return "PowerPoint/Document"
-	} else if strings.HasSuffix(f, ".zip") || strings.HasSuffix(f, ".rar") {
-		return "Archive/Compressed"
-	} else if strings.HasSuffix(f, ".txt") {
-		return "Text/Document"
-	} else if strings.HasSuffix(f, ".mp3") || strings.HasSuffix(f, ".wav") || strings.HasSuffix(f, ".ogg") {
-		return "Audio/Music"
-	} else if strings.HasSuffix(f, ".mp4") || strings.HasSuffix(f, ".avi") || strings.HasSuffix(f, ".mkv") {
-		return "Video/Movie"
-	} else if strings.HasSuffix(f, ".png") || strings.HasSuffix(f, ".jpg") || strings.HasSuffix(f, ".jpeg") || strings.HasSuffix(f, ".gif") {
-		return "Image/Photo"
-	} else if strings.HasSuffix(f, ".exe") {
-		return "Executable/Program"
-	} else if strings.HasSuffix(f, ".iso") {
-		return "Disk Image/ISO"
-	} else if strings.HasSuffix(f, ".apk") {
-		return "Android App/Program"
-	} else if strings.HasSuffix(f, ".py") {
-		return "Python/Program"
-	} else if strings.HasSuffix(f, ".go") {
-		return "Go/Program"
-	} else if strings.HasSuffix(f, ".cpp") {
-		return "C++/Program"
-	} else if strings.HasSuffix(f, ".java") {
-		return "Java/Program"
-	} else if strings.HasSuffix(f, ".c") {
-		return "C/Program"
-	} else if strings.HasSuffix(f, ".html") || strings.HasSuffix(f, ".htm") {
-		return "HTML/Document"
-	} else {
-		return "Unknown"
-	}
-}
-func GetFileName(f string) string {
-	return strings.TrimSuffix(f, filepath.Ext(f))
-}
-
 func MainPage(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err, ok := recover().(error); ok {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}()
-	w.Write([]byte(torrents))
+	IP := GetIP(r)
+	Disk := DiskUsage(root)
+	torr := torrents
+	torr = strings.Replace(torr, "{{ip}}", IP, -1)
+	test := []Torrent{{Name: "Avengers 2015", Size: "1.3Gb", Date: "-", Magnet: "8742874w8dywudwduwhdjwsdwjdws"}, {Name: "Ae Dil Hai Mushkil", Size: "3.9Gb", Date: "-", Magnet: "u2y72yer723yxd27ed72d"}}
+	tbl := `<tr><th class="id">{{id}}</th><th class="name">{{name}}</th><th class="size">{{size}}</th><th class="date">{{date}}</th><th class="magnet">{{magnet}}</th><th class="action"><a href="#" class="download">Download</a><a href="#" class="delete">Delete</a></th></tr>`
+	data := ""
+	for i, v := range test {
+		data += tbl
+		data = strings.Replace(data, "{{id}}", strconv.Itoa(i+1), -1)
+		data = strings.Replace(data, "{{name}}", v.Name, -1)
+		data = strings.Replace(data, "{{size}}", v.Size, -1)
+		data = strings.Replace(data, "{{date}}", v.Date, -1)
+		data = strings.Replace(data, "{{magnet}}", v.Magnet, -1)
+	}
+	torr = strings.Replace(torr, "{{#each torrents}}", data, -1)
+	var mem runtime.MemStats
+	runtime.ReadMemStats(&mem)
+	torr = strings.Replace(torr, "{{cpu}}", strconv.Itoa(runtime.NumCPU()), -1)
+	torr = strings.Replace(torr, "{{memory}}", ByteCountSI(int64(mem.Alloc)), -1)
+	torr = strings.Replace(torr, "{{goroutines}}", strconv.Itoa(runtime.NumGoroutine()), -1)
+	torr = strings.Replace(torr, "{{torrents_len}}", strconv.Itoa(len(torrents)), -1)
+	torr = strings.Replace(torr, "{{disk}}", fmt.Sprintf("%s/%s", Disk.Used, Disk.All), -1)
+	torr = strings.Replace(torr, "{{ip}}", IP, -1)
+	w.Write([]byte(torr))
 }
