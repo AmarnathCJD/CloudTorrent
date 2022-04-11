@@ -101,3 +101,37 @@ func GetIP(r *http.Request) string {
 	}
 	return r.RemoteAddr
 }
+
+type SortBy func(p1, p2 *TorrentMeta) bool
+
+func (b SortBy) Sort (t []TorrentMeta) {
+
+}
+
+type TorrentSorter struct {
+Torr []TorrentMeta
+by SortBy
+}
+
+func (s *TorrentSorter) Len() int {
+	return len(s.Torr)
+}
+
+func (s *TorrentSorter) Swap(i, j int) {
+	s.Torr[i], s.Torr[j] = s.Torr[j], s.Torr[i]
+}
+
+func (s *TorrentSorter) Less(i, j int) bool {
+	return s.by(&s.Torr[i], &s.Torr[j])
+}
+
+func SortTorrent(t TorrentsResponse) TorrentsResponse {
+name := func(p1, p2 *TorrentMeta) bool {
+return p1.Name < p2.Name
+}
+data := t.Torrents
+SortBy(name).Sort(data)
+return TorrentsResponse{Torrents: data}
+}
+
+//xo
