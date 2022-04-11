@@ -19,6 +19,8 @@ func main() {
 	fmt.Println("Server started on port 8080")
 	http.HandleFunc("/downloads/", File)
 	http.HandleFunc("/", MainPage)
+	http.HandleFunc("/add", AddTorrent)
+	TorrentsServe()
 	http.ListenAndServe(":80", nil)
 }
 
@@ -93,10 +95,10 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 	Disk := DiskUsage(root)
 	torr := torrents
 	torr = strings.Replace(torr, "{{ip}}", IP, -1)
-	test := []Torrent{{Name: "Avengers 2015", Size: "1.3Gb", Date: "-", Magnet: "8742874w8dywudwduwhdjwsdwjdws"}, {Name: "Ae Dil Hai Mushkil", Size: "3.9Gb", Date: "-", Magnet: "u2y72yer723yxd27ed72d"}}
+	torrs := GetActiveTorrents()
 	tbl := `<tr><th class="id">{{id}}</th><th class="name">{{name}}</th><th class="size">{{size}}</th><th class="date">{{date}}</th><th class="magnet">{{magnet}}</th><th class="action"><a href="#" class="download">Download</a><a href="#" class="delete">Delete</a></th></tr>`
 	data := ""
-	for i, v := range test {
+	for i, v := range torrs {
 		data += tbl
 		data = strings.Replace(data, "{{id}}", strconv.Itoa(i+1), -1)
 		data = strings.Replace(data, "{{name}}", v.Name, -1)
@@ -110,8 +112,27 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 	torr = strings.Replace(torr, "{{cpu}}", strconv.Itoa(runtime.NumCPU()), -1)
 	torr = strings.Replace(torr, "{{memory}}", ByteCountSI(int64(mem.Alloc)), -1)
 	torr = strings.Replace(torr, "{{goroutines}}", strconv.Itoa(runtime.NumGoroutine()), -1)
-	torr = strings.Replace(torr, "{{torrents_len}}", strconv.Itoa(len(torrents)), -1)
+	torr = strings.Replace(torr, "{{torrents_len}}", strconv.Itoa(len(torrs)), -1)
 	torr = strings.Replace(torr, "{{disk}}", fmt.Sprintf("%s/%s", Disk.Used, Disk.All), -1)
 	torr = strings.Replace(torr, "{{ip}}", IP, -1)
 	w.Write([]byte(torr))
+}
+
+func AddTorrent(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	r.ParseForm()
+	magnet := r.FormValue("magnet")
+	if magnet == "" {
+		http.Error(w, "No magnet provided", http.StatusBadRequest)
+		return
+	}
+	if err := AddMagnet(magnet); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	MainPage(w, r)
 }

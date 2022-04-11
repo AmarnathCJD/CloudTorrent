@@ -381,6 +381,55 @@ const (
         p:hover {
             text-align:right; color: #3A3B3C;
         }
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99999;
+            display: none;
+        }
+        .popup .popup-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+
+            width: 500px;
+            height: 300px;
+            border-radius: 4px;
+            padding: 20px;
+        }
+        .popup .popup-text {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .popup .popup-text a {
+            color: #0088cc;
+            text-decoration: none;
+        }
+        .popup .popup-text a:hover {
+            text-decoration: underline;
+        }
+        .popup .popup-button {
+            margin-top: 20px;
+        }
+        .popup .popup-button button {
+            width: 100%;
+            height: 35px;
+            background-color: #0088cc;
+            color: white;
+            padding: 7px 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
     </style>
 </head>
 
@@ -390,10 +439,11 @@ const (
             <h1>Torrents Cloud
             </h1>
         </header>
-        <form action="add-magnet" method="post">
+        <form action="add" method="post">
             <input type="text" name="magnet" placeholder="Magnet/HTTPS link" class="input">
             <div class="wrapper">
                 <input type="submit" value="Start Torrent">
+               
             </div>
         </form>
         <div class="container">
@@ -421,8 +471,49 @@ const (
                 <strong>Torrents</strong>: {{torrents_len}}
                 <strong>Goroutines</strong>: {{goroutines}}
             </p>
-</body>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            setInterval(function() {
+                $.ajax({
+                    url: '/torrents',
+                    type: 'GET',
+                    success: function(data) {
+                        var dt = JSON.parse(data);
+                        var torrents = dt.torrents;
+                        console.log(torrents);
+                        var html = '';
+                        html += '<tr>';
+                        html += '<th class="id">ID</th>';
+                        html += '<th class="name">Name</th>';
+                        html += '<th class="size">Size</th>';
+                        html += '<th class="date">Date</th>';
+                        html += '<th class="magnet">Magnet</th>';
+                        html += '<th class="action">Action</th>';
+                        for (var i = 0; i < torrents.length; i++) {
+                            var torrent = torrents[i];
+                            html += '<tr>';
+                            html += '<th class="id">' + torrent.id + '</td>';
+                            html += '<th class="name">' + torrent.name + '</td>';
+                            html += '<th class="size">' + torrent.size + '</td>';
+                            html += '<th class="date">' + torrent.date + '</td>';
+                            html += '<th class="magnet">' + torrent.magnet + '</td>';
+                            html += '<th class="action">';
+                            html += '<a href="/torrents/' + torrent.id + '/download" class="download">Download</a>';
+                            html += '<a href="/torrents/' + torrent.id + '/delete" class="delete">Delete</a>';
+                            html += '</th>';
+                            html += '</tr>';
+                        }
+                        $('table').html(html);
+                    }
+                });
+            }, 10000);
+        });
 
+    </script>
+</body>
 </html>
 `
 )
