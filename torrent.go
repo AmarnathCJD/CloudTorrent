@@ -123,7 +123,7 @@ func GetActiveTorrents() []TorrentMeta {
 	for range t.Torrents {
 		sort.Slice(t.Torrents, func(i, j int) bool {
 			return t.Torrents[i].ID <= t.Torrents[j].ID
-		}) // sort by ID fix chane to sort alphabetically TODO
+		}) // sort by ID fix change to sort alphabetically TODO
 	}
 	return t.Torrents
 }
