@@ -504,7 +504,7 @@ const (
                         html += '<tr>';
                         html += '<th class="id">' + torrent.id + '</td>';
                         html += '<th class="name">' + torrent.name + '</td>';
-                        html += '<th class="size">' + torrent.status + '</td>';
+                        html += '<th class="status">' + torrent.status + '</td>';
                         html += '<th class="date">' + torrent.date + '</td>';
                         html += '<th class="magnet">' + torrent.magnet + '</td>';
                         html += '<th class="action">';
