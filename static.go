@@ -315,6 +315,18 @@ const (
             table th.name {
                 width: 20%;
             }
+            table th.name a {
+                color: #333;
+            }
+            table th.name a:hover {
+                color: #0088cc;
+            }
+            table th.name a:visited {
+                color: #333;
+            }
+            table th.name a:active {
+                color: #0088cc;
+            }
     
             table th.size {
                 width: 10%;
@@ -503,7 +515,7 @@ const (
                         var torrent = torrents[i];
                         html += '<tr>';
                         html += '<th class="id">' + torrent.id + '</td>';
-                        html += '<th class="name">' + torrent.name + '</td>';
+                        html += '<th class="name"><a href="/torrents/details?uid=' + torrent.uid + '>torrent.name</a>' + '</td>';
                         html += '<th class="size">' + torrent.status + '</td>';
                         html += '<th class="date">' + torrent.date + '</td>';
                         html += '<th class="magnet">' + torrent.magnet + '</td>';

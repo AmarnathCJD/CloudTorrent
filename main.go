@@ -97,7 +97,7 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 	torr := torrents
 	torr = strings.Replace(torr, "{{ip}}", IP, -1)
 	torrs := GetActiveTorrents()
-	tbl := `<tr><th class="id">{{id}}</th><th class="name">{{name}}</th><th class="size">{{size}}</th><th class="status">{{status}}</th><th class="magnet">{{magnet}}</th><th class="action"><a href="#" class="download">Download</a><a href="%s" class="delete">Delete</a></th></tr>`
+	tbl := `<tr><th class="id">{{id}}</th><th class="name"><a href="/torrents/details?uid={{uid}}">{{name}}</a></th><th class="size">{{size}}</th><th class="status">{{status}}</th><th class="magnet">{{magnet}}</th><th class="action"><a href="#" class="download">Download</a><a href="%s" class="delete">Delete</a></th></tr>`
 	data := ""
 	for i, v := range torrs {
 		data += fmt.Sprintf(tbl, "/torrents/delete?uid="+v.UID)
@@ -106,6 +106,7 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 		data = strings.Replace(data, "{{size}}", v.Size, -1)
 		data = strings.Replace(data, "{{status}}", v.Status, -1)
 		data = strings.Replace(data, "{{magnet}}", v.Magnet, -1)
+		data = strings.Replace(data, "{{uid}}", v.UID, -1)
 	}
 	torr = strings.Replace(torr, "{{#each torrents}}", data, -1)
 	var mem runtime.MemStats
