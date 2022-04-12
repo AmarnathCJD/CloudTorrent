@@ -131,3 +131,5 @@ func GetActiveTorrents() []TorrentMeta {
 	Torrents = SortAlpha(Torrents)
 	return Torrents.Torrents
 }
+
+// TODO make torrent name clickable, add popup confirmation, link torrent file dir, ddos protection 
