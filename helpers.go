@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/shirou/gopsutil/disk"
@@ -32,8 +33,8 @@ func DiskUsage(path string) DiskStatus {
 
 func GetFileName(f string) string {
 	name := strings.TrimSuffix(f, filepath.Ext(f))
-	if len(name) > 20 {
-		name = name[:20] + "..."
+	if len(name) > 35 {
+		name = name[:35] + "..."
 	}
 	return name
 }
@@ -102,36 +103,19 @@ func GetIP(r *http.Request) string {
 	return r.RemoteAddr
 }
 
-type SortBy func(p1, p2 *TorrentMeta) bool
-
-func (b SortBy) Sort (t []TorrentMeta) {
-
+func SortAlpha(t TorrentsResponse) TorrentsResponse {
+	data := t.Torrents
+	sort.Slice(data, func(p, q int) bool {
+		return data[p].Name < data[q].Name
+	})
+	return TorrentsResponse{Torrents: data}
 }
 
-type TorrentSorter struct {
-Torr []TorrentMeta
-by SortBy
+func StringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }
-
-func (s *TorrentSorter) Len() int {
-	return len(s.Torr)
-}
-
-func (s *TorrentSorter) Swap(i, j int) {
-	s.Torr[i], s.Torr[j] = s.Torr[j], s.Torr[i]
-}
-
-func (s *TorrentSorter) Less(i, j int) bool {
-	return s.by(&s.Torr[i], &s.Torr[j])
-}
-
-func SortTorrent(t TorrentsResponse) TorrentsResponse {
-name := func(p1, p2 *TorrentMeta) bool {
-return p1.Name < p2.Name
-}
-data := t.Torrents
-SortBy(name).Sort(data)
-return TorrentsResponse{Torrents: data}
-}
-
-//xo

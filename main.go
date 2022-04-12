@@ -20,6 +20,7 @@ func main() {
 	http.HandleFunc("/downloads/", File)
 	http.HandleFunc("/", MainPage)
 	http.HandleFunc("/add", AddTorrent)
+	http.HandleFunc("/torrents/delete", DeleteTorrent)
 	TorrentsServe()
 	http.ListenAndServe(":80", nil)
 }
@@ -96,14 +97,14 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 	torr := torrents
 	torr = strings.Replace(torr, "{{ip}}", IP, -1)
 	torrs := GetActiveTorrents()
-	tbl := `<tr><th class="id">{{id}}</th><th class="name">{{name}}</th><th class="size">{{size}}</th><th class="date">{{date}}</th><th class="magnet">{{magnet}}</th><th class="action"><a href="#" class="download">Download</a><a href="#" class="delete">Delete</a></th></tr>`
+	tbl := `<tr><th class="id">{{id}}</th><th class="name">{{name}}</th><th class="size">{{size}}</th><th class="status">{{status}}</th><th class="magnet">{{magnet}}</th><th class="action"><a href="#" class="download">Download</a><a href="%s" class="delete">Delete</a></th></tr>`
 	data := ""
 	for i, v := range torrs {
-		data += tbl
+		data += fmt.Sprintf(tbl, "/torrents/delete?uid="+v.UID)
 		data = strings.Replace(data, "{{id}}", strconv.Itoa(i+1), -1)
 		data = strings.Replace(data, "{{name}}", v.Name, -1)
 		data = strings.Replace(data, "{{size}}", v.Size, -1)
-		data = strings.Replace(data, "{{date}}", v.Date, -1)
+		data = strings.Replace(data, "{{status}}", v.Status, -1)
 		data = strings.Replace(data, "{{magnet}}", v.Magnet, -1)
 	}
 	torr = strings.Replace(torr, "{{#each torrents}}", data, -1)
@@ -132,6 +133,28 @@ func AddTorrent(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := AddMagnet(magnet); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	MainPage(w, r)
+}
+
+func DeleteTorrent(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	r.ParseForm()
+	id := r.FormValue("uid")
+	if id == "" {
+		http.Error(w, "No uid provided", http.StatusBadRequest)
+		return
+	}
+	if ok, err := DeleteTorrentByID(id); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	} else if !ok {
+		http.Error(w, "Torrent not found", http.StatusNotFound)
 		return
 	}
 	MainPage(w, r)

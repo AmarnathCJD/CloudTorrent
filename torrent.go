@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sort"
 
 	"github.com/cenkalti/rain/torrent"
 )
@@ -21,14 +20,15 @@ type TorrentsResponse struct {
 type TorrentMeta struct {
 	Name   string `json:"name,omitempty"`
 	Size   string `json:"size,omitempty"`
-	Date   string `json:"date,omitempty"`
+	Status string `json:"status,omitempty"`
 	Magnet string `json:"magnet,omitempty"`
 	ID     string `json:"id,omitempty"`
+	UID    string `json:"uid,omitempty"`
 }
 
 func InitClient() *torrent.Session {
 	config := torrent.DefaultConfig
-	config.DataDir = root + "/downloads"
+	config.DataDir = root + "/torrents"
 	client, err := torrent.NewSession(config)
 	if err != nil {
 		panic(err)
@@ -44,8 +44,6 @@ func AddMagnet(magnet string) error {
 		return err
 	}
 	Torrents[magnet] = *t
-	d, _ := json.Marshal(Torrents)
-	fmt.Println(string(d))
 	return nil
 }
 
@@ -70,6 +68,27 @@ func CancelTorrent(magnet string) {
 	delete(Torrents, magnet)
 }
 
+func GetTorrentPath(id string) string {
+	torr := client.ListTorrents()
+	for _, t := range torr {
+		if t.ID() == id {
+			return root + "/torrents/" + t.ID()
+		}
+	}
+	return ""
+}
+
+func DeleteTorrentByID(id string) (bool, error) {
+	for _, t := range client.ListTorrents() {
+		if t.ID() == id {
+			err := client.RemoveTorrent(id)
+			delete(Torrents, t.Stats().InfoHash.String())
+			return true, err
+		}
+	}
+	return false, nil
+}
+
 func GetTorrentStatus(magnet string) torrent.Stats {
 	torr := client.ListTorrents()
 	for _, t := range torr {
@@ -88,42 +107,27 @@ func TorrentsServe() {
 	})
 }
 
-func StringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
 func GetActiveTorrents() []TorrentMeta {
 	torr := client.ListTorrents()
-	var torrents []torrent.Stats
-	for _, t := range torr {
-		torrents = append(torrents, t.Stats())
-	}
-	t := TorrentsResponse{}
+	Torrents := TorrentsResponse{}
 	Magnets := []string{}
-	j := 0
-	for _, v := range torrents {
-		if StringInSlice(v.InfoHash.String(), Magnets) {
-			continue
+	IDno := 0
+	for _, t := range torr {
+		if t.Name() != "" {
+			if !StringInSlice(t.Stats().InfoHash.String(), Magnets) {
+				Magnets = append(Magnets, t.Stats().InfoHash.String())
+				IDno++
+				Torrents.Torrents = append(Torrents.Torrents, TorrentMeta{
+					Name:   t.Name(),
+					Size:   fmt.Sprint(t.Stats().Pieces.Total),
+					Status: t.Stats().Status.String(),
+					Magnet: t.Stats().InfoHash.String(),
+					ID:     fmt.Sprintf("%d", IDno),
+					UID:    t.ID(),
+				})
+			}
 		}
-		j++
-		Magnets = append(Magnets, v.InfoHash.String())
-		t.Torrents = append(t.Torrents, TorrentMeta{
-			Name:   v.Name,
-			Size:   "_",
-			Date:   "-",
-			Magnet: v.InfoHash.String(),
-			ID:     fmt.Sprint(j),
-		})
 	}
-	for range t.Torrents {
-		sort.Slice(t.Torrents, func(i, j int) bool {
-			return t.Torrents[i].ID <= t.Torrents[j].ID
-		}) // sort by ID fix change to sort alphabetically TODO
-	}
-	return t.Torrents
+	Torrents = SortAlpha(Torrents)
+	return Torrents.Torrents
 }
