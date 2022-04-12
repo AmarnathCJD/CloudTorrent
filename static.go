@@ -515,7 +515,7 @@ const (
                         var torrent = torrents[i];
                         html += '<tr>';
                         html += '<th class="id">' + torrent.id + '</td>';
-                        html += '<th class="name"><a href="/torrents/details?uid=' + torrent.uid + '>torrent.name</a>' + '</td>';
+                        html += '<th class="name"><a href="/torrents/details?uid=' + torrent.uid + '">torrent.name</a>' + '</td>';
                         html += '<th class="status">' + torrent.status + '</td>';
                         html += '<th class="date">' + torrent.date + '</td>';
                         html += '<th class="magnet">' + torrent.magnet + '</td>';
