@@ -1,7 +1,6 @@
 # Torrent Leacher
 ------------------
 
-<b>Demo:</b> https://e170-52-172-227-101.ngrok.io/ <br>
-<b>Index:</b> https://e170-52-172-227-101.ngrok.io/downloads/
+<h2><b>Demo:</b> <a href='https://roseloverx.tk'>☁️CloudTorrent</a></h2>
 
 # soon
