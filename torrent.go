@@ -26,6 +26,7 @@ type TorrentMeta struct {
 	UID    string `json:"uid,omitempty"`
 	Perc   string `json:"perc,omitempty"`
 	Eta    string `json:"eta,omitempty"`
+	Speed  string `json:"speed,omitempty"`
 }
 
 func InitClient() *torrent.Session {
@@ -125,6 +126,7 @@ func GetActiveTorrents() []TorrentMeta {
 					Perc:   GetDownloadPercentage(t.ID()),
 					Status: fmt.Sprint(t.Stats().Status),
 					Magnet: t.Stats().InfoHash.String(),
+					Speed:  fmt.Sprint(ByteCountSI(int64(t.Stats().Speed.Download))) + "/s",
 					ID:     fmt.Sprintf("%d", IDno),
 					UID:    t.ID(),
 					Eta:    fmt.Sprint(t.Stats().ETA),
@@ -142,7 +144,7 @@ func GetDownloadPercentage(id string) string {
 		if t.ID() == id {
 			if t.Stats().Pieces.Total != 0 {
 				p := float64(t.Stats().Pieces.Have) / float64(t.Stats().Pieces.Total)
-				return fmt.Sprintf("%.2f", p*100)
+				return fmt.Sprintf("%.2f", p*100) + "%"
 			} else {
 				return "-"
 			}

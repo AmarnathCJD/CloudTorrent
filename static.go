@@ -505,7 +505,7 @@ const (
                 <th class="status">Status</th>
                 <th class="status">Progress</th>
                 <th class="status">ETA</th>
-                <th class="magnet">Magnet</th>
+                <th class="status">Download Speed</th>
                 <th class="action">Action</th>
             </tr>
             <tr>
@@ -546,7 +546,7 @@ const (
                     html += '<th class="status">Status</th>';
                     html += '<th class="status">Progress</th>';
                     html += '<th class="status">ETA</th>';
-                    html += '<th class="magnet">Magnet</th>';
+                    html += '<th class="status">Download Speed</th>';
                     html += '<th class="action">Action</th>';
                     for (var i = 0; i < torrents.length; i++) {
                         var torrent = torrents[i];
@@ -557,7 +557,7 @@ const (
                         html += '<th class="status">' + torrent.status + '</td>';
                         html += '<th class="status">' + torrent.perc + '</td>';
                         html += '<th class="status">' + torrent.eta + '</td>';
-                        html += '<th class="magnet">' + torrent.magnet + '</td>';
+                        html += '<th class="status">' + torrent.speed + '</td>';
                         html += '<th class="action">';
                         html += '<a href="/torrents/details?uid=' + torrent.uid + '" class="download">Download</a>';
                         html += '<a href="/torrents/delete?uid=' + torrent.uid + '" class="delete">Delete</a>';
@@ -567,7 +567,7 @@ const (
                     $('table').html(html);
                 }
             });
-        }, 50000);
+        }, 3000);
         function ToggleTorrent(e) {
             var uid = $(e).attr('data-uid');
             $.ajax({
