@@ -36,6 +36,7 @@ func InitClient() *torrent.Session {
 		}
 	}
 	config.DataDir = root + "/downloads/torrents/"
+	config.Database = root + "/downloads/torrents/torrents.db"
 	client, err := torrent.NewSession(config)
 	if err != nil {
 		panic(err)
@@ -47,6 +48,7 @@ func AddMagnet(magnet string) error {
 	t, err := client.AddURI(magnet, &torrent.AddTorrentOptions{
 		StopAfterDownload: true,
 	})
+	fmt.Print("Added torrent: ", t.Name())
 	if err != nil {
 		return err
 	}
@@ -139,10 +141,10 @@ func GetDownloadPercentage(id string) string {
 		if t.ID() == id {
 			if t.Stats().Pieces.Total != 0 {
 				p := t.Stats().Pieces.Have / t.Stats().Pieces.Total
-				perc := fmt.Sprintf("%d", int(p*100))
+				perc := fmt.Sprint(p * 100)
 				return perc + "%"
 			} else {
-				return "0%"
+				return "-"
 			}
 		}
 	}
