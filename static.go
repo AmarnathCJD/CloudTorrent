@@ -190,12 +190,6 @@ const (
         <button onclick="window.location.href='/'"><span>Add Magnet</span></button>
         <button onclick="window.location.href='/downloads'"><i class="fa fa-home"></i></button>
     </div>
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2021-22</p>
-            <p><a href="t.me/roseloverx">RoseLoverX</a><br>IP: {{ip}}</p>
-        </div>
-    </footer>
 </body>
 
 </html>

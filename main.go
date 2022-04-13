@@ -14,6 +14,7 @@ func main() {
 	fmt.Println("Server started on port 8080")
 	http.HandleFunc("/downloads/", File)
 	http.HandleFunc("/", MainPage)
+	http.HandleFunc("/home/", MainPage)
 	http.HandleFunc("/add", AddTorrent)
 	http.HandleFunc("/torrents/add", AddTorrent)
 	http.HandleFunc("/torrents/delete", DeleteTorrent)
