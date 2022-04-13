@@ -30,9 +30,11 @@ func AddTorrent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No magnet provided", http.StatusBadRequest)
 		return
 	}
-	if err := AddMagnet(magnet); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	if !CheckDuplicateTorrent(magnet) {
+		if err := AddMagnet(magnet); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 	MainPage(w, r)
 }

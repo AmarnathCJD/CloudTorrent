@@ -140,9 +140,9 @@ func GetDownloadPercentage(id string) string {
 	for _, t := range torr {
 		if t.ID() == id {
 			if t.Stats().Pieces.Total != 0 {
-				p := t.Stats().Pieces.Have / t.Stats().Pieces.Total
-				perc := fmt.Sprint(p * 100)
-				return perc + "%"
+				p := float64(t.Stats().Pieces.Have) / float64(t.Stats().Pieces.Total)
+				perc := fmt.Sprint(int(p * 100))
+				return perc + "s%"
 			} else {
 				return "-"
 			}
@@ -177,4 +177,14 @@ func GetPeers(id string) int {
 
 func UpdateOnComplete() {
 	// soon
+}
+
+func CheckDuplicateTorrent(magnet string) bool {
+	torr := client.ListTorrents()
+	for _, t := range torr {
+		if t.Stats().InfoHash.String() == magnet {
+			return true
+		}
+	}
+	return false
 }
