@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/cenkalti/rain/torrent"
 )
@@ -141,8 +142,7 @@ func GetDownloadPercentage(id string) string {
 		if t.ID() == id {
 			if t.Stats().Pieces.Total != 0 {
 				p := float64(t.Stats().Pieces.Have) / float64(t.Stats().Pieces.Total)
-				perc := fmt.Sprint(int(p * 100))
-				return perc + "s%"
+				return fmt.Sprintf("%.2f", p*100)
 			} else {
 				return "-"
 			}
@@ -180,11 +180,22 @@ func UpdateOnComplete() {
 }
 
 func CheckDuplicateTorrent(magnet string) bool {
+	magnet = ParseHashFromMagnet(magnet)
 	torr := client.ListTorrents()
 	for _, t := range torr {
+		fmt.Println(t.Stats().InfoHash.String())
 		if t.Stats().InfoHash.String() == magnet {
 			return true
 		}
 	}
 	return false
+}
+
+func ParseHashFromMagnet(magnet string) string {
+	args := strings.Split(magnet, "&")
+	argv := strings.Split(args[0], "btih:")
+	if len(argv) <= 1 {
+		return ""
+	}
+	return strings.ToLower(argv[1])
 }
