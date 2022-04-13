@@ -1,9 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
+	"os"
 
 	"github.com/cenkalti/rain/torrent"
 )
@@ -24,11 +23,19 @@ type TorrentMeta struct {
 	Magnet string `json:"magnet,omitempty"`
 	ID     string `json:"id,omitempty"`
 	UID    string `json:"uid,omitempty"`
+	Perc   string `json:"perc,omitempty"`
+	Eta    string `json:"eta,omitempty"`
 }
 
 func InitClient() *torrent.Session {
 	config := torrent.DefaultConfig
-	config.DataDir = root + "/torrents"
+	if _, err := os.Stat(root + "/downloads/torrents/"); err != nil {
+		err := os.Mkdir(root+"/downloads/torrents/", 0777)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	config.DataDir = root + "/downloads/torrents/"
 	client, err := torrent.NewSession(config)
 	if err != nil {
 		panic(err)
@@ -72,7 +79,7 @@ func GetTorrentPath(id string) string {
 	torr := client.ListTorrents()
 	for _, t := range torr {
 		if t.ID() == id {
-			return root + "/torrents/" + t.ID()
+			return root + "/downloads/torrents/" + t.ID() + "/" + t.Stats().Name
 		}
 	}
 	return ""
@@ -99,14 +106,6 @@ func GetTorrentStatus(magnet string) torrent.Stats {
 	return torrent.Stats{}
 }
 
-func TorrentsServe() {
-	http.HandleFunc("/torrents", func(w http.ResponseWriter, r *http.Request) {
-		t := GetActiveTorrents()
-		d, _ := json.Marshal(t)
-		w.Write(d)
-	})
-}
-
 func GetActiveTorrents() []TorrentMeta {
 	torr := client.ListTorrents()
 	Torrents := TorrentsResponse{}
@@ -119,11 +118,13 @@ func GetActiveTorrents() []TorrentMeta {
 				IDno++
 				Torrents.Torrents = append(Torrents.Torrents, TorrentMeta{
 					Name:   t.Name(),
-					Size:   fmt.Sprint(t.Stats().Pieces.Total),
-					Status: t.Stats().Status.String(),
+					Size:   ByteCountSI(GetTorrentSize(t.ID())),
+					Perc:   GetDownloadPercentage(t.ID()),
+					Status: fmt.Sprint(t.Stats().Status),
 					Magnet: t.Stats().InfoHash.String(),
 					ID:     fmt.Sprintf("%d", IDno),
 					UID:    t.ID(),
+					Eta:    fmt.Sprint(t.Stats().ETA),
 				})
 			}
 		}
@@ -132,4 +133,46 @@ func GetActiveTorrents() []TorrentMeta {
 	return Torrents.Torrents
 }
 
-// TODO make torrent name clickable, add popup confirmation, link torrent file dir, ddos protection 
+func GetDownloadPercentage(id string) string {
+	torr := client.ListTorrents()
+	for _, t := range torr {
+		if t.ID() == id {
+			if t.Stats().Pieces.Total != 0 {
+				p := t.Stats().Pieces.Have / t.Stats().Pieces.Total
+				perc := fmt.Sprintf("%d", int(p*100))
+				return perc + "%"
+			} else {
+				return "0%"
+			}
+		}
+	}
+	return "0" + "%"
+}
+
+func GetTorrentSize(id string) int64 {
+	torr := client.ListTorrents()
+	for _, t := range torr {
+		if t.ID() == id {
+			if t.Stats().Bytes.Total != 0 {
+				return int64(t.Stats().Bytes.Total)
+			} else {
+				return 0
+			}
+		}
+	}
+	return 0
+}
+
+func GetPeers(id string) int {
+	torr := client.ListTorrents()
+	for _, t := range torr {
+		if t.ID() == id {
+			return t.Stats().Peers.Total
+		}
+	} // soon
+	return 0
+}
+
+func UpdateOnComplete() {
+	// soon
+}

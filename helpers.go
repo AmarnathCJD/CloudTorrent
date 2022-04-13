@@ -33,51 +33,51 @@ func DiskUsage(path string) DiskStatus {
 
 func GetFileName(f string) string {
 	name := strings.TrimSuffix(f, filepath.Ext(f))
-	if len(name) > 35 {
-		name = name[:35] + "..."
+	if len(name) > 55 {
+		name = name[:55] + "..."
 	}
 	return name
 }
 
 func GetFileType(f string) string {
 	if strings.HasSuffix(f, ".pdf") {
-		return "PDF/Document"
+		return "PDF/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".doc") || strings.HasSuffix(f, ".docx") {
-		return "Word/Document"
+		return "Wordt/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".xls") || strings.HasSuffix(f, ".xlsx") {
-		return "Excel/Document"
+		return "Excel/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".ppt") || strings.HasSuffix(f, ".pptx") {
-		return "PowerPoint/Document"
+		return "PowerPoint/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".zip") || strings.HasSuffix(f, ".rar") {
-		return "Archive/Compressed"
+		return "Archive/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".txt") {
-		return "Text/Document"
+		return "Text/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".mp3") || strings.HasSuffix(f, ".wav") || strings.HasSuffix(f, ".ogg") {
-		return "Audio/Music"
+		return "Audio/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".mp4") || strings.HasSuffix(f, ".avi") || strings.HasSuffix(f, ".mkv") {
-		return "Video/Movie"
+		return "Video/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".png") || strings.HasSuffix(f, ".jpg") || strings.HasSuffix(f, ".jpeg") || strings.HasSuffix(f, ".gif") {
-		return "Image/Photo"
+		return "Image/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".exe") {
-		return "Executable/Program"
+		return "Executable/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".iso") {
-		return "Disk Image/ISO"
+		return "Disk Image/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".apk") {
-		return "Android App/Program"
+		return "Android App/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".py") {
-		return "Python/Program"
+		return "Python/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".go") {
-		return "Go/Program"
+		return "Go/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".cpp") {
-		return "C++/Program"
+		return "C++/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".java") {
-		return "Java/Program"
+		return "Java/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".c") {
-		return "C/Program"
+		return "C/" + filepath.Ext(f)
 	} else if strings.HasSuffix(f, ".html") || strings.HasSuffix(f, ".htm") {
-		return "HTML/Document"
+		return "HTML/" + filepath.Ext(f)
 	} else {
-		return "Unknown"
+		return "Unknown/" + filepath.Ext(f)
 	}
 }
 
