@@ -151,7 +151,7 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 	Disk := DiskUsage(root)
 	torr := torrents
 	torrs := GetActiveTorrents()
-	tbl := `<tr><th class="id">{{id}}</th><th class="name"><a href="/torrents/details?uid={{uid}}">{{name}}</a></th><th class="size">{{size}}</th><th class="status">{{status}}</th><th class="status">{{percent}}</th><th class="status">{{eta}}</th><th class="status">{{speed}}"</th><th class="action"><a href="%s" class="download">Download</a><a href="%s" class="delete">Delete</a></th></tr>`
+	tbl := `<tr><th class="id">{{id}}</th><th class="name"><a href="/torrents/details?uid={{uid}}">{{name}}</a></th><th class="size">{{size}}</th><th class="status">{{status}}</th><th class="status">{{percent}}</th><th class="status">{{eta}}</th><th class="status">{{speed}}</th><th class="action"><a href="%s" class="download">Download</a><a href="%s" class="delete">Delete</a></th></tr>`
 	data := ""
 	for i, v := range torrs {
 		data += fmt.Sprintf(tbl, "/torrents/details?uid="+v.UID, "/torrents/delete?uid="+v.UID)
