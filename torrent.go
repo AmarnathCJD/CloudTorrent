@@ -117,6 +117,10 @@ func GetActiveTorrents() []TorrentMeta {
 	IDno := 0
 	for _, t := range torr {
 		if t.Name() != "" {
+                        var Status = fmt.Sprint(t.Stats().Status)
+                        if Status == "Stopped" {
+Status = "Completed"
+}
 			if !StringInSlice(t.Stats().InfoHash.String(), Magnets) {
 				Magnets = append(Magnets, t.Stats().InfoHash.String())
 				IDno++
@@ -124,7 +128,7 @@ func GetActiveTorrents() []TorrentMeta {
 					Name:   t.Name(),
 					Size:   ByteCountSI(GetTorrentSize(t.ID())),
 					Perc:   GetDownloadPercentage(t.ID()),
-					Status: fmt.Sprint(t.Stats().Status),
+					Status: Status,
 					Magnet: t.Stats().InfoHash.String(),
 					Speed:  fmt.Sprint(ByteCountSI(int64(t.Stats().Speed.Download))) + "/s",
 					ID:     fmt.Sprintf("%d", IDno),
