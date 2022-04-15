@@ -60,22 +60,6 @@ func GetTorrents() []*torrent.Torrent {
 	return client.ListTorrents()
 }
 
-func GetTorrent(id string) torrent.Torrent {
-	if Torr := client.GetTorrent(id); Torr != nil {
-		return *Torr
-	}
-	return torrent.Torrent{}
-}
-
-func CancelTorrent(id string) bool {
-	Torr := client.GetTorrent(id)
-	if Torr != nil {
-		client.RemoveTorrent(id)
-		return true
-	}
-	return false
-}
-
 func GetTorrentPath(id string) string {
 	if Torr := client.GetTorrent(id); Torr != nil {
 		return root + "/downloads/torrents/" + Torr.ID() + "/" + Torr.Stats().Name
@@ -158,7 +142,7 @@ func UpdateOnComplete() {
 
 func CheckDuplicateTorrent(magnet string) bool {
 	magnet = ParseHashFromMagnet(magnet)
-	for _, t := range client.ListTorrents() {
+	for _, t := range GetTorrents() {
 		if strings.ToLower(t.Stats().InfoHash.String()) == magnet {
 			return true
 		}
