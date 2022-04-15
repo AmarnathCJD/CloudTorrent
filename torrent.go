@@ -178,15 +178,14 @@ func GetPeers(id string) int {
 }
 
 func UpdateOnComplete() {
-	// soon
+
 }
 
 func CheckDuplicateTorrent(magnet string) bool {
 	magnet = ParseHashFromMagnet(magnet)
 	torr := client.ListTorrents()
 	for _, t := range torr {
-		fmt.Println(t.Stats().InfoHash.String())
-		if t.Stats().InfoHash.String() == magnet {
+		if strings.ToLower(t.Stats().InfoHash.String()) == magnet {
 			return true
 		}
 	}
