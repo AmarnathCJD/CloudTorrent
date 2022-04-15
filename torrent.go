@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
 	"os"
 	"strings"
 
@@ -26,6 +29,21 @@ type TorrentMeta struct {
 	Perc   string `json:"perc,omitempty"`
 	Eta    string `json:"eta,omitempty"`
 	Speed  string `json:"speed,omitempty"`
+}
+
+type TpbTorrent struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	InfoHash string `json:"info_hash"`
+	Leechers string `json:"leechers"`
+	Seeders  string `json:"seeders"`
+	NumFiles string `json:"num_files"`
+	Size     string `json:"size"`
+	Username string `json:"username"`
+	Added    string `json:"added"`
+	Status   string `json:"status"`
+	Category string `json:"category"`
+	Magnet   string `json:"magnet"`
 }
 
 func InitClient() *torrent.Session {
@@ -172,8 +190,63 @@ func GetStats(id string) string {
 		} else if torr.Stats().Bytes.Downloaded == torr.Stats().Bytes.Total {
 			return "Complete"
 		} else {
-			return "Downloading"
+			if fmt.Sprint(torr.Stats().Status) == "Stopped" {
+				return "Completed"
+			} else {
+				return fmt.Sprint(torr.Stats().Status)
+			}
 		}
 	}
 	return "Error"
+}
+
+func SearchTorrentReq(query string) []TpbTorrent {
+	var baseUrl = "https://tpb23.ukpass.co/apibay/q.php" + "?q=" + url.QueryEscape(query) + "&cat=0"
+	var resp *http.Response
+	var err error
+	if resp, err = http.Get(baseUrl); err != nil {
+		return []TpbTorrent{}
+	}
+	defer resp.Body.Close()
+	var tpb []TpbTorrent
+	if err = json.NewDecoder(resp.Body).Decode(&tpb); err != nil {
+		return []TpbTorrent{}
+	}
+	return tpb
+}
+
+func Top100Torrents() []TpbTorrent {
+	baseUrl := "https://tpb23.ukpass.co/apibay/precompiled/data_top100_all.json"
+	var resp *http.Response
+	var err error
+	if resp, err = http.Get(baseUrl); err != nil {
+		return []TpbTorrent{}
+	}
+	defer resp.Body.Close()
+	var tpb []TpbTorrent
+	var data []interface{}
+	if err = json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		return []TpbTorrent{}
+	}
+	for _, v := range data {
+		tpb = append(tpb, TpbTorrent{
+			Name:     v.(map[string]interface{})["name"].(string),
+			Size:     fmt.Sprint(int64(v.(map[string]interface{})["size"].(float64))),
+			Seeders:  fmt.Sprint(int64(v.(map[string]interface{})["seeders"].(float64))),
+			Leechers: fmt.Sprint(int64(v.(map[string]interface{})["leechers"].(float64))),
+			ID:       fmt.Sprint(int64(v.(map[string]interface{})["id"].(float64))),
+			Added:    fmt.Sprint(int64(v.(map[string]interface{})["added"].(float64))),
+			Category: fmt.Sprint(int64(v.(map[string]interface{})["category"].(float64))),
+		})
+	}
+	return tpb
+}
+
+func GenMagnetFromResult(result []TpbTorrent) []TpbTorrent {
+	var Torr = result
+	for i, t := range Torr {
+		Torr[i].Magnet = "magnet:?xt=urn:btih:" + t.InfoHash + "&dn=" + url.QueryEscape(t.Name) + "&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.opentrackr.org:1337&tr=udp://explodie.org:6969&tr=udp://tracker.zer0day.to:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.opentrackr.org:1337&tr=udp://explodie.org:6969&tr=udp://tracker.zer0day.to:1337&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.opentrackr.org:1337&tr=udp://explodie.org:6969&tr=udp://tracker.zer0day.to:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.opentrackr.org:1337&tr=udp://explodie.org:6969&tr=udp://tracker.zer0day.to:1337&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.op"
+	}
+	fmt.Println(Torr)
+	return Torr
 }

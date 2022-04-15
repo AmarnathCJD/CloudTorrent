@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/shirou/gopsutil/disk"
@@ -118,4 +119,9 @@ func StringInSlice(a string, list []string) bool {
 		}
 	}
 	return false
+}
+
+func StringToInt64(s string) int64 {
+	i, _ := strconv.ParseInt(s, 10, 64)
+	return i
 }

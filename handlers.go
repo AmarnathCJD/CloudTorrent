@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -199,28 +198,53 @@ func GetTorrDir(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := GetTorrentPath(uid)
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if p, err := os.Stat(path); err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
+	} else {
+		if p.IsDir() {
+			serveDir(w, r, path)
+		} else {
+			http.ServeFile(w, r, path)
+		}
 	}
-	serveDir(w, r, path)
+
 }
 
-func ListAllDirFiles(dir string) {
+func TorrentSearchPage(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err, ok := recover().(error); ok {
-			fmt.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}()
-	files, err := ioutil.ReadDir(dir)
-	if err != nil {
-		fmt.Println(err)
+	r.ParseForm()
+	query := r.Form.Get("query")
+	if query == "" {
+		http.Error(w, "No query", http.StatusBadRequest)
+		return
 	}
-	for _, file := range files {
-		if file.IsDir() {
-			ListAllDirFiles(filepath.Join(dir, file.Name()))
-		} else {
-			fmt.Println(file.Name())
-		}
+	var t []TpbTorrent
+	if query == "top100" {
+		t = GenMagnetFromResult(Top100Torrents())
+	} else {
+		t = GenMagnetFromResult(SearchTorrentReq(query))
 	}
+	data := ""
+	table := `<tr><th>{{id}}</th><th>{{name}}  <a href="{{magnet}}"><i class="fa fa-magnet"></i></a></i></th><th>{{size}}</th><th>{{category}}</th><th>{{seeders}}</th><th>{{leechers}}</th><th>{{added}}</th></tr>`
+	page := torrentsearch
+	for i, v := range t {
+		data += table
+		data = strings.Replace(data, "{{id}}", strconv.Itoa(i+1), -1)
+		data = strings.Replace(data, "{{name}}", v.Name, -1)
+		data = strings.Replace(data, "{{size}}", ByteCountSI(StringToInt64(v.Size)), -1)
+		data = strings.Replace(data, "{{category}}", v.Category, -1)
+		data = strings.Replace(data, "{{seeders}}", v.Seeders, -1)
+		data = strings.Replace(data, "{{leechers}}", v.Leechers, -1)
+		data = strings.Replace(data, "{{added}}", v.Added, -1)
+		data = strings.Replace(data, "{{magnet}}", v.Magnet, -1)
+	}
+	page = strings.Replace(page, "{{results}}", data, -1)
+	page = strings.Replace(page, "{{query}}", query, -1)
+	page = strings.Replace(page, "{{count}}", strconv.Itoa(len(t)), -1)
+	w.Write([]byte(page))
 }
