@@ -21,6 +21,5 @@ func main() {
 	http.HandleFunc("/torrents", TorrentsServe)
 	http.HandleFunc("/torrents/details", GetTorrDir)
 	http.HandleFunc("/torrents/search/", TorrentSearchPage)
-	http.HandleFunc("/torrents/top100", TorrentSearchPage)
 	http.ListenAndServe(":80", nil)
 }

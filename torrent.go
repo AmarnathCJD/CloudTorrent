@@ -245,8 +245,7 @@ func Top100Torrents() []TpbTorrent {
 func GenMagnetFromResult(result []TpbTorrent) []TpbTorrent {
 	var Torr = result
 	for i, t := range Torr {
-		Torr[i].Magnet = "magnet:?xt=urn:btih:" + t.InfoHash + "&dn=" + url.QueryEscape(t.Name) + "&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.opentrackr.org:1337&tr=udp://explodie.org:6969&tr=udp://tracker.zer0day.to:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.opentrackr.org:1337&tr=udp://explodie.org:6969&tr=udp://tracker.zer0day.to:1337&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.opentrackr.org:1337&tr=udp://explodie.org:6969&tr=udp://tracker.zer0day.to:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.opentrackr.org:1337&tr=udp://explodie.org:6969&tr=udp://tracker.zer0day.to:1337&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.op"
+		Torr[i].Magnet = "magnet:?xt=urn:btih:" + t.InfoHash
 	}
-	fmt.Println(Torr)
 	return Torr
 }
