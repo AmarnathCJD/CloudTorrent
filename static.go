@@ -362,10 +362,10 @@ const (
             }
     
             table {
-                width: 100%;
                 border-collapse: collapse;
                 border-spacing: 0;
                 border: 1px solid #ddd;
+                width: 100%;
             }
     
             table tr {
@@ -709,6 +709,7 @@ const (
                 border-collapse: collapse;
                 width: 100%;
                 background-color: #f2f2f2;
+                overflow-x: auto;
             }
     
             th,
@@ -724,6 +725,8 @@ const (
             .topnav {
                 overflow: hidden;
                 background-color: #e9e9e9;
+                position: sticky;
+                position: -webkit-sticky;
             }
     
             .topnav p {
@@ -771,6 +774,19 @@ const (
             .topnav .search-container button:hover {
                 background: #ccc;
             }
+    
+            .btn {
+                background-color: DodgerBlue;
+                border: none;
+                color: white;
+                padding: 5px 13px;
+                cursor: pointer;
+                font-size: 16px;
+            }
+    
+            .btn:hover {
+                background-color: RoyalBlue;
+            }
         </style>
     </head>
     
@@ -787,7 +803,7 @@ const (
                 </div>
             </div>
             <div class="topnav">
-                <p>Search Results for {{query}}</p>
+                <p>Search Results for <b>{{query}}</b></p>
                 <div class="search-container">
                     <form action="/torrents/search">
                         <input type="text" placeholder="Search.." name="query">
@@ -801,7 +817,6 @@ const (
                         <th>ID</th>
                         <th>Name</th>
                         <th>Size</th>
-                        <th>Category</th>
                         <th>Seeds</th>
                         <th>Leechers</th>
                         <th>Action</th>
@@ -810,6 +825,23 @@ const (
                 </table>
             </div>
         </div>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script type="text/javascript">
+            function AddedTorr(e) {
+                var magnet = e.getAttribute('data-magnet');
+                $.ajax({
+                    url: '/torrents/add',
+                    type: 'GET',
+                    data: {
+                        magnet: magnet
+                    },
+                    success: function (data) {
+                        console.log("Torrent added");
+                        alert("Torrent added\n");
+                    }
+                });
+            }
+        </script>
     </body>
     
     </html>

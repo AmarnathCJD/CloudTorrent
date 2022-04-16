@@ -34,6 +34,9 @@ func AddTorrent(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+	} else {
+		http.Error(w, "Torrent already exists", http.StatusBadRequest)
+		return
 	}
 	MainPage(w, r)
 }
@@ -230,14 +233,13 @@ func TorrentSearchPage(w http.ResponseWriter, r *http.Request) {
 		t = GenMagnetFromResult(SearchTorrentReq(query))
 	}
 	data := ""
-	table := `<tr><th>{{id}}</th><th>{{name}}  <a href="{{magnet}}"><i class="fa fa-magnet"></i></a></i></th><th>{{size}}</th><th>{{category}}</th><th>{{seeders}}</th><th>{{leechers}}</th><th>{{added}}</th></tr>`
+	table := `<tr><th>{{id}}</th><th>{{name}}  <a href="{{magnet}}"><i class="fa fa-magnet"></i></a></i></th><th>{{size}}</th><th>{{seeders}}</th><th>{{leechers}}</th><th><button class="btn" onclick="AddedTorr(this)" data-magnet="{{magnet}}"><i class="fa fa-download"></i> Download</button></th></tr>`
 	page := torrentsearch
 	for i, v := range t {
 		data += table
 		data = strings.Replace(data, "{{id}}", strconv.Itoa(i+1), -1)
 		data = strings.Replace(data, "{{name}}", v.Name, -1)
 		data = strings.Replace(data, "{{size}}", ByteCountSI(StringToInt64(v.Size)), -1)
-		data = strings.Replace(data, "{{category}}", v.Category, -1)
 		data = strings.Replace(data, "{{seeders}}", v.Seeders, -1)
 		data = strings.Replace(data, "{{leechers}}", v.Leechers, -1)
 		data = strings.Replace(data, "{{added}}", v.Added, -1)

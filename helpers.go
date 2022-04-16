@@ -34,8 +34,8 @@ func DiskUsage(path string) DiskStatus {
 
 func GetFileName(f string) string {
 	name := strings.TrimSuffix(f, filepath.Ext(f))
-	if len(name) > 55 {
-		name = name[:55] + "..."
+	if len(name) > 45 {
+		name = name[:45] + "..."
 	}
 	return name
 }

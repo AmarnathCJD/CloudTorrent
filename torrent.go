@@ -42,7 +42,6 @@ type TpbTorrent struct {
 	Username string `json:"username"`
 	Added    string `json:"added"`
 	Status   string `json:"status"`
-	Category string `json:"category"`
 	Magnet   string `json:"magnet"`
 }
 
@@ -236,7 +235,7 @@ func Top100Torrents() []TpbTorrent {
 			Leechers: fmt.Sprint(int64(v.(map[string]interface{})["leechers"].(float64))),
 			ID:       fmt.Sprint(int64(v.(map[string]interface{})["id"].(float64))),
 			Added:    fmt.Sprint(int64(v.(map[string]interface{})["added"].(float64))),
-			Category: fmt.Sprint(int64(v.(map[string]interface{})["category"].(float64))),
+			InfoHash: fmt.Sprint(v.(map[string]interface{})["info_hash"].(string)),
 		})
 	}
 	return tpb
@@ -245,7 +244,7 @@ func Top100Torrents() []TpbTorrent {
 func GenMagnetFromResult(result []TpbTorrent) []TpbTorrent {
 	var Torr = result
 	for i, t := range Torr {
-		Torr[i].Magnet = "magnet:?xt=urn:btih:" + t.InfoHash
+		Torr[i].Magnet = "magnet:?xt=urn:btih:" + t.InfoHash + "&dn=" + url.QueryEscape(t.Name)
 	}
 	return Torr
 }
