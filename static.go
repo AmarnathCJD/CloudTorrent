@@ -6,6 +6,7 @@ const (
     
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Downloads Index</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <style>
@@ -225,6 +226,7 @@ const (
     
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Torrents Cloud</title>
         <style>
             body {
@@ -367,63 +369,67 @@ const (
                 border: 1px solid #ddd;
                 width: 100%;
             }
+            table.bodywrapcenter>tr>td {
+                width: 100%;
+                float: left;
+            }
+            
     
-            table tr {
+            tr {
                 border-bottom: 1px solid #ddd;
             }
     
-            table th,
-            table td {
+            th,
+            td {
                 text-align: left;
                 padding: 12px;
             }
     
-            table th {
+            th {
                 background-color: #f5f5f5;
             }
     
-            table tr:nth-child(even) {
+            tr:nth-child(even) {
                 background-color: #f2f2f2;
             }
     
-            table tr:hover {
+            tr:hover {
                 background-color: #ddd;
             }
     
-            table th.id {
+            th.id {
                 width: 5%;
             }
     
-            table th.name {
+            th.name {
                 width: 20%;
             }
     
-            table th.name a {
+            th.name a {
                 color: #333;
             }
     
-            table th.name a:hover {
+            th.name a:hover {
                 color: #0088cc;
             }
     
-            table th.size {
+            th.size {
                 width: 10%;
             }
     
-            table th.date {
+            th.date {
                 width: 15%;
             }
     
-            table th.magnet {
+            th.magnet {
                 width: 20%;
             }
     
-            table th.action {
+            th.action {
                 width: 10%;
             }
-    
             .action {
-                width: 10%;
+                width: 20%;
             }
     
             .action a {
@@ -432,6 +438,16 @@ const (
                 padding: 5px 10px;
                 border-radius: 4px;
                 text-decoration: none;
+            }
+            .action btn {
+                color: #fff;
+                background-color: #0088cc;
+                padding: 5px 10px;
+                border-radius: 4px;
+                text-decoration: none;
+            }
+            .action btn:hover {
+                background-color: #0077b3;
             }
     
             .action a:hover {
@@ -444,6 +460,9 @@ const (
     
             .action a.delete:hover {
                 background-color: #cc0000;
+            }
+            .action btn.delete {
+                background-color: #ff0000;
             }
     
             .action a.download {
@@ -471,56 +490,41 @@ const (
                 text-align: right;
                 color: #3A3B3C;
             }
-    
-            browse-torrent {
+            .button-1 {
+              border-radius: 8px;
+              border-style: none;
+              box-sizing: border-box;
+              color: #FFFFFF;
+              cursor: pointer;
+              display: inline-block;
+              font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+              font-size: 14px;
+              font-weight: 500;
+              height: 40px;
+              line-height: 20px;
+              list-style: none;
+              margin: 0;
+              outline: none;
+              padding: 10px 16px;
+              position: relative;
+              text-align: center;
+              text-decoration: none;
+              transition: color 100ms;
+              vertical-align: baseline;
+              user-select: none;
+              -webkit-user-select: none;
+              touch-action: manipulation;
+            }
+            .button-1 download {
                 background-color: #0088cc;
-                color: white;
-                padding: 15px 32px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 16px;
-                margin: 4px 2px;
-                cursor: pointer;
-                border-radius: 6px;
             }
-    
-            browse-torrent files {
-                background-color: #0088cc;
-                color: white;
-                padding: 15px 32px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 16px;
-                margin: 4px 2px;
-                cursor: pointer;
-                border-radius: 6px;
+            .button-1 delete {
+                background-color: #ff0000;
             }
-    
-            browse-torrent file {
-                width: 100%;
-                height: 40px;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                padding: 0 10px;
-                font-size: 14px;
-                line-height: 1.5;
-                margin-top: 10px;
-            }
-    
-            browse-torrent file:focus {
-                outline: none;
-            }
-    
-            browse-torrent file download {
-                background-color: #3c5abd;
-                color: white;
-                padding: 7px 2px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                margin-bottom: 10px;
+            
+            .button-1:hover,
+            .button-1:focus {
+              background-color: #F082AC;
             }
         </style>
     </head>
@@ -545,8 +549,11 @@ const (
                 </div>
             </form>
             <div class="container">
-            </div class="content">
+            <div class="content">
             <h2>Torrents</h2>
+            </div>
+            </div>
+            <div style="overflow-x:auto;">
             <table>
                 <tr>
                     <th class="id">ID</th>
@@ -562,6 +569,7 @@ const (
                     {{#each torrents}}
                 </tr>
             </table>
+            </div>
             <div class="system-info">
                 <p>
                     <strong>IP:</strong> {{ip}}
@@ -609,13 +617,13 @@ const (
                             html += '<th class="status">' + torrent.eta + '</td>';
                             html += '<th class="status">' + torrent.speed + '</td>';
                             html += '<th class="action">';
-                            html += '<a href="/torrents/details?uid=' + torrent.uid + '" class="download">Download</a>';
-                            html += '<a href="/torrents/delete?uid=' + torrent.uid + '" class="delete">Delete</a>';
+                            html += '<a href="torrents/details?uid='+torrent.uid+'" class="download">Download</a>';
+                            html += '<a href="/" class="delete" onclick="return DeleteBtn(this)" data-uid="'+torrent.uid+'">Delete</a>';
                             html += '</th>';
                             html += '</tr>';
                         }
                         $('table').html(html);
-                    }
+                    } 
                 });
             }, 3000);
             function ToggleTorrent(e) {
@@ -631,37 +639,78 @@ const (
                     }
                 });
             }
+            function confirm_action( e ) {
+                return !!confirm( "Are you sure to delete torrent?" );
+            }
+            function DeleteBtn(e) {
+                var result = false
+                if (confirm_action(e)) {
+                    var uid = $(e).attr('data-uid');
+                    $.ajax({
+                        url: '/torrents/delete?uid=' + uid,
+                        type: 'GET',
+                        success: function (data) {
+                            console.log("delete");
+                            result = true;
+                        }
+                    });
+                }
+                return result;
+            }
         </script>
     </body>
     
     </html>
     `
 	torrentsearch = `<!DOCTYPE html>
-    <html lang="en">
+    <html>
     
     <head>
-        <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>Search Results for {{query}}</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-            integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <title>Search Results for KGF</title>
         <style>
-            .container {
-                width: auto;
-                margin: 0 auto;
-                box-shadow: 0 5px 10px -5px rgba(0, 0, 0, 0.5);
-            }
-    
             * {
                 box-sizing: border-box;
             }
     
-            body {
-                margin: 0;
-                font-family: Arial, Helvetica, sans-serif;
-                font-size: 14px;
+            .menu {
+                float: left;
+                width: 20%;
+                text-align: center;
+            }
+    
+            .menu a {
+                background-color: #e5e5e5;
+                padding: 8px;
+                margin-top: 7px;
+                display: block;
+                width: 100%;
+                color: black;
+            }
+    
+            .main {
+                float: left;
+                width: 100%;
+                padding: 0 20px;
+            }
+    
+            .right {
+                background-color: #e5e5e5;
+                float: left;
+                width: 20%;
+                padding: 15px;
+                margin-top: 7px;
+                text-align: center;
+            }
+    
+            @media only screen and (max-width: 620px) {
+    
+                /* For mobile phones: */
+                .menu,
+                .main {
+                    width: 100%;
+                }
             }
     
             .header {
@@ -698,28 +747,6 @@ const (
     
             .header-right {
                 float: right;
-            }
-    
-            result {
-                margin-top: 50px;
-            }
-    
-            table {
-                margin-top: 50px;
-                border-collapse: collapse;
-                width: 100%;
-                background-color: #f2f2f2;
-                overflow-x: auto;
-            }
-    
-            th,
-            td {
-                text-align: left;
-                padding: 8px;
-            }
-    
-            tr:first-child th {
-                background-color: #d6d6d6;
             }
     
             .topnav {
@@ -782,26 +809,129 @@ const (
                 padding: 5px 13px;
                 cursor: pointer;
                 font-size: 16px;
+                border-radius: 8px;
             }
     
             .btn:hover {
                 background-color: RoyalBlue;
             }
+    
+            .container {
+                max-width: 1000px;
+                margin-left: auto;
+                margin-right: auto;
+                padding-left: 10px;
+                padding-right: 10px;
+                font-family: sans-serif;
+            }
+    
+            h2 {
+                font-size: 26px;
+                margin: 20px 0;
+                text-align: center;
+            }
+    
+            h2 small {
+                font-size: 0.5em;
+            }
+    
+            .responsive-table li {
+                border-radius: 3px;
+                padding: 25px 30px;
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 25px;
+                color: #050505;
+            }
+    
+            .responsive-table .table-header {
+                background-color: #95A5A6;
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+                color: #050505;
+            }
+    
+            .responsive-table .table-row {
+                background-color: #ffffff;
+                box-shadow: 0px 0px 9px 0px rgba(0, 0, 0, 0.1);
+            }
+    
+            .responsive-table .table-row:hover {
+                background-color: #f2f2f2;
+            }
+    
+            .responsive-table .col-1 {
+                flex-basis: 10%;
+            }
+    
+            .responsive-table .col-2 {
+                flex-basis: 40%;
+            }
+    
+            .responsive-table .col-3 {
+                flex-basis: 25%;
+            }
+    
+            .responsive-table .col-4 {
+                flex-basis: 25%;
+            }
+    
+            .responsive-table .col-5 {
+                flex-basis: 25%;
+            }
+    
+            .responsive-table .col-6 {
+                flex-basis: 25%;
+            }
+    
+            @media all and (max-width: 767px) {
+                .responsive-table .table-header {
+                    display: none;
+                }
+    
+                .responsive-table li {
+                    display: block;
+                }
+    
+                .responsive-table .col {
+                    flex-basis: 100%;
+                }
+    
+                .responsive-table .col {
+                    display: flex;
+                    padding: 10px 0;
+                }
+    
+                .responsive-table .col:before {
+                    color: #084281;
+                    padding-right: 10px;
+                    content: attr(data-label);
+                    flex-basis: 50%;
+                    text-align: right;
+                }
+            }
+    
+            .dark-mode {
+                background: #333;
+                color: #fff;
+            }
         </style>
     </head>
     
-    <body>
-        <div class="container">
-            <div class="header"
-                style="overflow: hidden;background-color: #f1f1f1;padding: 20px 10px;border-bottom: 3px solid #ffcc00;">
-                <a href="#default" class="logo">Cloud Torrent</a>
-                <div class="header-right">
-                    <a href="/">Torrents</a>
-                    <a href="/torrents/search" class="active">Search</a>
-                    <a href="/downloads">Files</a>
-                    <a href="/">Home</a>
-                </div>
+    <body style="font-family:Verdana;color:#aaaaaa;">
+    
+        <div class="header"
+            style="overflow: hidden;background-color: #f1f1f1;padding: 20px 10px;border-bottom: 3px solid #ffcc00;">
+            <a href="#default" class="logo">Cloud Torrent</a>
+            <div class="header-right">
+                <a href="/">Torrents</a>
+                <a href="/torrents/search" class="active">Search</a>
+                <a href="/downloads">Files</a>
+                <a href="/">Home</a>
             </div>
+        </div>
+        <div style="overflow:auto">
             <div class="topnav">
                 <p>Search Results for <b>{{query}}</b></p>
                 <div class="search-container">
@@ -811,20 +941,25 @@ const (
                     </form>
                 </div>
             </div>
-            <div class="result">
-                <table>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Size</th>
-                        <th>Seeds</th>
-                        <th>Leechers</th>
-                        <th>Action</th>
-                    </tr>
-                    {{results}}
-                </table>
+    
+            <div class="container">
+                <ul class="responsive-table">
+                    <li class="table-header">
+                        <div class="col col-1">ID</div>
+                        <div class="col col-2">Name</div>
+                        <div class="col col-3">Size</div>
+                        <div class="col col-4">Seeders</div>
+                        <div class="col col-5">Seeders</div>
+                        <div class="col col-6">Seeders</div>
+                    </li>
+                    {{#torrents}}
+                </ul>
             </div>
         </div>
+        </div>
+        <div style="background-color:#e5e5e5;text-align:center;padding:10px;margin-top:7px;">© copyright roseloverx 2022
+        </div>
+        <button onclick="Dark()">Toggle dark mode</button>
         <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
         <script type="text/javascript">
             function AddedTorr(e) {
@@ -841,9 +976,13 @@ const (
                     }
                 });
             }
+            function Dark() {
+                var element = document.body;
+                element.classList.toggle("dark-mode");
+            }
         </script>
     </body>
     
     </html>
 `
-)
+) // templates edit
