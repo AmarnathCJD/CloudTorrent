@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="og:title" content="Cloud Torrent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, user-scalable=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <style>
+        @import url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css);
+        @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css");
+
+        .header {
+            overflow: hidden;
+            background-color: #f1f1f1;
+            padding: 20px 10px;
+        }
+
+        .header a {
+            float: left;
+            color: black;
+            text-align: center;
+            padding: 12px;
+            text-decoration: none;
+            font-size: 18px;
+            line-height: 25px;
+            border-radius: 4px;
+        }
+
+
+        .header a.logo {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .header a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .header a.active {
+            background-color: dodgerblue;
+            color: white;
+        }
+
+        .header-right {
+            float: right;
+        }
+
+        a {
+            color: #0088cc;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #005580;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 960px;
+            margin: 0 auto;
+            box-shadow: 0 5px 10px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .content {
+            padding: 10px 0;
+        }
+
+        .content h2 {
+            margin: auto;
+            font-size: 25px;
+            font-weight: normal;
+            line-height: 1.5;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            border: 1px solid #ddd;
+        }
+
+        table tr {
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th,
+        table td {
+            text-align: left;
+            padding: 12px;
+        }
+
+        table th {
+            background-color: #f5f5f5;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        table th:first-child {
+            border-top: 0;
+            background-color: solid #f5f5f5;
+        }
+
+        table tr:hover {
+            background-color: #ddd;
+        }
+
+        table p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #111;
+            height: auto;
+            width: 100vw;
+            padding-top: 40px;
+            color: #fff;
+        }
+
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .button {
+            background-color: DodgerBlue;
+            border: none;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            padding: 12px 16px;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .button span {
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            transition: 0.5s;
+        }
+
+        .button span:after {
+            content: '\00bb';
+            position: absolute;
+            opacity: 0;
+            top: 0;
+            right: -20px;
+            transition: 0.5s;
+        }
+
+        .button:hover span {
+            padding-right: 25px;
+            opacity: 0.5;
+        }
+
+        .button:hover {
+            background-color: RoyalBlue;
+        }
+
+        .button:hover span:after {
+            opacity: 1;
+            right: 0;
+        }
+
+        .btn-danger {
+            background-color: red;
+            border: none;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            padding: 12px 16px;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.5s;
+        }
+
+        .btn-danger span:after {
+            opacity: 1;
+            right: 0;
+        }
+
+        .btnn-danger:hover span {
+            padding-right: 25px;
+        }
+
+        .btn-danger:hover span:after {
+            opacity: 1;
+            right: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header"
+            style="overflow: hidden;background-color: #f1f1f1;padding: 20px 10px;border-bottom: 3px solid #ffcc00;">
+            <a href="#default" class="logo"><i class="bi bi-cloud-download-fill"
+                    style="font-size: 2rem; color: cornflowerblue;"></i> Cloud Torrent</a>
+            <div class="header-right">
+                <a href="/">Torrents</a>
+                <a href="/torrents/search?query=top100">Search</a>
+                <a href="/downloads" class="active">Files</a>
+                <a href="/">Home</a>
+            </div>
+        </div>
+        <div class="content">
+            <table id="files-table">
+            </table>
+        </div>
+        <button onclick="history.back()" class="button"><span>Go Back</span></button>
+        <button onclick="window.location.href='/'" class="button"><span>Add Magnet</span></button>
+        <button onclick="window.location.href='/downloads'" class="button"><i class="fa fa-home"></i></button>
+    </div>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+        var last_url = "/";
+        function EditFilesTable() {
+            $.ajax({
+                url: "/dir/" + window.location.pathname.replace("/downloads/", ""),
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    console.log(window.location.pathname.split("/", 5));
+                    var table = $("#files-table");
+                    table.empty();
+                    table.append(
+                        "<tr><th>ID</th><th>File</th><th>Size</th><th>Type</th><th>Actions</th></tr>"
+                    );
+                    for (var i = 0; i < data.length; i++) {
+                        var file = data[i];
+                        var row = $("<tr></tr>");
+                        var num = i + 1;
+                        row.append("<td>" + num + "</td>");
+                        if (file.isdir == 'true') {
+                            var faclass = "<i style='font-size: 1rem; color: #f3da35;' class='fa fa-folder'></i>"
+                            row.append("<td><a href='" + file.path + '/' + "'>" + file.name + "</a> " + faclass + "</td>");
+                        } else {
+                            var faclass = "<i style='font-size: 1rem; color: " + file.color + ";' class='" + file.class + "'></i>    ";
+                            console.log(faclass);
+                            var AbsPath = file.path.replace("/downloads", "")
+                            row.append("<td>" + "<a href='/dir/" + AbsPath + "'>" + file.name + "</a> " + faclass + "</td>");
+                        }
+                        if (file.isdir == 'true') {
+                            row.append("<td></td>");
+                        } else {
+                            row.append("<td>" + file.size + "</td>");
+                        }
+                        if (file.isdir == 'true') {
+                            row.append("<td>Folder</td>");
+                        } else {
+                            row.append("<td>" + file.type + "</td>");
+                        }
+                        row.append(
+                            '<td><button class="btn-danger" onclick="deleteFile(\'' +
+                            file.name +
+                            "')\">Delete</button></td>"
+                        );
+                        table.append(row);
+                    }
+                },
+            });
+        }
+
+        $(document).ready(function () {
+            EditFilesTable();
+        });
+
+    </script>
+</body>
+
+</html>

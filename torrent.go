@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 
 	"github.com/cenkalti/rain/torrent"
@@ -47,17 +47,9 @@ type TpbTorrent struct {
 
 func InitClient() *torrent.Session {
 	config := torrent.DefaultConfig
-	if _, err := os.Stat(root + "/downloads/torrents/"); err != nil {
-		err := os.Mkdir(root+"/downloads/torrents/", 0777)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	config.DataDir = root + "/downloads/torrents/"
-	config.Database = root + "/downloads/torrents/torrents.db"
 	client, err := torrent.NewSession(config)
 	if err != nil {
-		panic(err)
+		log.Print(err)
 	}
 	return client
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -69,6 +70,47 @@ func TorrentsServe(w http.ResponseWriter, r *http.Request) {
 	w.Write(d)
 }
 
+func GetDirContents(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	path := filepath.Join(root, r.URL.Path)
+	path = strings.Replace(path, "\\dir", "", -1)
+	fmt.Println(path)
+	if filepath.Ext(path) == "" {
+		var files []map[string]string
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			http.Error(w, "Directory not found", http.StatusNotFound)
+			return
+		}
+		files = make([]map[string]string, 0)
+		f, err := ioutil.ReadDir(path)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		for _, info := range f {
+			AbsPath := strings.Replace(path, "\\", "/", -1)
+			FType, FaClass, FaColor := GetFileType(info.Name())
+			files = append(files, map[string]string{
+				"name":  info.Name(),
+				"size":  ByteCountSI(int64(info.Size())),
+				"type":  FType,
+				"isdir": strconv.FormatBool(info.IsDir()),
+				"path":  "/downloads" + strings.Replace(AbsPath, root, "", 1) + "/" + info.Name(),
+				"class": FaClass,
+				"color": FaColor,
+			})
+		}
+		d, _ := json.Marshal(files)
+		w.Write(d)
+	} else {
+		http.ServeFile(w, r, path)
+	}
+}
+
 func GetHTMLDir(f map[string]os.FileInfo, IP string, rootDir string) string {
 	rootDir = strings.Replace(rootDir, "\\", "/", -1)
 	TorrDir := strings.Replace(rootDir, root, "", 1)
@@ -85,7 +127,7 @@ func GetHTMLDir(f map[string]os.FileInfo, IP string, rootDir string) string {
 		}
 		files += tbl
 		Size := ByteCountSI(int64(v.Size()))
-		FileType := GetFileType(v.Name())
+		FileType, _, _ := GetFileType(v.Name())
 		if v.IsDir() {
 			FileType = "Folder"
 			Size = "-"

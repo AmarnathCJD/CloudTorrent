@@ -40,45 +40,33 @@ func GetFileName(f string) string {
 	return name
 }
 
-func GetFileType(f string) string {
-	if strings.HasSuffix(f, ".pdf") {
-		return "PDF/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".doc") || strings.HasSuffix(f, ".docx") {
-		return "Wordt/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".xls") || strings.HasSuffix(f, ".xlsx") {
-		return "Excel/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".ppt") || strings.HasSuffix(f, ".pptx") {
-		return "PowerPoint/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".zip") || strings.HasSuffix(f, ".rar") {
-		return "Archive/" + filepath.Ext(f)
+func GetFileType(f string) (string, string, string) {
+	if strings.HasSuffix(f, ".mp4") || strings.HasSuffix(f, ".avi") || strings.HasSuffix(f, ".mkv") {
+		return "video", "bi bi-filetype-mov", "blue"
+	} else if strings.HasSuffix(f, ".mp3") || strings.HasSuffix(f, ".wav") || strings.HasSuffix(f, ".flac") {
+		return "audio", "fa fa-file-audio-o", "green"
+	} else if strings.HasSuffix(f, ".jpg") || strings.HasSuffix(f, ".png") || strings.HasSuffix(f, ".gif") {
+		return "image", "fa fa-file-picture-o", "orange"
+	} else if strings.HasSuffix(f, ".pdf") {
+		return "pdf", "bi bi-filetype-pdf", "red"
 	} else if strings.HasSuffix(f, ".txt") {
-		return "Text/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".mp3") || strings.HasSuffix(f, ".wav") || strings.HasSuffix(f, ".ogg") {
-		return "Audio/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".mp4") || strings.HasSuffix(f, ".avi") || strings.HasSuffix(f, ".mkv") {
-		return "Video/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".png") || strings.HasSuffix(f, ".jpg") || strings.HasSuffix(f, ".jpeg") || strings.HasSuffix(f, ".gif") {
-		return "Image/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".exe") {
-		return "Executable/" + filepath.Ext(f)
+		return "text", "fa fa-file-text-o", "purple"
+	} else if strings.HasSuffix(f, ".zip") || strings.HasSuffix(f, ".rar") || strings.HasSuffix(f, ".7z") {
+		return "archive", "fa fa-file-archive-o", "brown"
 	} else if strings.HasSuffix(f, ".iso") {
-		return "Disk Image/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".apk") {
-		return "Android App/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".py") {
-		return "Python/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".go") {
-		return "Go/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".cpp") {
-		return "C++/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".java") {
-		return "Java/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".c") {
-		return "C/" + filepath.Ext(f)
-	} else if strings.HasSuffix(f, ".html") || strings.HasSuffix(f, ".htm") {
-		return "HTML/" + filepath.Ext(f)
+		return "iso", "fa fa-file-archive-o", "brown"
+	} else if strings.HasSuffix(f, ".exe") {
+		return "exe", "fa fa-file-code-o", "red"
+	} else if strings.HasSuffix(f, ".doc") || strings.HasSuffix(f, ".docx") {
+		return "doc", "fa fa-file-word-o", "red"
+	} else if strings.HasSuffix(f, ".xls") || strings.HasSuffix(f, ".xlsx") {
+		return "xls", "fa fa-file-excel-o", "green"
+	} else if strings.HasSuffix(f, ".ppt") || strings.HasSuffix(f, ".pptx") {
+		return "ppt", "fa fa-file-powerpoint-o", "orange"
+	} else if strings.HasSuffix(f, ".torrent") {
+		return "torrent", "fa fa-file-archive-o", "green"
 	} else {
-		return "Unknown/" + filepath.Ext(f)
+		return "other", "fa fa-file-o", "blue"
 	}
 }
 
