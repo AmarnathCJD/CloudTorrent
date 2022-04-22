@@ -46,6 +46,14 @@ type TpbTorrent struct {
 }
 
 func InitClient() *torrent.Session {
+        	if _, err := os.Stat(root + "/downloads/torrents/"); err != nil {
+		err := os.Mkdir(root+"/downloads/torrents/", 0777)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	config.DataDir = root + "/downloads/torrents/"
+	config.Database = root + "/downloads/torrents/torrents.db"
 	config := torrent.DefaultConfig
 	client, err := torrent.NewSession(config)
 	if err != nil {
