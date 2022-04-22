@@ -34,5 +34,5 @@ func main() {
 	http.HandleFunc("/torrents/details", GetTorrDir)
 	http.HandleFunc("/torrents/search/", TorrentSearchPage)
 	http.HandleFunc("/dir/", GetDirContents)
-	http.ListenAndServe(":80", nil)
+	fmt.Println(http.ListenAndServe(":80", nil))
 }
