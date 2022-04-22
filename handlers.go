@@ -95,7 +95,7 @@ func UpdateTorrents(w http.ResponseWriter, r *http.Request) {
 func streamTorrentUpdate() {
 	fmt.Println("Streaming torr  started")
 	for range time.Tick(time.Second * 1) {
-		SSEFeed.SendString("", "torrents", TorrentsToHtml(GetActiveTorrents()))
+		SSEFeed.SendString("", "torrents", TorrHtml())
 	}
 }
 
@@ -105,13 +105,21 @@ func TorrentsStats(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}()
-	fmt.Fprint(w, TorrentsToHtml(GetActiveTorrents()))
+	fmt.Fprint(w, TorrHtml())
 }
 
 func TorrentsToHtml(t []TorrentMeta) string {
-	var html = ""
+	var html = `<tr><th class="id">ID</th><th class="name">Name</th><th class="size">Size</th><th class="status">Status</th><th class="status">Progress</th><th class="status">ETA</th><th class="status">Download Speed</th><th class="action">Action</th></tr>`
 	for _, torrent := range t {
 		html += "<tr><td class='id'>" + torrent.ID + "</td>" + "<td class='name'><a href='/torrents/details?uid=" + torrent.UID + "'>" + torrent.Name + "</a>" + "</td>" + "<td class='size'>" + torrent.Size + "</td>" + "<td class='status'>" + torrent.Status + "</td>" + "<td class='status'>" + torrent.Perc + "</td>" + "<td class='status'>" + torrent.Eta + "</td>" + "<td class='status'>" + torrent.Speed + "</td>" + "<td class='action'>" + "<a href='torrents/details?uid=" + torrent.UID + "' class='download'>Download</a>" + "<a href='/' class='delete' onclick='return DeleteBtn(this)' data-uid='" + torrent.UID + "'>Delete</a>" + "</td></tr>"
+	}
+	return html
+}
+
+func TorrHtml() string {
+	var html = `<tr><th class="id">ID</th><th class="name">Name</th><th class="size">Size</th><th class="status">Status</th><th class="status">Progress</th><th class="status">ETA</th><th class="status">Download Speed</th><th class="action">Action</th></tr>`
+	for _, torrent := range GetActiveTorrents() {
+		html += "<tr><th class='id'>" + torrent.ID + "</th>" + "<th class='name'><a href='/torrents/details?uid=" + torrent.UID + "'>" + torrent.Name + "</a>" + "</th>" + "<th class='size'>" + torrent.Size + "</th>" + "<th class='status'>" + torrent.Status + "</th>" + "<th class='status'>" + torrent.Perc + "</th>" + "<th class='status'>" + torrent.Eta + "</th>" + "<th class='status'>" + torrent.Speed + "</th>" + "<th class='action'>" + "<a href='torrents/details?uid=" + torrent.UID + "' class='download'>Download</a>" + "<a href='/' class='delete' onclick='return DeleteBtn(this)' data-uid='" + torrent.UID + "'>Delete</a>" + "</th></tr>"
 	}
 	return html
 }
