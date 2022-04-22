@@ -48,6 +48,13 @@ func GetFileName(f string) string {
 	return name
 }
 
+func GetDirName(name string) string {
+if len(name) > 45 {
+		name = name[:45] + "..."
+	}
+	return name
+}
+
 func GetFileType(f string) (string, string, string) {
 	f = strings.ToLower(f)
 	if strings.HasSuffix(f, ".mp4") || strings.HasSuffix(f, ".avi") || strings.HasSuffix(f, ".mkv") {
