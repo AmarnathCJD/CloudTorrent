@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	root = "~/Downloads"
+	root = "C:\Users\Rose\Downloads"
 	// dir to serve
 )
 
