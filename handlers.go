@@ -94,9 +94,8 @@ func UpdateTorrents(w http.ResponseWriter, r *http.Request) {
 
 func streamTorrentUpdate() {
 	fmt.Println("Streaming torr  started")
-	for range time.Tick(time.Second * 5) {
+	for range time.Tick(time.Second * 1) {
 		SSEFeed.SendString("", "torrents", TorrentsToHtml(GetActiveTorrents()))
-		time.Sleep(1 * time.Millisecond)
 	}
 }
 
@@ -112,7 +111,7 @@ func TorrentsStats(w http.ResponseWriter, r *http.Request) {
 func TorrentsToHtml(t []TorrentMeta) string {
 	var html = ""
 	for _, torrent := range t {
-		html += "<th class='id'>" + torrent.ID + "</th>" + "<th class='name'><a href='/torrents/details?uid=" + torrent.UID + "'>" + torrent.Name + "</a>" + "</td>" + "<th class='size'>" + torrent.Size + "</td>" + "<th class='status'>" + torrent.Status + "</td>" + "<th class='status'>" + torrent.Perc + "</td>" + "<th class='status'>" + torrent.Eta + "</td>" + "<th class='status'>" + torrent.Speed + "</td>" + "<th class='action'>" + "<a href='torrents/details?uid=" + torrent.UID + "' class='download'>Download</a>" + "<a href='/' class='delete' onclick='return DeleteBtn(this)' data-uid='" + torrent.UID + "'>Delete</a>" + "</th>"
+		html += "<tr><td class='id'>" + torrent.ID + "</td>" + "<td class='name'><a href='/torrents/details?uid=" + torrent.UID + "'>" + torrent.Name + "</a>" + "</td>" + "<td class='size'>" + torrent.Size + "</td>" + "<td class='status'>" + torrent.Status + "</td>" + "<td class='status'>" + torrent.Perc + "</td>" + "<td class='status'>" + torrent.Eta + "</td>" + "<td class='status'>" + torrent.Speed + "</td>" + "<td class='action'>" + "<a href='torrents/details?uid=" + torrent.UID + "' class='download'>Download</a>" + "<a href='/' class='delete' onclick='return DeleteBtn(this)' data-uid='" + torrent.UID + "'>Delete</a>" + "</td></tr>"
 	}
 	return html
 }
