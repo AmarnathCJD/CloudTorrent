@@ -28,4 +28,11 @@ func main() {
 	go streamTorrentUpdate()
 	http.HandleFunc("/dir/", GetDirContents)
 	fmt.Println(http.ListenAndServe(":"+PORT(), nil))
+	http.HandleFunc("/home/", MainPage)
+	http.HandleFunc("/add", AddTorrent)
+	http.HandleFunc("/torrents/add", AddTorrent)
+	http.HandleFunc("/torrents/delete", DeleteTorrent)
+	http.HandleFunc("/torrents", TorrentsServe)
+	http.HandleFunc("/torrents/details", GetTorrDir)
+	http.HandleFunc("/torrents/search/", TorrentSearchPage)
 }

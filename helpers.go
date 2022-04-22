@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 	"runtime"
 	"sort"
 	"strconv"
 	"strings"
-        "os"
 
 	"github.com/shirou/gopsutil/disk"
 )
@@ -49,7 +49,7 @@ func GetFileName(f string) string {
 }
 
 func GetDirName(name string) string {
-if len(name) > 45 {
+	if len(name) > 45 {
 		name = name[:45] + "..."
 	}
 	return name
@@ -143,8 +143,16 @@ func StringToInt64(s string) int64 {
 }
 
 func PORT() string {
- if p := os.Getenv("PORT") ; p != "" {
-return p
+	if p := os.Getenv("PORT"); p != "" {
+		return p
+	}
+	return "80"
 }
-return "80"
+
+func isDirectory(path string) (bool, error) {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return false, err
+	}
+	return fileInfo.IsDir(), err
 }

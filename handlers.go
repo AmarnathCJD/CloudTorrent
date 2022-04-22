@@ -130,8 +130,7 @@ func GetDirContents(w http.ResponseWriter, r *http.Request) {
 	}()
 	path := filepath.Join(root, r.URL.Path)
 	path = strings.Replace(path, "\\dir", "", -1)
-	fmt.Println(path)
-	if filepath.Ext(path) == "" {
+	if IsDir, err := isDirectory(path); err == nil && IsDir {
 		var files []map[string]string
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			http.Error(w, "Directory not found", http.StatusNotFound)
@@ -146,12 +145,12 @@ func GetDirContents(w http.ResponseWriter, r *http.Request) {
 		for _, info := range f {
 			AbsPath := strings.Replace(path, "\\", "/", -1)
 			FType, FaClass, FaColor := GetFileType(info.Name())
-                        var Name string
-                        if info.IsDir() {
- Name = GetDirName(info.Name())
-} else {
- Name = GetFileName(info.Name())
-}
+			var Name string
+			if info.IsDir() {
+				Name = GetDirName(info.Name())
+			} else {
+				Name = GetFileName(info.Name())
+			}
 			files = append(files, map[string]string{
 				"name":  Name,
 				"size":  ByteCountSI(int64(info.Size())),
