@@ -135,7 +135,7 @@ func StringToInt64(s string) int64 {
 	return i
 }
 
-func PORT() {
+func PORT() string {
  if p := os.Getenv("PORT") ; p != "" {
 return p
 }
