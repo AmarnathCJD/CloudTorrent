@@ -12,7 +12,7 @@ const (
 )
 
 func main() {
-	fmt.Println("Server started on port 8080")
+	fmt.Println("Server started on port " + PORT())
 	http.Handle("/", http.FileServer(http.Dir("./static/")))
 	http.HandleFunc("/api/v1/status", SystemStats)
 	http.HandleFunc("/api/v1/torrents", TorrentsStats)
@@ -34,5 +34,5 @@ func main() {
 	http.HandleFunc("/torrents/details", GetTorrDir)
 	http.HandleFunc("/torrents/search/", TorrentSearchPage)
 	http.HandleFunc("/dir/", GetDirContents)
-	fmt.Println(http.ListenAndServe(":80", nil))
+	fmt.Println(http.ListenAndServe(":"+PORT(), nil))
 }
