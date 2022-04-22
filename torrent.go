@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/cenkalti/rain/torrent"
@@ -46,7 +47,8 @@ type TpbTorrent struct {
 }
 
 func InitClient() *torrent.Session {
-        	if _, err := os.Stat(root + "/downloads/torrents/"); err != nil {
+	config := torrent.DefaultConfig
+	if _, err := os.Stat(root + "/downloads/torrents/"); err != nil {
 		err := os.Mkdir(root+"/downloads/torrents/", 0777)
 		if err != nil {
 			fmt.Println(err)
@@ -54,7 +56,6 @@ func InitClient() *torrent.Session {
 	}
 	config.DataDir = root + "/downloads/torrents/"
 	config.Database = root + "/downloads/torrents/torrents.db"
-	config := torrent.DefaultConfig
 	client, err := torrent.NewSession(config)
 	if err != nil {
 		log.Print(err)
