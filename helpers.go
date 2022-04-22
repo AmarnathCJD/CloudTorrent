@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+        "os"
 
 	"github.com/shirou/gopsutil/disk"
 )
@@ -132,4 +133,11 @@ func StringInSlice(a string, list []string) bool {
 func StringToInt64(s string) int64 {
 	i, _ := strconv.ParseInt(s, 10, 64)
 	return i
+}
+
+func PORT() {
+ if p := os.Getenv("PORT") ; p != "" {
+return p
+}
+return "80"
 }
