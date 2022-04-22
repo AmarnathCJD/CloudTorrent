@@ -146,8 +146,14 @@ func GetDirContents(w http.ResponseWriter, r *http.Request) {
 		for _, info := range f {
 			AbsPath := strings.Replace(path, "\\", "/", -1)
 			FType, FaClass, FaColor := GetFileType(info.Name())
+                        var Name string
+                        if info.IsDir() {
+ Name = GetDirName(info.Name())
+} else {
+ Name = GetFileName(info.Name())
+}
 			files = append(files, map[string]string{
-				"name":  GetFileName(info.Name()),
+				"name":  Name,
 				"size":  ByteCountSI(int64(info.Size())),
 				"type":  FType,
 				"isdir": strconv.FormatBool(info.IsDir()),
