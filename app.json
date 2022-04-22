@@ -1,14 +1,6 @@
 {
     "name": "Cloud Torrent",
-    "description": "",
-    "logo": "",
-    "keywords": [
-        "Heroku",
-        "Leech",
-        "Torrent",
-        "Go",
-        "RoseLoverX"
-    ],
+    "description": "h",
     "repository": "https://github.com/AmarnathCJD/CloudTorrent",
     "env": {
         "GOVERSION": {
