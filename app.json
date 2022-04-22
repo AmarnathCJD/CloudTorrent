@@ -11,9 +11,9 @@
     ],
     "repository": "https://github.com/AmarnathCJD/CloudTorrent",
     "env": {
-        "ROOT": {
-            "description": "root dir",
-            "value": "", 
+        "GOVERSION": {
+            "description": "v",
+            "value": "1.17.6", 
             "required": false
         }
     }
