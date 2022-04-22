@@ -240,3 +240,7 @@ func GenMagnetFromResult(result []TpbTorrent) []TpbTorrent {
 	}
 	return Torr
 }
+
+func GetLenTorrents() int {
+	return len(GetTorrents())
+}

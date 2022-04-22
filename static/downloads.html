@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <meta name="og:title" content="Cloud Torrent" />
+    <meta name="og:title" content="Downloads" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
     <meta name="description" content="">
@@ -119,6 +119,10 @@
             background-color: #ddd;
         }
 
+        .th-center {
+            text-align: center;
+        }
+
         table p {
             margin: 0;
             font-size: 14px;
@@ -196,7 +200,7 @@
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            padding: 12px 16px;
+            padding: 8px 12px;
             font-size: 16px;
             margin: 4px 2px;
             cursor: pointer;
@@ -204,18 +208,50 @@
             transition: all 0.5s;
         }
 
-        .btn-danger span:after {
-            opacity: 1;
-            right: 0;
+        .btn-danger:hover {
+            background-color: rgb(243, 144, 144);
         }
 
-        .btnn-danger:hover span {
-            padding-right: 25px;
+        .btn-blue {
+            background-color: DodgerBlue;
+            border: none;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            padding: 8px 12px;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.5s;
         }
 
-        .btn-danger:hover span:after {
-            opacity: 1;
-            right: 0;
+        .btn-blue:hover {
+            background-color: rgb(243, 144, 144);
+        }
+
+        .btn-group button {
+            background-color: #04AA6D;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            cursor: pointer;
+            float: left;
+        }
+
+        .btn-group button:not(:last-child) {
+            border-right: none;
+        }
+
+        .btn-group:after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        .btn-group button:hover {
+            background-color: #3e8e41;
         }
     </style>
 </head>
@@ -254,21 +290,20 @@
                     var table = $("#files-table");
                     table.empty();
                     table.append(
-                        "<tr><th>ID</th><th>File</th><th>Size</th><th>Type</th><th>Actions</th></tr>"
+                        "<tr><th>ID</th><th>File</th><th>Size</th><th>Type</th><th class='th-center'>Actions</th></tr>"
                     );
                     for (var i = 0; i < data.length; i++) {
                         var file = data[i];
                         var row = $("<tr></tr>");
                         var num = i + 1;
                         row.append("<td>" + num + "</td>");
+                        var AbsPath = file.path.replace("/downloads", "/dir")
                         if (file.isdir == 'true') {
                             var faclass = "<i style='font-size: 1rem; color: #f3da35;' class='fa fa-folder'></i>"
-                            row.append("<td><a href='" + file.path + '/' + "'>" + file.name + "</a> " + faclass + "</td>");
+                            row.append("<td><a href='" + file.path + '/' + "'><b>" + file.name + "</b></a> " + faclass + "</td>");
                         } else {
                             var faclass = "<i style='font-size: 1rem; color: " + file.color + ";' class='" + file.class + "'></i>    ";
-                            console.log(faclass);
-                            var AbsPath = file.path.replace("/downloads", "")
-                            row.append("<td>" + "<a href='/dir/" + AbsPath + "'>" + file.name + "</a> " + faclass + "</td>");
+                            row.append("<td>" + "<a href='" + AbsPath + "'><b>" + file.name + "</b></a> " + faclass + "</td>");
                         }
                         if (file.isdir == 'true') {
                             row.append("<td></td>");
@@ -280,11 +315,19 @@
                         } else {
                             row.append("<td>" + file.type + "</td>");
                         }
-                        row.append(
-                            '<td><button class="btn-danger" onclick="deleteFile(\'' +
-                            file.name +
-                            "')\">Delete</button></td>"
-                        );
+                        if (!(file.ext == ".mkv" || file.ext == ".mp4" || file.ext == ".avi" || file.ext == ".flv" || file.ext == ".wmv")) {
+                            row.append(
+                                '<td><button class="btn-danger" onclick="deleteFile(\'' +
+                                file.name +
+                                "')\"><i class='fa fa-trash'></i> Delete</button></td>" + '<td><a href="' + AbsPath + '" download="' + file.name + file.ext + '"><button class="btn-blue"><i class="fa fa-download"></i> Download</button></a></td>'
+                            );
+                        } else {
+                            row.append(
+                                '<td><button class="btn-danger" onclick="deleteFile(\'' +
+                                file.name +
+                                "')\"><i class='fa fa-trash'></i> Delete</button></td>" + '<td><div class="btn-group"><a href="' + AbsPath + '" download="' + file.name + file.ext + '"><button class="btn-blue" style="background-color: DodgerBlue;"><i class="fa fa-download"></i></button></a><a href="/stream/' + AbsPath + '"><button class="btn-blue" style="background-color: orange;"><i class="bi bi-play-circle"></i></button></a></div></td>'
+                            );
+                        }
                         table.append(row);
                     }
                 },

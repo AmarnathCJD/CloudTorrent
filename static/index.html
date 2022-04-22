@@ -1,6 +1,417 @@
 <!DOCTYPE html>
-<html lang="en">
-    <body>
-        Hie
-    </body>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torrents Cloud</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            overflow: hidden;
+            background-color: #f1f1f1;
+            padding: 20px 10px;
+            border-bottom: 3px solid #ffcc00;
+        }
+
+        .header a {
+            float: left;
+            color: black;
+            text-align: center;
+            padding: 12px;
+            text-decoration: none;
+            font-size: 18px;
+            line-height: 25px;
+            border-radius: 4px;
+
+        }
+
+        .header a.logo {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .header a:hover {
+            background-color: darkgrey;
+            color: black;
+            transition: 0.5s;
+        }
+
+        .header a.active {
+            background-color: dodgerblue;
+            color: white;
+        }
+
+        .header-right {
+            float: right;
+        }
+
+
+        add-magnet {
+            background-color: MediumSeaGreen;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        add-magnet:hover {
+            opacity: 0.8;
+        }
+
+        magnet.input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 0 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+
+        magnet.input:focus {
+            outline: none;
+        }
+
+        .container {
+            width: 960px;
+            margin: 0 auto;
+            box-shadow: 0 5px 10px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .content {
+            padding: 10px 0;
+        }
+
+        .content h2 {
+            margin: auto;
+            font-size: 25px;
+            font-weight: normal;
+            line-height: 1.5;
+        }
+
+        input[type=text],
+        select {
+            width: 95%;
+            padding: 12px 20px;
+            margin: 19px 26px;
+            margin-bottom: 8px;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            background: url(https://img.icons8.com/ios-glyphs/30/000000/magnet-therapy.png) no-repeat scroll 3px 3px;
+            padding-left: 37px;
+        }
+
+        input[type=submit] {
+            width: 12%;
+            height: 35px;
+            background-color: #3c5abd;
+            color: white;
+            padding: 7px 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        input[type=submit]:hover {
+            background-color: #1630a3;
+        }
+
+        .wrapper {
+            text-align: center;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            border: 1px solid #ddd;
+            width: 100%;
+        }
+
+        table.bodywrapcenter>tr>td {
+            width: 100%;
+            float: left;
+        }
+
+
+        tr {
+            border-bottom: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+        }
+
+        th {
+            background-color: #f5f5f5;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        th.id {
+            width: 5%;
+        }
+
+        th.name {
+            width: 20%;
+        }
+
+        th.name a {
+            color: #333;
+        }
+
+        th.name a:hover {
+            color: #0088cc;
+        }
+
+        th.size {
+            width: 10%;
+        }
+
+        th.date {
+            width: 15%;
+        }
+
+        th.magnet {
+            width: 20%;
+        }
+
+        th.action {
+            width: 10%;
+        }
+
+        .action {
+            width: 20%;
+        }
+
+        .action a {
+            color: #fff;
+            background-color: #0088cc;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+
+        .action btn {
+            color: #fff;
+            background-color: #0088cc;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+
+        .action btn:hover {
+            background-color: #0077b3;
+        }
+
+        .action a:hover {
+            background-color: #0077b3;
+        }
+
+        .action a.delete {
+            background-color: #ff0000;
+        }
+
+        .action a.delete:hover {
+            background-color: #cc0000;
+        }
+
+        .action btn.delete {
+            background-color: #ff0000;
+        }
+
+        .action a.download {
+            background-color: #0088cc;
+        }
+
+        .action a.download:hover {
+            background-color: #0077b3;
+        }
+
+        system-info {
+            background-color: #0088cc;
+            color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        p {
+            text-align: right;
+            color: rgba(200, 200, 200, 1);
+            margin-right: 10px;
+        }
+
+        p:hover {
+            text-align: right;
+            color: #3A3B3C;
+        }
+
+        .button-1 {
+            border-radius: 8px;
+            border-style: none;
+            box-sizing: border-box;
+            color: #FFFFFF;
+            cursor: pointer;
+            display: inline-block;
+            font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            height: 40px;
+            line-height: 20px;
+            list-style: none;
+            margin: 0;
+            outline: none;
+            padding: 10px 16px;
+            position: relative;
+            text-align: center;
+            text-decoration: none;
+            transition: color 100ms;
+            vertical-align: baseline;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .button-1 download {
+            background-color: #0088cc;
+        }
+
+        .button-1 delete {
+            background-color: #ff0000;
+        }
+
+        .button-1:hover,
+        .button-1:focus {
+            background-color: #F082AC;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header"
+            style="overflow: hidden;background-color: #f1f1f1;padding: 20px 10px;border-bottom: 3px solid #ffcc00;">
+            <a href="#default" class="logo">Cloud Torrent</a>
+            <div class="header-right">
+                <a href="/" class="active">Torrents</a>
+                <a href="/torrents/search?query=top100">Search</a>
+                <a href="/downloads">Files</a>
+                <a href="/">Home</a>
+            </div>
+        </div>
+        <form action="add" method="post">
+            <input type="text" name="magnet" placeholder="Magnet/HTTPS link" class="input">
+            <div class="wrapper">
+                <input type="submit" value="Start Torrent">
+
+            </div>
+        </form>
+        <div class="container">
+            <div class="content">
+                <h2>Torrents</h2>
+            </div>
+        </div>
+        <div style="overflow-x:auto;">
+            <table>
+                <tr>
+                    <th class="id">ID</th>
+                    <th class="name">Name</th>
+                    <th class="size">Size</th>
+                    <th class="status">Status</th>
+                    <th class="status">Progress</th>
+                    <th class="status">ETA</th>
+                    <th class="status">Download Speed</th>
+                    <th class="action">Action</th>
+                </tr>
+                <tr id="torrents">
+                </tr>
+            </table>
+        </div>
+        <h2 id="actual-time"></h2>
+        <div class="system-info">
+        </div>
+    </div>
+    <div class="browse-torrent" style="display: none;" id="torr-b">
+        <div class="browse-torrent files">
+            <div class="browse-torrent file">
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        function GetSystemInfo() {
+            $.ajax({
+                url: "/api/v1/status",
+                type: "GET",
+                success: function (data) {
+                    $(".system-info").html(data);
+                }
+            });
+        }
+        function UpdateTorrents() {
+            $.ajax({
+                url: "/api/v1/torrents",
+                type: "GET",
+                success: function (data) {
+                    document.getElementById("torrents").innerHTML = data;
+                }
+            });
+        }
+        const torr = new EventSource('/torrents/update');
+        torr.addEventListener('torrents', (e) => {
+            document.getElementById("torrents").innerHTML = e.data;
+        }, false);
+        setInterval(GetSystemInfo, 10000);
+        function confirm_action(e) {
+            return !!confirm("Are you sure to delete torrent?");
+        }
+        function DeleteBtn(e) {
+            var result = false
+            if (confirm_action(e)) {
+                var uid = $(e).attr('data-uid');
+                $.ajax({
+                    url: '/torrents/delete?uid=' + uid,
+                    type: 'GET',
+                    success: function (data) {
+                        console.log("delete");
+                        result = true;
+                    }
+                });
+            }
+            return result;
+        }
+        $(document).ready(function () {
+            GetSystemInfo();
+            UpdateTorrents();
+        });
+    </script>
+</body>
+
 </html>

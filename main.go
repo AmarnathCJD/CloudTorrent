@@ -1,30 +1,31 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
 )
 
 const (
-	root = "C:/Users/WIn10Lite/Downloads"
+	root = "/"
 	// dir to serve
 )
 
 func main() {
 	fmt.Println("Server started on port 8080")
 	http.Handle("/", http.FileServer(http.Dir("./static/")))
-	http.HandleFunc("/api/v1/disk", func(w http.ResponseWriter, r *http.Request) {
-		diskUsage := DiskUsage(root)
-		json, _ := json.Marshal(diskUsage)
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(json)
-	})
+	http.HandleFunc("/api/v1/status", SystemStats)
+	http.HandleFunc("/api/v1/torrents", TorrentsStats)
 	http.HandleFunc("/downloads/", func(w http.ResponseWriter, r *http.Request) {
 		template := template.Must(template.ParseFiles("./static/downloads.html"))
 		template.Execute(w, nil)
 	})
+	http.HandleFunc("/stream/", func(w http.ResponseWriter, r *http.Request) {
+		template := template.Must(template.ParseFiles("./static/player.html"))
+		template.Execute(w, nil)
+	})
+	http.Handle("/torrents/update", SSEFeed)
+	go streamTorrentUpdate()
 	http.HandleFunc("/home/", MainPage)
 	http.HandleFunc("/add", AddTorrent)
 	http.HandleFunc("/torrents/add", AddTorrent)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -32,6 +33,12 @@ func DiskUsage(path string) DiskStatus {
 	return fs
 }
 
+func MemUsage() string {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	return ByteCountSI(int64(m.Alloc))
+}
+
 func GetFileName(f string) string {
 	name := strings.TrimSuffix(f, filepath.Ext(f))
 	if len(name) > 45 {
@@ -41,32 +48,45 @@ func GetFileName(f string) string {
 }
 
 func GetFileType(f string) (string, string, string) {
+	f = strings.ToLower(f)
 	if strings.HasSuffix(f, ".mp4") || strings.HasSuffix(f, ".avi") || strings.HasSuffix(f, ".mkv") {
-		return "video", "bi bi-filetype-mov", "blue"
+		return "video", "bi bi-file-earmark-play", "blue"
 	} else if strings.HasSuffix(f, ".mp3") || strings.HasSuffix(f, ".wav") || strings.HasSuffix(f, ".flac") {
-		return "audio", "fa fa-file-audio-o", "green"
+		return "audio", "bi bi-file-earmark-music", "green"
 	} else if strings.HasSuffix(f, ".jpg") || strings.HasSuffix(f, ".png") || strings.HasSuffix(f, ".gif") {
-		return "image", "fa fa-file-picture-o", "orange"
+		return "image", "bi bi-image", "orange"
 	} else if strings.HasSuffix(f, ".pdf") {
 		return "pdf", "bi bi-filetype-pdf", "red"
 	} else if strings.HasSuffix(f, ".txt") {
-		return "text", "fa fa-file-text-o", "purple"
+		return "text", "bi bi-journal-text", "purple"
 	} else if strings.HasSuffix(f, ".zip") || strings.HasSuffix(f, ".rar") || strings.HasSuffix(f, ".7z") {
-		return "archive", "fa fa-file-archive-o", "brown"
+		return "archive", "bi bi-file-earmark-zip", "brown"
 	} else if strings.HasSuffix(f, ".iso") {
-		return "iso", "fa fa-file-archive-o", "brown"
+		return "iso", "bi bi-disc", "brown"
 	} else if strings.HasSuffix(f, ".exe") {
-		return "exe", "fa fa-file-code-o", "red"
+		return "exe", "bi bi-filetype-exe", "red"
 	} else if strings.HasSuffix(f, ".doc") || strings.HasSuffix(f, ".docx") {
-		return "doc", "fa fa-file-word-o", "red"
+		return "doc", "bi bi-file-word", "red"
 	} else if strings.HasSuffix(f, ".xls") || strings.HasSuffix(f, ".xlsx") {
-		return "xls", "fa fa-file-excel-o", "green"
+		return "xls", "bi bi-file-earmark-excel", "green"
 	} else if strings.HasSuffix(f, ".ppt") || strings.HasSuffix(f, ".pptx") {
-		return "ppt", "fa fa-file-powerpoint-o", "orange"
+		return "ppt", "bi bi-filetype-pptx", "orange"
 	} else if strings.HasSuffix(f, ".torrent") {
-		return "torrent", "fa fa-file-archive-o", "green"
+		return "torrent", "bi bi-magnet", "green"
+	} else if strings.HasSuffix(f, ".py") {
+		return "python", "bi bi-filetype-py", "blue"
+	} else if strings.HasSuffix(f, ".go") {
+		return "go", "bi bi-filetype-go", "blue"
+	} else if strings.HasSuffix(f, ".js") {
+		return "js", "bi bi-filetype-js", "blue"
+	} else if strings.HasSuffix(f, ".json") {
+		return "json", "bi bi-filetype-json", "blue"
+	} else if strings.HasSuffix(f, ".html") {
+		return "html", "bi bi-filetype-html", "green"
+	} else if strings.HasSuffix(f, ".css") {
+		return "css", "bi bi-filetype-css", "blue"
 	} else {
-		return "other", "fa fa-file-o", "blue"
+		return "other", "bi bi-question", "black"
 	}
 }
 

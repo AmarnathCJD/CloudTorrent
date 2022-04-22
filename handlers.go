@@ -10,12 +10,13 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 
-	"github.com/r3labs/sse/v2"
+	"github.com/julienschmidt/sse"
 )
 
 var (
-	sseClient = sse.New()
+	SSEFeed = sse.New()
 )
 
 func AddTorrent(w http.ResponseWriter, r *http.Request) {
@@ -64,6 +65,58 @@ func DeleteTorrent(w http.ResponseWriter, r *http.Request) {
 	MainPage(w, r)
 }
 
+func SystemStats(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	Disk := DiskUsage(root)
+	SystemStat := "<p><b>IP:</b> " + GetIP(r) + " " + "<b>OS:</b> " + runtime.GOOS + " " + "<b>Arch:</b> " + runtime.GOARCH + " " + "<b>CPU:</b> " + fmt.Sprint(runtime.NumCPU()) + " " + "<b>RAM:</b> " + MemUsage() + " " + "<b>Disk:</b> " + fmt.Sprintf("%s/%s", Disk.Used, Disk.All) + " " + "<b>Downloads:</b> " + strconv.Itoa(0) + "</p>"
+	w.Write([]byte(SystemStat))
+}
+
+func UpdateTorrents(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	w.Header().Set("Content-Type", "text/event-stream")
+	Torrents := GetTorrents()
+	var data = ""
+	for _, torrent := range Torrents {
+		data += torrent.InfoHash().String() + "," + torrent.Name()
+	}
+	w.Write([]byte("data: " + data + "\n\n"))
+	w.(http.Flusher).Flush()
+}
+
+func streamTorrentUpdate() {
+	fmt.Println("Streaming torr  started")
+	for range time.Tick(time.Second * 5) {
+		SSEFeed.SendString("", "torrents", TorrentsToHtml(GetActiveTorrents()))
+		time.Sleep(1 * time.Millisecond)
+	}
+}
+
+func TorrentsStats(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	fmt.Fprint(w, TorrentsToHtml(GetActiveTorrents()))
+}
+
+func TorrentsToHtml(t []TorrentMeta) string {
+	var html = ""
+	for _, torrent := range t {
+		html += "<th class='id'>" + torrent.ID + "</th>" + "<th class='name'><a href='/torrents/details?uid=" + torrent.UID + "'>" + torrent.Name + "</a>" + "</td>" + "<th class='size'>" + torrent.Size + "</td>" + "<th class='status'>" + torrent.Status + "</td>" + "<th class='status'>" + torrent.Perc + "</td>" + "<th class='status'>" + torrent.Eta + "</td>" + "<th class='status'>" + torrent.Speed + "</td>" + "<th class='action'>" + "<a href='torrents/details?uid=" + torrent.UID + "' class='download'>Download</a>" + "<a href='/' class='delete' onclick='return DeleteBtn(this)' data-uid='" + torrent.UID + "'>Delete</a>" + "</th>"
+	}
+	return html
+}
+
 func TorrentsServe(w http.ResponseWriter, r *http.Request) {
 	Torrents := GetActiveTorrents()
 	d, _ := json.Marshal(Torrents)
@@ -95,13 +148,14 @@ func GetDirContents(w http.ResponseWriter, r *http.Request) {
 			AbsPath := strings.Replace(path, "\\", "/", -1)
 			FType, FaClass, FaColor := GetFileType(info.Name())
 			files = append(files, map[string]string{
-				"name":  info.Name(),
+				"name":  GetFileName(info.Name()),
 				"size":  ByteCountSI(int64(info.Size())),
 				"type":  FType,
 				"isdir": strconv.FormatBool(info.IsDir()),
 				"path":  "/downloads" + strings.Replace(AbsPath, root, "", 1) + "/" + info.Name(),
 				"class": FaClass,
 				"color": FaColor,
+				"ext":   filepath.Ext(info.Name()),
 			})
 		}
 		d, _ := json.Marshal(files)
@@ -220,13 +274,6 @@ func MainPage(w http.ResponseWriter, r *http.Request) {
 	torr = strings.Replace(torr, "{{hash}}", "hie", -1)
 	torr = strings.Replace(torr, "{{progress}}", "0", -1)
 	w.Write([]byte(torr))
-}
-
-func SendSSE(data string, event string) {
-	sseClient.Headers["Content-Type"] = "text/event-stream"
-	sseClient.Publish("messages", &sse.Event{
-		Data: []byte("ping"),
-	})
 }
 
 func GetTorrDir(w http.ResponseWriter, r *http.Request) {

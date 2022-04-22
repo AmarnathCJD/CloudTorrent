@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            background-color: #10131a;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+        }
+
+        .video-title {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        .video-title-container {
+            background-color: #10131a;
+            padding: 10px;
+            overflow-x: auto;
+
+        }
+
+        button {
+            background-color: royalblue;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            float: left;
+            margin-left: 82%;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+        }
+
+
+        button span {
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            transition: 0.5s;
+        }
+
+        button span:after {
+            content: '\00bb';
+            position: absolute;
+            opacity: 0;
+            top: 0;
+            right: -20px;
+            transition: 0.5s;
+        }
+
+        button:hover span {
+            padding-right: 25px;
+            opacity: 0.5;
+        }
+
+        button:hover {
+            background-color: RoyalBlue;
+        }
+
+        button:hover span:after {
+            opacity: 1;
+            right: 0;
+        }
+
+        .video-container {
+            background-color: #10131a;
+            padding: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+
+<body>
+    <div class="video-container">
+        <div style='max-width: 800px; position: relative; margin: 0 auto; margin-top: 0px; margin-top: 64px;'>
+            <video id="main" controls autoplay>
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="video-title-container">
+                <div class="video-title">
+
+                </div>
+                <button onclick="window.location.href='/downloads'"><span>Back</span></button>
+            </div>
+            <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+            <script>
+                function SetVideoSrc() {
+                    var src = window.location.pathname.replace("/stream", "")
+                    var title = src.split("/")
+                    title = title[title.length - 1]
+                    var dl = src.replace("/dir", "/downloads").replace(title, "")
+                    var video = document.getElementById("main");
+                    video.src = src;
+                    $(".video-title").html(unescape(title));
+                    $("button").attr("onclick", "window.location.href='" + dl + "'")
+                }
+
+                $(document).ready(function () {
+                    SetVideoSrc();
+                });
+            </script>
+        </div>
+    </div>
+</body>
+
+</html>
