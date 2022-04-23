@@ -85,7 +85,7 @@
     <div class="video-container">
         <div style='max-width: 800px; position: relative; margin: 0 auto; margin-top: 0px; margin-top: 64px;'>
                 <video class="op-player__media" id="player" controls playsinline>
-                    <source src="" type="video/mp4" />
+                    <source id="video-src" src="" type="video/mp4" />
                 </video>
                 <div class="video-title-container">
                     <div class="video-title">
@@ -105,7 +105,7 @@
                         var title = src.split("/")
                         title = title[title.length - 1]
                         var dl = src.replace("/dir", "/downloads").replace(title, "")
-                        var video = document.getElementById("player");
+                        var video = document.getElementById("video-src");
                         video.src = src;
                         $(".video-title").html(unescape(title));
                         $("button").attr("onclick", "window.location.href='" + dl + "'")
