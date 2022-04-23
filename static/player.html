@@ -105,7 +105,7 @@
                         var title = src.split("/")
                         title = title[title.length - 1]
                         var dl = src.replace("/dir", "/downloads").replace(title, "")
-                        var video = document.getElementById("main");
+                        var video = document.getElementById("player");
                         video.src = src;
                         $(".video-title").html(unescape(title));
                         $("button").attr("onclick", "window.location.href='" + dl + "'")
