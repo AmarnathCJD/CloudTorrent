@@ -27,7 +27,6 @@ func main() {
 	http.Handle("/torrents/update", SSEFeed)
 	go streamTorrentUpdate()
 	http.HandleFunc("/dir/", GetDirContents)
-	fmt.Println(http.ListenAndServe(":"+PORT(), nil))
 	http.HandleFunc("/home/", MainPage)
 	http.HandleFunc("/add", AddTorrent)
 	http.HandleFunc("/torrents/add", AddTorrent)
@@ -35,4 +34,5 @@ func main() {
 	http.HandleFunc("/torrents", TorrentsServe)
 	http.HandleFunc("/torrents/details", GetTorrDir)
 	http.HandleFunc("/torrents/search/", TorrentSearchPage)
+	fmt.Println(http.ListenAndServe(":"+PORT(), nil))
 }

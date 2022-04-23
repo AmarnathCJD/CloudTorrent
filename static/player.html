@@ -24,22 +24,22 @@
 
 <body>
     <div class="video-container">
-        <div style='max-width: 800px; position: relative; margin: 0 auto; margin-top: 0px; margin-top: 64px;'>
-                <video id="player" playsinline controls>
-  <source src="" type="video/mp4" id="player_src" />
-</video>
-                <script>
+        <div id="player-div"
+            style='max-width: 800px; position: relative; margin: 0 auto; margin-top: 0px; margin-top: 64px;'>
+            <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+            <script src="https://cdn.plyr.io/3.7.2/plyr.js"></script>
+            <script>
+                function SetVideoSrc() {
+                    var src = window.location.pathname.replace("/stream", "")
+                    var video = document.getElementById("player-div");
+                    video.innerHTML = '<video id="player" playsinline controls><source src="' + src + '" type="video/mp4" /></video>'
+                }
+                $(document).ready(function () {
+                    SetVideoSrc();
                     const player = new Plyr('video');
-window.player = player;
-                    function SetVideoSrc() {
-                        var src = window.location.pathname.replace("/stream", "")
-                        var video = document.getElementById("video-src");
-                        video.src = src;
-                    }
-                    $(document).ready(function () {
-                        SetVideoSrc();
-                    });
-                </script>
+                    window.player = player;
+                });
+            </script>
         </div>
     </div>
 </body>

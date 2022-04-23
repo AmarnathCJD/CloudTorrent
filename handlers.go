@@ -94,7 +94,7 @@ func UpdateTorrents(w http.ResponseWriter, r *http.Request) {
 
 func streamTorrentUpdate() {
 	fmt.Println("Streaming torr  started")
-	for range time.Tick(time.Second * 1) {
+	for range time.Tick(time.Second * (1 / 3)) {
 		SSEFeed.SendString("", "torrents", TorrHtml())
 	}
 }
