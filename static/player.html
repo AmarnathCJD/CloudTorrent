@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openplayerjs@latest/dist/openplayer.min.css" />
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.2/plyr.css" />
     <style>
         body {
             background-color: #10131a;
@@ -11,65 +11,6 @@
         video {
             width: 100%;
             height: 100%;
-        }
-
-        .video-title {
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 10px;
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
-        }
-
-        .video-title-container {
-            background-color: #10131a;
-            padding: 10px;
-            overflow-x: auto;
-
-        }
-
-        button {
-            background-color: royalblue;
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 10px;
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
-            float: left;
-            margin-left: 82%;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 20px;
-        }
-
-
-        button span {
-            cursor: pointer;
-            display: inline-block;
-            position: relative;
-            transition: 0.5s;
-        }
-
-        button span:after {
-            content: '\00bb';
-            position: absolute;
-            opacity: 0;
-            top: 0;
-            right: -20px;
-            transition: 0.5s;
-        }
-
-        button:hover span {
-            padding-right: 25px;
-            opacity: 0.5;
-        }
-
-        button:hover {
-            background-color: RoyalBlue;
-        }
-
-        button:hover span:after {
-            opacity: 1;
-            right: 0;
         }
 
         .video-container {
@@ -84,31 +25,17 @@
 <body>
     <div class="video-container">
         <div style='max-width: 800px; position: relative; margin: 0 auto; margin-top: 0px; margin-top: 64px;'>
-                <video class="op-player__media" id="player" controls playsinline>
-                    <source id="video-src" src="" type="video/mp4" />
-                </video>
-                <div class="video-title-container">
-                    <div class="video-title">
-
-                    </div>
-                </div>
-                <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-                <script src="https://cdn.jsdelivr.net/npm/openplayerjs@latest/dist/openplayer.min.js"></script>
+                <video id="player" playsinline controls>
+  <source src="" type="video/mp4" id="player_src" />
+</video>
                 <script>
-                    const player = new OpenPlayerJS('player');
-                    player.init();
-                </script>
-                <script>
+                    const player = new Plyr('video');
+window.player = player;
                     function SetVideoSrc() {
                         var src = window.location.pathname.replace("/stream", "")
-                        var title = src.split("/")
-                        title = title[title.length - 1]
-                        var dl = src.replace("/dir", "/downloads").replace(title, "")
                         var video = document.getElementById("video-src");
                         video.src = src;
-                        $(".video-title").html(unescape(title));
                     }
-
                     $(document).ready(function () {
                         SetVideoSrc();
                     });
