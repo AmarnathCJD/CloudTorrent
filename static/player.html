@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openplayerjs@latest/dist/openplayer.min.css" />
     <style>
         body {
             background-color: #10131a;
@@ -83,33 +84,40 @@
 <body>
     <div class="video-container">
         <div style='max-width: 800px; position: relative; margin: 0 auto; margin-top: 0px; margin-top: 64px;'>
-            <video id="main" controls autoplay>
-                <source src="" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <div class="video-title-container">
-                <div class="video-title">
+            <html>
 
+            <body>
+                <video class="op-player__media" id="player" controls playsinline>
+                    <source src="" type="video/mp4" />
+                </video>
+                <div class="video-title-container">
+                    <div class="video-title">
+
+                    </div>
+                    <button onclick="window.location.href='/downloads'"><span>Back</span></button>
                 </div>
-                <button onclick="window.location.href='/downloads'"><span>Back</span></button>
-            </div>
-            <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-            <script>
-                function SetVideoSrc() {
-                    var src = window.location.pathname.replace("/stream", "")
-                    var title = src.split("/")
-                    title = title[title.length - 1]
-                    var dl = src.replace("/dir", "/downloads").replace(title, "")
-                    var video = document.getElementById("main");
-                    video.src = src;
-                    $(".video-title").html(unescape(title));
-                    $("button").attr("onclick", "window.location.href='" + dl + "'")
-                }
+                <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/openplayerjs@latest/dist/openplayer.min.js"></script>
+                <script>
+                    const player = new OpenPlayerJS('player');
+                    player.init();
+                </script>
+                <script>
+                    function SetVideoSrc() {
+                        var src = window.location.pathname.replace("/stream", "")
+                        var title = src.split("/")
+                        title = title[title.length - 1]
+                        var dl = src.replace("/dir", "/downloads").replace(title, "")
+                        var video = document.getElementById("main");
+                        video.src = src;
+                        $(".video-title").html(unescape(title));
+                        $("button").attr("onclick", "window.location.href='" + dl + "'")
+                    }
 
-                $(document).ready(function () {
-                    SetVideoSrc();
-                });
-            </script>
+                    $(document).ready(function () {
+                        SetVideoSrc();
+                    });
+                </script>
         </div>
     </div>
 </body>
