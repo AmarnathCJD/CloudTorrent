@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	root = "."
+	root = "/home/roseloverx/ct"
 	// dir to serve
 )
 
