@@ -94,7 +94,8 @@ func UpdateTorrents(w http.ResponseWriter, r *http.Request) {
 
 func streamTorrentUpdate() {
 	fmt.Println("Streaming torr  started")
-	for range time.Tick(time.Second * (1 / 3)) {
+	return
+	for range time.Tick(time.Second * 1) {
 		SSEFeed.SendString("", "torrents", TorrHtml())
 	}
 }
@@ -302,12 +303,13 @@ func GetTorrDir(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := GetTorrentPath(uid)
+	fmt.Println(path)
 	if p, err := os.Stat(path); err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	} else {
 		if p.IsDir() {
-			serveDir(w, r, path)
+			http.Redirect(w, r, "/downloads/downloads/torrents/"+uid, http.StatusFound)
 		} else {
 			http.ServeFile(w, r, path)
 		}
