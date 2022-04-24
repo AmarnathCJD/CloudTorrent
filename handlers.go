@@ -123,7 +123,7 @@ func GetDirContents(w http.ResponseWriter, r *http.Request) {
 	}()
 	path := filepath.Join(root, r.URL.Path)
         log.Println(path)
-	path = strings.Replace(path, "\\dir", "", -1)
+	path = strings.Replace(strings.Replace(path, "\\dir", "", -1), "dir", "", -1)
         log.Println(path)
 	if IsDir, err := isDirectory(path); err == nil && IsDir {
 		var files []map[string]string
