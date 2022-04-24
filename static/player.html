@@ -63,21 +63,26 @@
 
 <body>
     <div class="container d-flex p-3 mx-auto w-100 flex-column">
-    <header class="mb-auto">
-        <div class="float-md-start fw-bold fs-5">VideoPlayer</div>
-        <nav class="nav justify-content-center float-md-end">
-            <div class="nav-link">
-                <div class="form-check form-switch">
-                    <input type="checkbox" class="form-check-input" id="darkSwitch">
-                    <label class="custom-control-label" for="darkSwitch">Dark Mode</label>
+        <header class="mb-auto">
+            <div class="float-md-start fw-bold fs-5">VideoPlayer</div>
+            <nav class="nav justify-content-center float-md-end">
+                <a class="nav-link active" href="/">Home</a>
+                <a class="nav-link" href="/downloads/" target="_blank">Files</a>
+                <div class="nav-link">
+
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" id="darkSwitch">
+                        <label class="custom-control-label" for="darkSwitch">Dark Mode</label>
+                    </div>
+                    <script src="dark-mode-switch.min.js"></script>
+
                 </div>
-            </div>
-        </nav>
-    </header>
-    <main role="main">
-        <div id="player-div" class="player-div"></div>
-    </main>
-</div>
+            </nav>
+        </header>
+        <main role="main">
+            <div id="player-div" class="player-div"></div>
+        </main>
+    </div>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdn.plyr.io/3.7.2/plyr.js"></script>
     <script>
