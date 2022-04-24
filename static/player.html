@@ -3,38 +3,140 @@
 
 <head>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.2/plyr.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css">
     <style>
-        body {
-            background-color: #10131a;
+        video {
+            width: 100%;
+            height: auto;
         }
 
-        video {
-  width: 100%;
-  height: auto;
-  max-width: 100%
-}
+        .player {
+            --plyr-video-control-color: rgb(206, 31, 31);
+        }
 
+        .player-div {
+            width: 75%;
+            height: auto;
+            margin: auto;
+            background-origin: padding-box;
+            background-clip: content-box;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 50px;
+        }
+
+        @media screen and (max-width: 600px) {
+            .player-div {
+                width: 100%;
+                height: auto;
+                float: center;
+                margin: auto;
+                background-origin: padding-box;
+                background-clip: content-box;
+                border-radius: 10px;
+                padding: 10px;
+            }
+        }
+
+        [data-theme="dark"] {
+            background-color: #111 !important;
+            color: #eee;
+        }
+
+        [data-theme="dark"] .bg-black {
+            background-color: #fff !important;
+        }
+
+        [data-theme="dark"] .bg-dark {
+            background-color: #eee !important;
+        }
+
+        [data-theme="dark"] .bg-light {
+            background-color: #222 !important;
+        }
+
+        [data-theme="dark"] .bg-white {
+            background-color: #000 !important;
+        }
     </style>
 </head>
 
-
 <body>
-        <div id="player-div">
-            <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-            <script src="https://cdn.plyr.io/3.7.2/plyr.js"></script>
-            <script>
-                function SetVideoSrc() {
-                    var src = window.location.pathname.replace("/stream", "")
-                    var video = document.getElementById("player-div");
-                    video.innerHTML = '<video id="player" playsinline controls><source src="' + src + '" type="video/mp4" /></video>'
-                }
-                $(document).ready(function () {
-                    SetVideoSrc();
-                    const player = new Plyr('video');
-                    window.player = player;
+    <div class="container d-flex p-3 mx-auto w-100 flex-column">
+    <header class="mb-auto">
+        <div class="float-md-start fw-bold fs-5">VideoPlayer</div>
+        <nav class="nav justify-content-center float-md-end">
+            <div class="nav-link">
+                <div class="form-check form-switch">
+                    <input type="checkbox" class="form-check-input" id="darkSwitch">
+                    <label class="custom-control-label" for="darkSwitch">Dark Mode</label>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main role="main">
+        <div id="player-div" class="player-div"></div>
+    </main>
+</div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.plyr.io/3.7.2/plyr.js"></script>
+    <script>
+        var src = window.location.pathname.replace("/stream", "");
+        var player_div = document.getElementById("player-div");
+        player_div.innerHTML =
+            '<video id="player" playsinline controls><source src="' +
+            src +
+            '" type="video/mp4" /></video>';
+        const player = new Plyr("video", {
+            controls: [
+                "play-large",
+                "play",
+                "progress",
+                "current-time",
+                "mute",
+                "volume",
+                "captions",
+                "settings",
+                "airplay",
+                "fullscreen",
+                "download",
+            ],
+            title: src.split("/").pop().split(".")[0],
+            ratio: "16:9",
+            clickToPlay: true,
+            settings: ["captions", "quality", "speed"],
+        });
+        window.player = player;
+
+        var darkSwitch = document.getElementById("darkSwitch");
+        window.addEventListener("load", function () {
+            if (darkSwitch) {
+                initTheme();
+                darkSwitch.addEventListener("change", function () {
+                    resetTheme();
                 });
-            </script>
-        </div>
+            }
+        });
+        function initTheme() {
+            var darkThemeSelected =
+                localStorage.getItem("darkSwitch") !== null &&
+                localStorage.getItem("darkSwitch") === "dark";
+            darkSwitch.checked = darkThemeSelected;
+            darkThemeSelected
+                ? document.body.setAttribute("data-theme", "dark")
+                : document.body.removeAttribute("data-theme");
+        }
+        function resetTheme() {
+            if (darkSwitch.checked) {
+                document.body.setAttribute("data-theme", "dark");
+                localStorage.setItem("darkSwitch", "dark");
+                var video = document.getElementById("player");
+            } else {
+                document.body.removeAttribute("data-theme");
+                localStorage.removeItem("darkSwitch");
+            }
+        }
+    </script>
 </body>
 
 </html>
