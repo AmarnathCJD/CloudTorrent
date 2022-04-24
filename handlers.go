@@ -76,25 +76,8 @@ func SystemStats(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(SystemStat))
 }
 
-func UpdateTorrents(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if err, ok := recover().(error); ok {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	}()
-	w.Header().Set("Content-Type", "text/event-stream")
-	Torrents := GetTorrents()
-	var data = ""
-	for _, torrent := range Torrents {
-		data += torrent.InfoHash().String() + "," + torrent.Name()
-	}
-	w.Write([]byte("data: " + data + "\n\n"))
-	w.(http.Flusher).Flush()
-}
-
 func streamTorrentUpdate() {
-	fmt.Println("Streaming torr  started")
-	return
+	fmt.Println("Streaming Torrents started")
 	for range time.Tick(time.Second * 1) {
 		SSEFeed.SendString("", "torrents", TorrHtml())
 	}
