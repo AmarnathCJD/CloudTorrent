@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	root = "/home/roseloverx/ct"
+	root = "/home/roseloverx/ct/downloads/"
+        // os.pwd()
 	// dir to serve
 )
 
