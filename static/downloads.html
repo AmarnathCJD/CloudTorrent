@@ -11,142 +11,27 @@
     <style>
         @import url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css);
         @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css");
+        @import url("https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css");
 
-        .header {
-            overflow: hidden;
-            background-color: #f1f1f1;
-            padding: 20px 10px;
+        [data-theme="dark"] {
+            background-color: #111 !important;
+            color: #eee;
         }
 
-        .header a {
-            float: left;
-            color: black;
-            text-align: center;
-            padding: 12px;
-            text-decoration: none;
-            font-size: 18px;
-            line-height: 25px;
-            border-radius: 4px;
+        [data-theme="dark"] .bg-black {
+            background-color: #fff !important;
         }
 
-
-        .header a.logo {
-            font-size: 25px;
-            font-weight: bold;
+        [data-theme="dark"] .bg-dark {
+            background-color: #eee !important;
         }
 
-        .header a:hover {
-            background-color: #ddd;
-            color: black;
+        [data-theme="dark"] .bg-light {
+            background-color: #222 !important;
         }
 
-        .header a.active {
-            background-color: dodgerblue;
-            color: white;
-        }
-
-        .header-right {
-            float: right;
-        }
-
-        a {
-            color: #0088cc;
-            text-decoration: none;
-        }
-
-        a:hover {
-            color: #005580;
-        }
-
-        body {
-            font-family: 'Lato', sans-serif;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #333;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            width: 960px;
-            margin: 0 auto;
-            box-shadow: 0 5px 10px -5px rgba(0, 0, 0, 0.5);
-        }
-
-        .content {
-            padding: 10px 0;
-        }
-
-        .content h2 {
-            margin: auto;
-            font-size: 25px;
-            font-weight: normal;
-            line-height: 1.5;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            border-spacing: 0;
-            border: 1px solid #ddd;
-        }
-
-        table tr {
-            border-bottom: 1px solid #ddd;
-        }
-
-        table th,
-        table td {
-            text-align: left;
-            padding: 12px;
-        }
-
-        table th {
-            background-color: #f5f5f5;
-        }
-
-        table tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        table th:first-child {
-            border-top: 0;
-            background-color: solid #f5f5f5;
-        }
-
-        table tr:hover {
-            background-color: #ddd;
-        }
-
-        .th-center {
-            text-align: center;
-        }
-
-        table p {
-            margin: 0;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        footer {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #111;
-            height: auto;
-            width: 100vw;
-            padding-top: 40px;
-            color: #fff;
-        }
-
-        .footer-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            text-align: center;
+        [data-theme="dark"] .bg-white {
+            background-color: #000 !important;
         }
 
         .button {
@@ -257,29 +142,62 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="header"
-            style="overflow: hidden;background-color: #f1f1f1;padding: 20px 10px;border-bottom: 3px solid #ffcc00;">
-            <a href="#default" class="logo"><i class="bi bi-cloud-download-fill"
-                    style="font-size: 2rem; color: cornflowerblue;"></i> Cloud Torrent</a>
-            <div class="header-right">
-                <a href="/">Torrents</a>
-                <a href="/torrents/search?query=top100">Search</a>
-                <a href="/downloads" class="active">Files</a>
-                <a href="/">Home</a>
+    <div class="container d-flex p-3 mx-auto w-100 flex-column">
+        <header class="mb-auto">
+            <div class="float-md-start fw-bold fs-5">Cloud Torrent</div>
+            <nav class="nav justify-content-center float-md-end">
+                <a class="nav-link active" href="/">Home</a>
+                <a class="nav-link" href="/downloads">Files</a>
+                <a class="nav-link" href="https://github.com/coliff/dark-mode-switch" target="_blank">GitHub</a>
+                <div class="nav-link">
+
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" id="darkSwitch">
+                        <label class="custom-control-label" for="darkSwitch">Dark Mode</label>
+                    </div>
+
+                </div>
+            </nav>
+        </header>
+        <main>
+            <div class="table-responsive">
+                <table id="files-table" class="table table-sm caption-top primary">
+                </table>
             </div>
-        </div>
-        <div class="content">
-            <table id="files-table">
-            </table>
-        </div>
-        <button onclick="history.back()" class="button"><span>Go Back</span></button>
-        <button onclick="window.location.href='/'" class="button"><span>Add Magnet</span></button>
-        <button onclick="window.location.href='/downloads'" class="button"><i class="fa fa-home"></i></button>
+        </main>
     </div>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
-        var last_url = "/";
+        var darkSwitch = document.getElementById("darkSwitch");
+        var table = document.getElementById("files-table");
+        window.addEventListener("load", function () {
+            if (darkSwitch) {
+                initTheme();
+                darkSwitch.addEventListener("change", function () {
+                    resetTheme();
+                });
+            }
+        });
+        function initTheme() {
+            var darkThemeSelected =
+                localStorage.getItem("darkSwitch") !== null &&
+                localStorage.getItem("darkSwitch") === "dark";
+            darkSwitch.checked = darkThemeSelected;
+            darkThemeSelected
+                ? document.body.setAttribute("data-theme", "dark")
+                : document.body.removeAttribute("data-theme");
+        }
+        function resetTheme() {
+            if (darkSwitch.checked) {
+                document.body.setAttribute("data-theme", "dark");
+                localStorage.setItem("darkSwitch", "dark");
+                table.style.color = "white";
+            } else {
+                document.body.removeAttribute("data-theme");
+                localStorage.removeItem("darkSwitch");
+                table.style.color = "black";
+            }
+        }
         $.ajax({
             url: "/dir/" + window.location.pathname.replace("/downloads/", ""),
             type: "GET",
@@ -289,7 +207,7 @@
                 var table = $("#files-table");
                 table.empty();
                 table.append(
-                    "<tr><th>ID</th><th>File</th><th>Size</th><th>Type</th><th class='th-center'>Actions</th></tr>"
+                    "<caption>List of Files</caption><tr><th>ID</th><th>File</th><th>Size</th><th>Type</th><th class='th-center'>Actions</th></tr>"
                 );
                 for (var i = 0; i < data.length; i++) {
                     var file = data[i];
@@ -314,17 +232,29 @@
                     } else {
                         row.append("<td>" + file.type + "</td>");
                     }
-                    if (!(file.ext == ".mkv" || file.ext == ".mp4" || file.ext == ".avi" || file.ext == ".flv" || file.ext == ".wmv")) {
+                    if (file.ext == ".mkv" || file.ext == ".mp4" || file.ext == ".avi" || file.ext == ".flv" || file.ext == ".wmv") {
                         row.append(
                             '<td><button class="btn-danger" onclick="deleteFile(\'' +
                             file.name +
-                            "')\"><i class='fa fa-trash'></i> Delete</button></td>" + '<td><a href="' + AbsPath + '" download="' + file.name + file.ext + '"><button class="btn-blue"><i class="fa fa-download"></i> Download</button></a></td>'
+                            "')\"><i class='fa fa-trash'></i> Delete</button>" + '<div class="btn-group"><a href="' + AbsPath + '" download="' + file.name + file.ext + '"><button class="btn-blue" style="background-color: DodgerBlue;"><i class="fa fa-download"></i></button></a><a href="/stream/' + AbsPath + '"><button class="btn-blue" style="background-color: orange;"><i class="bi bi-play-circle"></i></button></a></div></td>'
+                        );
+                    } else if (file.ext == ".jpg" || file.ext == ".png" || file.ext == ".gif" || file.ext == ".jpeg") {
+                        row.append(
+                            '<td><button class="btn-danger" onclick="deleteFile(\'' +
+                            file.name +
+                            "')\"><i class='fa fa-trash'></i> Delete</button>" + '<div class="btn-group"><a href="' + AbsPath + '" download="' + file.name + file.ext + '"><button class="btn-blue" style="background-color: DodgerBlue;"><i class="fa fa-download"></i></button></a><a href="/stream/' + AbsPath + '"><button class="btn-blue" style="background-color: green;"><i class="bi bi-image"></i></button></a></div></td>'
+                        );
+                    } else if (file.ext == ".mp3" || file.ext == ".wav" || file.ext == ".flac") {
+                        row.append(
+                            '<td><button class="btn-danger" onclick="deleteFile(\'' +
+                            file.name +
+                            "')\"><i class='fa fa-trash'></i> Delete</button>" + '<div class="btn-group"><a href="' + AbsPath + '" download="' + file.name + file.ext + '"><button class="btn-blue" style="background-color: DodgerBlue;"><i class="fa fa-download"></i></button></a><a href="/stream/' + AbsPath + '"><button class="btn-blue" style="background-color: darkred;"><i class="bi bi-file-music-fill"></i></button></a></div></td>'
                         );
                     } else {
                         row.append(
                             '<td><button class="btn-danger" onclick="deleteFile(\'' +
                             file.name +
-                            "')\"><i class='fa fa-trash'></i> Delete</button></td>" + '<td><div class="btn-group"><a href="' + AbsPath + '" download="' + file.name + file.ext + '"><button class="btn-blue" style="background-color: DodgerBlue;"><i class="fa fa-download"></i></button></a><a href="/stream/' + AbsPath + '"><button class="btn-blue" style="background-color: orange;"><i class="bi bi-play-circle"></i></button></a></div></td>'
+                            "')\"><i class='fa fa-trash'></i> Delete</button>" + '<a href="' + AbsPath + '" download="' + file.name + file.ext + '"><button class="btn-blue"><i class="fa fa-download"></i> Download</button></a></td>'
                         );
                     }
                     table.append(row);
