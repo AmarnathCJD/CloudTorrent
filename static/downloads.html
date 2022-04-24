@@ -280,62 +280,56 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
         var last_url = "/";
-        function EditFilesTable() {
-            $.ajax({
-                url: "/dir/" + window.location.pathname.replace("/downloads/", ""),
-                type: "GET",
-                dataType: "json",
-                success: function (data) {
-                    console.log(window.location.pathname.split("/", 5));
-                    var table = $("#files-table");
-                    table.empty();
-                    table.append(
-                        "<tr><th>ID</th><th>File</th><th>Size</th><th>Type</th><th class='th-center'>Actions</th></tr>"
-                    );
-                    for (var i = 0; i < data.length; i++) {
-                        var file = data[i];
-                        var row = $("<tr></tr>");
-                        var num = i + 1;
-                        row.append("<td>" + num + "</td>");
-                        var AbsPath = file.path.replace("/downloads", "/dir")
-                        if (file.isdir == 'true') {
-                            var faclass = "<i style='font-size: 1rem; color: #f3da35;' class='fa fa-folder'></i>"
-                            row.append("<td><a href='" + file.path + '/' + "'><b>" + file.name + "</b></a> " + faclass + "</td>");
-                        } else {
-                            var faclass = "<i style='font-size: 1rem; color: " + file.color + ";' class='" + file.class + "'></i>    ";
-                            row.append("<td>" + "<a href='" + AbsPath + "'><b>" + file.name + "</b></a> " + faclass + "</td>");
-                        }
-                        if (file.isdir == 'true') {
-                            row.append("<td></td>");
-                        } else {
-                            row.append("<td>" + file.size + "</td>");
-                        }
-                        if (file.isdir == 'true') {
-                            row.append("<td>Folder</td>");
-                        } else {
-                            row.append("<td>" + file.type + "</td>");
-                        }
-                        if (!(file.ext == ".mkv" || file.ext == ".mp4" || file.ext == ".avi" || file.ext == ".flv" || file.ext == ".wmv")) {
-                            row.append(
-                                '<td><button class="btn-danger" onclick="deleteFile(\'' +
-                                file.name +
-                                "')\"><i class='fa fa-trash'></i> Delete</button></td>" + '<td><a href="' + AbsPath + '" download="' + file.name + file.ext + '"><button class="btn-blue"><i class="fa fa-download"></i> Download</button></a></td>'
-                            );
-                        } else {
-                            row.append(
-                                '<td><button class="btn-danger" onclick="deleteFile(\'' +
-                                file.name +
-                                "')\"><i class='fa fa-trash'></i> Delete</button></td>" + '<td><div class="btn-group"><a href="' + AbsPath + '" download="' + file.name + file.ext + '"><button class="btn-blue" style="background-color: DodgerBlue;"><i class="fa fa-download"></i></button></a><a href="/stream/' + AbsPath + '"><button class="btn-blue" style="background-color: orange;"><i class="bi bi-play-circle"></i></button></a></div></td>'
-                            );
-                        }
-                        table.append(row);
+        $.ajax({
+            url: "/dir/" + window.location.pathname.replace("/downloads/", ""),
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                console.log(window.location.pathname.split("/", 5));
+                var table = $("#files-table");
+                table.empty();
+                table.append(
+                    "<tr><th>ID</th><th>File</th><th>Size</th><th>Type</th><th class='th-center'>Actions</th></tr>"
+                );
+                for (var i = 0; i < data.length; i++) {
+                    var file = data[i];
+                    var row = $("<tr></tr>");
+                    var num = i + 1;
+                    row.append("<td>" + num + "</td>");
+                    var AbsPath = file.path.replace("/downloads", "/dir")
+                    if (file.isdir == 'true') {
+                        var faclass = "<i style='font-size: 1rem; color: #f3da35;' class='fa fa-folder'></i>"
+                        row.append("<td><a href='" + file.path + '/' + "'><b>" + file.name + "</b></a> " + faclass + "</td>");
+                    } else {
+                        var faclass = "<i style='font-size: 1rem; color: " + file.color + ";' class='" + file.class + "'></i>    ";
+                        row.append("<td>" + "<a href='" + AbsPath + "'><b>" + file.name + "</b></a> " + faclass + "</td>");
                     }
-                },
-            });
-        }
-
-        $(document).ready(function () {
-            EditFilesTable();
+                    if (file.isdir == 'true') {
+                        row.append("<td></td>");
+                    } else {
+                        row.append("<td>" + file.size + "</td>");
+                    }
+                    if (file.isdir == 'true') {
+                        row.append("<td>Folder</td>");
+                    } else {
+                        row.append("<td>" + file.type + "</td>");
+                    }
+                    if (!(file.ext == ".mkv" || file.ext == ".mp4" || file.ext == ".avi" || file.ext == ".flv" || file.ext == ".wmv")) {
+                        row.append(
+                            '<td><button class="btn-danger" onclick="deleteFile(\'' +
+                            file.name +
+                            "')\"><i class='fa fa-trash'></i> Delete</button></td>" + '<td><a href="' + AbsPath + '" download="' + file.name + file.ext + '"><button class="btn-blue"><i class="fa fa-download"></i> Download</button></a></td>'
+                        );
+                    } else {
+                        row.append(
+                            '<td><button class="btn-danger" onclick="deleteFile(\'' +
+                            file.name +
+                            "')\"><i class='fa fa-trash'></i> Delete</button></td>" + '<td><div class="btn-group"><a href="' + AbsPath + '" download="' + file.name + file.ext + '"><button class="btn-blue" style="background-color: DodgerBlue;"><i class="fa fa-download"></i></button></a><a href="/stream/' + AbsPath + '"><button class="btn-blue" style="background-color: orange;"><i class="bi bi-play-circle"></i></button></a></div></td>'
+                        );
+                    }
+                    table.append(row);
+                }
+            },
         });
 
     </script>
