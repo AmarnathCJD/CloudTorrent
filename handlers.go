@@ -120,8 +120,8 @@ func GetDirContents(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}()
-	path := filepath.Join(Root, r.URL.Path)
-	path = strings.Replace(strings.Replace(path, "\\dir", "", -1), "dir", "", -1)
+	path := AbsPath(filepath.Join(Root, r.URL.Path))
+        fmt.Println(path)
 	if IsDir, err := isDirectory(path); err == nil && IsDir {
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			http.Error(w, "Directory not found", http.StatusNotFound)
