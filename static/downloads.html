@@ -232,6 +232,7 @@
                         row.append("<td>" + file.size + "</td>");
                     }
                     if (file.isdir == 'true') {
+                        AbsPath = file.path;
                         row.append("<td>Folder</td>");
                     } else {
                         row.append("<td>" + file.type + "</td>");
