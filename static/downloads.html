@@ -203,7 +203,7 @@
             }
         }
         $.ajax({
-            url: "/dir/" + window.location.pathname.replace("/downloads/", ""),
+            url: "/dir/" + window.location.pathname,
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -287,6 +287,7 @@
                 },
             });
         }
+        ToastMessage("Toast Test.");
 
     </script>
 </body>
