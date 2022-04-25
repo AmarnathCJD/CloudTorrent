@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -17,11 +18,16 @@ type DiskStatus struct {
 	All, Used, Free string
 }
 
-type Torrent struct {
-	Name   string
-	Size   string
-	Date   string
-	Magnet string
+type FileInfo struct {
+	ID    string `json:"id,omitempty"`
+	Name  string `json:"name,omitempty"`
+	Size  string `json:"size,omitempty"`
+	Type  string `json:"type,omitempty"`
+	Icon  string `json:"icon,omitempty"`
+	Color string `json:"color,omitempty"`
+	Path  string `json:"path,omitempty"`
+	IsDir string `json:"is_dir,omitempty"`
+	Ext   string `json:"ext,omitempty"`
 }
 
 func DiskUsage(path string) DiskStatus {
@@ -58,43 +64,43 @@ func GetDirName(name string) string {
 func GetFileType(f string) (string, string, string) {
 	f = strings.ToLower(f)
 	if strings.HasSuffix(f, ".mp4") || strings.HasSuffix(f, ".avi") || strings.HasSuffix(f, ".mkv") {
-		return "video", "bi bi-file-earmark-play", "blue"
+		return "Video", "bi bi-file-earmark-play", "blue"
 	} else if strings.HasSuffix(f, ".mp3") || strings.HasSuffix(f, ".wav") || strings.HasSuffix(f, ".flac") {
-		return "audio", "bi bi-file-earmark-music", "green"
+		return "Audio", "bi bi-file-earmark-music", "green"
 	} else if strings.HasSuffix(f, ".jpg") || strings.HasSuffix(f, ".png") || strings.HasSuffix(f, ".gif") {
-		return "image", "bi bi-image", "orange"
+		return "Image", "bi bi-image", "orange"
 	} else if strings.HasSuffix(f, ".pdf") {
-		return "pdf", "bi bi-filetype-pdf", "red"
+		return "Pdf", "bi bi-filetype-pdf", "red"
 	} else if strings.HasSuffix(f, ".txt") {
-		return "text", "bi bi-journal-text", "purple"
+		return "Text", "bi bi-journal-text", "purple"
 	} else if strings.HasSuffix(f, ".zip") || strings.HasSuffix(f, ".rar") || strings.HasSuffix(f, ".7z") {
-		return "archive", "bi bi-file-earmark-zip", "brown"
+		return "Archive", "bi bi-file-earmark-zip", "brown"
 	} else if strings.HasSuffix(f, ".iso") {
-		return "iso", "bi bi-disc", "brown"
+		return "Iso", "bi bi-disc", "brown"
 	} else if strings.HasSuffix(f, ".exe") {
-		return "exe", "bi bi-filetype-exe", "red"
+		return "Exe", "bi bi-filetype-exe", "red"
 	} else if strings.HasSuffix(f, ".doc") || strings.HasSuffix(f, ".docx") {
-		return "doc", "bi bi-file-word", "red"
+		return "Doc", "bi bi-file-word", "red"
 	} else if strings.HasSuffix(f, ".xls") || strings.HasSuffix(f, ".xlsx") {
-		return "xls", "bi bi-file-earmark-excel", "green"
+		return "Xls", "bi bi-file-earmark-excel", "green"
 	} else if strings.HasSuffix(f, ".ppt") || strings.HasSuffix(f, ".pptx") {
-		return "ppt", "bi bi-filetype-pptx", "orange"
+		return "Ppt", "bi bi-filetype-pptx", "orange"
 	} else if strings.HasSuffix(f, ".torrent") {
-		return "torrent", "bi bi-magnet", "green"
+		return "Torrent", "bi bi-magnet", "green"
 	} else if strings.HasSuffix(f, ".py") {
-		return "python", "bi bi-filetype-py", "blue"
+		return "Python", "bi bi-filetype-py", "blue"
 	} else if strings.HasSuffix(f, ".go") {
-		return "go", "bi bi-filetype-go", "blue"
+		return "Go", "bi bi-filetype-go", "blue"
 	} else if strings.HasSuffix(f, ".js") {
-		return "js", "bi bi-filetype-js", "blue"
+		return "Js", "bi bi-filetype-js", "blue"
 	} else if strings.HasSuffix(f, ".json") {
-		return "json", "bi bi-filetype-json", "blue"
+		return "Json", "bi bi-filetype-json", "blue"
 	} else if strings.HasSuffix(f, ".html") {
-		return "html", "bi bi-filetype-html", "green"
+		return "Html", "bi bi-filetype-html", "green"
 	} else if strings.HasSuffix(f, ".css") {
-		return "css", "bi bi-filetype-css", "blue"
+		return "Css", "bi bi-filetype-css", "blue"
 	} else {
-		return "other", "bi bi-question", "black"
+		return "Other", "bi bi-question", "black"
 	}
 }
 
@@ -120,12 +126,12 @@ func GetIP(r *http.Request) string {
 	return r.RemoteAddr
 }
 
-func SortAlpha(t TorrentsResponse) TorrentsResponse {
-	data := t.Torrents
+func SortAlpha(sortData []TorrentMeta) []TorrentMeta {
+	var data = sortData
 	sort.Slice(data, func(p, q int) bool {
 		return data[p].Name < data[q].Name
 	})
-	return TorrentsResponse{Torrents: data}
+	return data
 }
 
 func StringInSlice(a string, list []string) bool {
@@ -155,4 +161,52 @@ func isDirectory(path string) (bool, error) {
 		return false, err
 	}
 	return fileInfo.IsDir(), err
+}
+
+func GetDirContentsMap(path string) ([]FileInfo, error) {
+	var files []FileInfo
+	var DirWalk, err = ioutil.ReadDir(path)
+	if err != nil {
+		return files, err
+	}
+	for i, file := range DirWalk {
+		var Name, Size, Type, Icon, Color, Ext string
+		if file.IsDir() {
+			Name = GetDirName(file.Name())
+			Type = "Folder"
+			Icon = "bi bi-folder"
+			Color = "blue"
+			Ext = "-"
+		} else {
+			Name = GetFileName(file.Name())
+			Size = ByteCountSI(file.Size())
+			Type, Icon, Color = GetFileType(file.Name())
+			Ext = filepath.Ext(file.Name())
+		}
+		f := FileInfo{
+			ID:    strconv.Itoa(i),
+			Name:  Name,
+			Size:  Size,
+			Type:  Type,
+			Path:  ServerPath(path + "/" + file.Name()),
+			Icon:  Icon,
+			Color: Color,
+			IsDir: strconv.FormatBool(file.IsDir()),
+			Ext:   Ext,
+		}
+		files = append(files, f)
+	}
+	return files, nil
+
+}
+
+func AbsPath(path string) string {
+	if runtime.GOOS == "windows" {
+		return filepath.ToSlash(path)
+	}
+	return path
+}
+
+func ServerPath(path string) string {
+	return strings.Replace(AbsPath(path), AbsPath(Root), "", 1)
 }

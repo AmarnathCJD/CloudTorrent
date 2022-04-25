@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, user-scalable=1" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <style>
-        @import url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css);
+        @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css");
         @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css");
         @import url("https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css");
 
@@ -161,13 +161,17 @@
         </header>
         <main>
             <div class="table-responsive">
-                <table id="files-table" class="table table-sm caption-top primary">
-                </table>
+                <table id="files-table" class="table table-sm caption-top primary"></table>
             </div>
         </main>
+        <div class="toast-container position-absolute"></div>
     </div>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
     <script>
+        var ToastContainer = document.querySelector('.toast-container');
         var darkSwitch = document.getElementById("darkSwitch");
         var table = document.getElementById("files-table");
         window.addEventListener("load", function () {
@@ -261,6 +265,28 @@
                 }
             },
         });
+        function ToastMessage(message) {
+            ToastContainer.innerHTML = '<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" id="toast-main"><div class="toast-header"><img src="..." class="rounded me-2" alt="..."><strong class="me-auto">Bootstrap</strong><small class="text-muted">just now</small><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button></div><div class="toast-body">' + message + '</div></div>';
+            var Toast = bootstrap.Toast.getOrCreateInstance(document.getElementById("toast-main"));
+            Toast.options = {
+                delay: 5000,
+                autohide: true,
+            }
+            Toast.show();
+        }
+        function deleteFile(name) {
+            $.ajax({
+                url: "/delete/" + window.location.pathname.replace("/downloads/", "") + "/" + name,
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    ToastMessage(data.message);
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1000);
+                },
+            });
+        }
 
     </script>
 </body>

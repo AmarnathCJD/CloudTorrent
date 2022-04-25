@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -11,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-        "log"
 
 	"github.com/julienschmidt/sse"
 )
@@ -32,16 +30,15 @@ func AddTorrent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No magnet provided", http.StatusBadRequest)
 		return
 	}
-	if !CheckDuplicateTorrent(magnet) {
-		if err := AddMagnet(magnet); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else {
+	if ok, err := AddTorrentByMagnet(magnet); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	} else if !ok {
 		http.Error(w, "Torrent already exists", http.StatusBadRequest)
 		return
+	} else {
+		w.WriteHeader(http.StatusOK)
 	}
-	MainPage(w, r)
 }
 
 func DeleteTorrent(w http.ResponseWriter, r *http.Request) {
@@ -62,8 +59,9 @@ func DeleteTorrent(w http.ResponseWriter, r *http.Request) {
 	} else if !ok {
 		http.Error(w, "Torrent not found", http.StatusNotFound)
 		return
+	} else {
+		w.WriteHeader(http.StatusOK)
 	}
-	MainPage(w, r)
 }
 
 func SystemStats(w http.ResponseWriter, r *http.Request) {
@@ -72,13 +70,28 @@ func SystemStats(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}()
-	Disk := DiskUsage(root)
+	Disk := DiskUsage(Root)
 	SystemStat := "<p><b>IP:</b> " + GetIP(r) + " " + "<b>OS:</b> " + runtime.GOOS + " " + "<b>Arch:</b> " + runtime.GOARCH + " " + "<b>CPU:</b> " + fmt.Sprint(runtime.NumCPU()) + " " + "<b>RAM:</b> " + MemUsage() + " " + "<b>Disk:</b> " + fmt.Sprintf("%s/%s", Disk.Used, Disk.All) + " " + "<b>Downloads:</b> " + strconv.Itoa(0) + "</p>"
 	w.Write([]byte(SystemStat))
 }
 
+func DeleteFile(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	path := strings.Replace(AbsPath(filepath.Join(Root, r.URL.Path)), "/delete", "", 1)
+	if err := os.Remove(path); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write([]byte(fmt.Sprintf("File %s deleted", path)))
+}
+
 func streamTorrentUpdate() {
 	fmt.Println("Streaming Torrents started")
+	return
 	for range time.Tick(time.Second * 1) {
 		SSEFeed.SendString("", "torrents", TorrHtml())
 	}
@@ -93,26 +106,12 @@ func TorrentsStats(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, TorrHtml())
 }
 
-func TorrentsToHtml(t []TorrentMeta) string {
-	var html = `<tr><th class="id">ID</th><th class="name">Name</th><th class="size">Size</th><th class="status">Status</th><th class="status">Progress</th><th class="status">ETA</th><th class="status">Download Speed</th><th class="action">Action</th></tr>`
-	for _, torrent := range t {
-		html += "<tr><td class='id'>" + torrent.ID + "</td>" + "<td class='name'><a href='/torrents/details?uid=" + torrent.UID + "'>" + torrent.Name + "</a>" + "</td>" + "<td class='size'>" + torrent.Size + "</td>" + "<td class='status'>" + torrent.Status + "</td>" + "<td class='status'>" + torrent.Perc + "</td>" + "<td class='status'>" + torrent.Eta + "</td>" + "<td class='status'>" + torrent.Speed + "</td>" + "<td class='action'>" + "<a href='torrents/details?uid=" + torrent.UID + "' class='download'>Download</a>" + "<a href='/' class='delete' onclick='return DeleteBtn(this)' data-uid='" + torrent.UID + "'>Delete</a>" + "</td></tr>"
-	}
-	return html
-}
-
 func TorrHtml() string {
 	var html = `<tr><th class="id">ID</th><th class="name">Name</th><th class="size">Size</th><th class="status">Status</th><th class="status">Progress</th><th class="status">ETA</th><th class="status">Download Speed</th><th class="action">Action</th></tr>`
-	for _, torrent := range GetActiveTorrents() {
+	for _, torrent := range GetAllTorrents() {
 		html += "<tr><th class='id'>" + torrent.ID + "</th>" + "<th class='name'><a href='/torrents/details?uid=" + torrent.UID + "'>" + torrent.Name + "</a>" + "</th>" + "<th class='size'>" + torrent.Size + "</th>" + "<th class='status'>" + torrent.Status + "</th>" + "<th class='status'>" + torrent.Perc + "</th>" + "<th class='status'>" + torrent.Eta + "</th>" + "<th class='status'>" + torrent.Speed + "</th>" + "<th class='action'>" + "<a href='torrents/details?uid=" + torrent.UID + "' class='download'>Download</a>" + "<a href='/' class='delete' onclick='return DeleteBtn(this)' data-uid='" + torrent.UID + "'>Delete</a>" + "</th></tr>"
 	}
 	return html
-}
-
-func TorrentsServe(w http.ResponseWriter, r *http.Request) {
-	Torrents := GetActiveTorrents()
-	d, _ := json.Marshal(Torrents)
-	w.Write(d)
 }
 
 func GetDirContents(w http.ResponseWriter, r *http.Request) {
@@ -121,41 +120,17 @@ func GetDirContents(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}()
-	path := filepath.Join(root, r.URL.Path)
-        log.Println(path)
+	path := filepath.Join(Root, r.URL.Path)
 	path = strings.Replace(strings.Replace(path, "\\dir", "", -1), "dir", "", -1)
-        log.Println(path)
 	if IsDir, err := isDirectory(path); err == nil && IsDir {
-		var files []map[string]string
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			http.Error(w, "Directory not found", http.StatusNotFound)
 			return
 		}
-		files = make([]map[string]string, 0)
-		f, err := ioutil.ReadDir(path)
+		files, err := GetDirContentsMap(path)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
-		}
-		for _, info := range f {
-			AbsPath := strings.Replace(path, "\\", "/", -1)
-			FType, FaClass, FaColor := GetFileType(info.Name())
-			var Name string
-			if info.IsDir() {
-				Name = GetDirName(info.Name())
-			} else {
-				Name = GetFileName(info.Name())
-			}
-			files = append(files, map[string]string{
-				"name":  Name,
-				"size":  ByteCountSI(int64(info.Size())),
-				"type":  FType,
-				"isdir": strconv.FormatBool(info.IsDir()),
-				"path":  "/downloads" + strings.Replace(AbsPath, root, "", 1) + "/" + info.Name(),
-				"class": FaClass,
-				"color": FaColor,
-				"ext":   filepath.Ext(info.Name()),
-			})
 		}
 		d, _ := json.Marshal(files)
 		w.Write(d)
@@ -166,7 +141,7 @@ func GetDirContents(w http.ResponseWriter, r *http.Request) {
 
 func GetHTMLDir(f map[string]os.FileInfo, IP string, rootDir string) string {
 	rootDir = strings.Replace(rootDir, "\\", "/", -1)
-	TorrDir := strings.Replace(rootDir, root, "", 1)
+	TorrDir := strings.Replace(rootDir, Root, "", 1)
 	TorrDir = strings.Replace(TorrDir, "\\", "/", -1)
 	var html = downloads
 	var files = ""
@@ -196,7 +171,7 @@ func GetHTMLDir(f map[string]os.FileInfo, IP string, rootDir string) string {
 }
 
 func File(w http.ResponseWriter, r *http.Request) {
-	path := filepath.Join(root, r.URL.Path)
+	path := filepath.Join(Root, r.URL.Path)
 	if filepath.Ext(path) == "" {
 		serveDir(w, r, path)
 		return
@@ -237,42 +212,6 @@ func serveDir(w http.ResponseWriter, r *http.Request, path string) {
 	}
 	IP := GetIP(r)
 	w.Write([]byte(GetHTMLDir(list, IP, path)))
-}
-
-func MainPage(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if err, ok := recover().(error); ok {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	}()
-	Disk := DiskUsage(root)
-	torr := torrents
-	torrs := GetActiveTorrents()
-	tbl := `<tr><th class="id">{{id}}</th><th class="name"><a href="/torrents/details?uid={{uid}}">{{name}}</a></th><th class="size">{{size}}</th><th class="status">{{status}}</th><th class="status">{{percent}}</th><th class="status">{{eta}}</th><th class="status">{{speed}}</th><th class="action"><a href="%s" class="download">Download</a><a href="%s" class="delete">Delete</a></th></tr>`
-	data := ""
-	for i, v := range torrs {
-		data += fmt.Sprintf(tbl, "/torrents/details?uid="+v.UID, "/torrents/delete?uid="+v.UID)
-		data = strings.Replace(data, "{{id}}", strconv.Itoa(i+1), -1)
-		data = strings.Replace(data, "{{name}}", v.Name, -1)
-		data = strings.Replace(data, "{{size}}", v.Size, -1)
-		data = strings.Replace(data, "{{speed}}", v.Speed, -1)
-		data = strings.Replace(data, "{{status}}", v.Status, -1)
-		data = strings.Replace(data, "{{percent}}", v.Perc, -1)
-		data = strings.Replace(data, "{{eta}}", v.Eta, -1)
-		data = strings.Replace(data, "{{uid}}", v.UID, -1)
-	}
-	torr = strings.Replace(torr, "{{#each torrents}}", data, -1)
-	var mem runtime.MemStats
-	runtime.ReadMemStats(&mem)
-	torr = strings.Replace(torr, "{{cpu}}", strconv.Itoa(runtime.NumCPU()), -1)
-	torr = strings.Replace(torr, "{{memory}}", ByteCountSI(int64(mem.Alloc)), -1)
-	torr = strings.Replace(torr, "{{goroutines}}", strconv.Itoa(runtime.NumGoroutine()), -1)
-	torr = strings.Replace(torr, "{{torrents_len}}", strconv.Itoa(len(torrs)), -1)
-	torr = strings.Replace(torr, "{{disk}}", fmt.Sprintf("%s/%s", Disk.Used, Disk.All), -1)
-	torr = strings.Replace(torr, "{{ip}}", GetIP(r), -1)
-	torr = strings.Replace(torr, "{{hash}}", "hie", -1)
-	torr = strings.Replace(torr, "{{progress}}", "0", -1)
-	w.Write([]byte(torr))
 }
 
 func GetTorrDir(w http.ResponseWriter, r *http.Request) {

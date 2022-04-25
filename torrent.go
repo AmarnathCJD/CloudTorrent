@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/cenkalti/rain/torrent"
@@ -48,14 +49,14 @@ type TpbTorrent struct {
 
 func InitClient() *torrent.Session {
 	config := torrent.DefaultConfig
-	if _, err := os.Stat(root + "/downloads/torrents/"); err != nil {
-		err := os.Mkdir(root+"/downloads/torrents/", 0777)
+	if _, err := os.Stat(Root + "/downloads/torrents/"); err != nil {
+		err := os.Mkdir(Root+"/downloads/torrents/", 0777)
 		if err != nil {
 			fmt.Println(err)
 		}
 	}
-	config.DataDir = root + "/downloads/torrents/"
-	config.Database = root + "/downloads/torrents/torrents.db"
+	config.DataDir = Root + "/downloads/torrents/"
+	config.Database = Root + "/downloads/torrents/torrents.db"
 	client, err := torrent.NewSession(config)
 	if err != nil {
 		log.Print(err)
@@ -63,26 +64,15 @@ func InitClient() *torrent.Session {
 	return client
 }
 
-func AddMagnet(magnet string) error {
-	t, err := client.AddURI(magnet, &torrent.AddTorrentOptions{
-		StopAfterDownload: true,
-	})
-	fmt.Print("Added torrent: ", t.Name())
+func AddTorrentByMagnet(magnet string) (bool, error) {
+	if CheckDuplicateTorrent(magnet) {
+		return false, fmt.Errorf("torrent already exists")
+	}
+	_, err := client.AddURI(magnet, &torrent.AddTorrentOptions{StopAfterDownload: true})
 	if err != nil {
-		return err
+		return false, err
 	}
-	return nil
-}
-
-func GetTorrents() []*torrent.Torrent {
-	return client.ListTorrents()
-}
-
-func GetTorrentPath(id string) string {
-	if Torr := client.GetTorrent(id); Torr != nil {
-		return root + "/downloads/torrents/" + Torr.ID() + "/" + Torr.Stats().Name
-	}
-	return ""
+	return true, nil
 }
 
 func DeleteTorrentByID(id string) (bool, error) {
@@ -93,37 +83,39 @@ func DeleteTorrentByID(id string) (bool, error) {
 	return false, nil
 }
 
-func GetTorrentStatus(id string) torrent.Stats {
-	if Torr := client.GetTorrent(id); Torr != nil {
-		return Torr.Stats()
-	}
-	return torrent.Stats{}
+func GetTorrents() []*torrent.Torrent {
+	return client.ListTorrents()
 }
 
-func GetActiveTorrents() []TorrentMeta {
-	torr := client.ListTorrents()
-	Torrents := TorrentsResponse{}
-	IDno := 0
-	for _, t := range torr {
-		if t.Name() != "" {
-			Torrents.Torrents = append(Torrents.Torrents, TorrentMeta{
-				Name:   t.Name(),
-				Size:   ByteCountSI(GetTorrentSize(t.ID())),
-				Perc:   GetDownloadPercentage(t.ID()),
-				Status: GetStats(t.ID()),
-				Magnet: t.Stats().InfoHash.String(),
-				Speed:  fmt.Sprint(ByteCountSI(int64(t.Stats().Speed.Download))) + "/s",
-				UID:    t.ID(),
-				Eta:    fmt.Sprint(t.Stats().ETA),
-			})
-		}
+func GetTorrentPath(id string) string {
+	if Torr := client.GetTorrent(id); Torr != nil {
+		return Root + "/downloads/torrents/" + Torr.ID() + "/" + Torr.Stats().Name
+	}
+	return ""
+}
+
+func GetAllTorrents() []TorrentMeta {
+	var Torrents []TorrentMeta
+	var Sno int
+	for _, t := range GetTorrents() {
+		Torrents = append(Torrents, TorrentMeta{
+			Name:   t.Stats().Name,
+			Size:   fmt.Sprint(t.Stats().Bytes.Total),
+			Status: GetStats(t.ID()),
+			Magnet: t.Stats().InfoHash.String(),
+			ID:     t.ID(),
+			UID:    t.InfoHash().String(),
+			Perc:   GetDownloadPercentage(t.ID()),
+			Eta:    fmt.Sprint(t.Stats().ETA),
+			Speed:  fmt.Sprint(ByteCountSI(int64(t.Stats().Speed.Download))) + "/s",
+		})
 	}
 	Torrents = SortAlpha(Torrents)
-	for i := range Torrents.Torrents {
-		Torrents.Torrents[i].ID = fmt.Sprint(IDno)
-		IDno++
+	for i := range Torrents {
+		Torrents[i].ID = strconv.Itoa(Sno)
+		Sno++
 	}
-	return Torrents.Torrents
+	return Torrents
 }
 
 func GetDownloadPercentage(id string) string {
@@ -144,18 +136,6 @@ func GetTorrentSize(id string) int64 {
 		}
 	}
 	return 0
-}
-
-func GetPeers(id string) int {
-	torr := client.GetTorrent(id)
-	if torr != nil {
-		return torr.Stats().Peers.Total
-	}
-	return 0
-}
-
-func UpdateOnComplete() {
-
 }
 
 func CheckDuplicateTorrent(magnet string) bool {
