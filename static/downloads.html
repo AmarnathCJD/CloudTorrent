@@ -174,9 +174,9 @@
         var ToastContainer = document.querySelector('.toast-container');
         var darkSwitch = document.getElementById("darkSwitch");
         var table = document.getElementById("files-table");
-        var bt = `<button type="button" class="btn btn-primary" id="liveToastBtn">Show live toast</button>
+        var bt = `
 
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11" id="toast-main">
   <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header">
       <img src="..." class="rounded me-2" alt="...">
