@@ -110,7 +110,7 @@ func TorrHtml() string {
 	for _, torrent := range GetAllTorrents() {
 		d, _ := json.Marshal(torrent)
 		fmt.Println(string(d))
-		TorrPath := "/downloads/torrents/" + torrent.Magnet + "/"
+		TorrPath := "/downloads/torrents/" + torrent.UID + "/"
 		html += "<tr><th class='id'>" + torrent.ID + "</th>" + "<th class='name'><a href='" + TorrPath + "'>" + torrent.Name + "</a>" + "</th>" + "<th class='size'>" + torrent.Size + "</th>" + "<th class='status'>" + torrent.Status + "</th>" + "<th class='status'>" + torrent.Perc + "</th>" + "<th class='status'>" + torrent.Eta + "</th>" + "<th class='status'>" + torrent.Speed + "</th>" + "<th class='action'>" + "<a href='torrents/details?uid=" + torrent.UID + "' class='download'>Download</a>" + "<a href='/' class='delete' onclick='return DeleteBtn(this)' data-uid='" + torrent.UID + "'>Delete</a>" + "</th></tr>"
 	}
 	return html
