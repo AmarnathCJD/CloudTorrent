@@ -220,23 +220,20 @@
                     var num = i + 1;
                     row.append("<td>" + num + "</td>");
                     var AbsPath = file.path.replace("/downloads", "/dir")
-                    if (file.isdir == 'true') {
+                    if (file.is_dir == 'true') {
                         console.log(file.path);
                         var faclass = "<i style='font-size: 1rem; color: #f3da35;' class='fa fa-folder'></i>"
                         row.append("<td><a href='" + file.path + '/' + "'><b>" + file.name + "</b></a> " + faclass + "</td>");
                     } else {
                         var faclass = "<i style='font-size: 1rem; color: " + file.color + ";' class='" + file.class + "'></i>    ";
-                        row.append("<td>" + "<a href='" + file.path + "'><b>" + file.name + "</b></a> " + faclass + "</td>");
+                        row.append("<td>" + "<a href='" + AbsPath + "'><b>" + file.name + "</b></a> " + faclass + "</td>");
                     }
-                    if (file.isdir == 'true') {
+                    if (file.is_dir == 'true') {
                         row.append("<td></td>");
-                    } else {
-                        row.append("<td>" + file.size + "</td>");
-                    }
-                    if (file.isdir == 'true') {
                         AbsPath = file.path;
                         row.append("<td>Folder</td>");
                     } else {
+                        row.append("<td>" + file.size + "</td>");
                         row.append("<td>" + file.type + "</td>");
                     }
                     if (file.ext == ".mkv" || file.ext == ".mp4" || file.ext == ".avi" || file.ext == ".flv" || file.ext == ".wmv") {
