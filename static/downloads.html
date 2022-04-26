@@ -266,7 +266,7 @@
             },
         });
         function ToastMessage(message) {
-            ToastContainer.innerHTML = '<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" id="toast-main"><div class="toast-header"><img src="..." class="rounded me-2" alt="..."><strong class="me-auto">Bootstrap</strong><small class="text-muted">just now</small><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button></div><div class="toast-body">' + message + '</div></div>';
+            ToastContainer.innerHTML = '<div class="toast position-fixed bottom-0 end-0 p-3" role="alert" aria-live="assertive" aria-atomic="true" id="toast-main"><div class="toast-header"><strong class="me-auto">Bootstrap</strong><small class="text-muted">just now</small><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button></div><div class="toast-body">' + message + '</div></div>';
             var Toast = bootstrap.Toast.getOrCreateInstance(document.getElementById("toast-main"));
             Toast.options = {
                 delay: 5000,
