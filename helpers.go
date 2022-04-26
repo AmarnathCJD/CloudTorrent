@@ -194,6 +194,7 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 			IsDir: strconv.FormatBool(file.IsDir()),
 			Ext:   Ext,
 		}
+		fmt.Println(f)
 		files = append(files, f)
 	}
 	return files, nil
