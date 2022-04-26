@@ -82,11 +82,12 @@ func DeleteFile(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 	path := strings.Replace(AbsPath(filepath.Join(Root, r.URL.Path)), "/delete", "", 1)
+	fmt.Println(path)
 	if err := os.Remove(path); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Write([]byte(fmt.Sprintf("File %s deleted", path)))
+	w.WriteHeader(http.StatusOK)
 }
 
 func streamTorrentUpdate() {
@@ -136,81 +137,6 @@ func GetDirContents(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.ServeFile(w, r, path)
 	}
-}
-
-func GetHTMLDir(f map[string]os.FileInfo, IP string, rootDir string) string {
-	rootDir = strings.Replace(rootDir, "\\", "/", -1)
-	TorrDir := strings.Replace(rootDir, Root, "", 1)
-	TorrDir = strings.Replace(TorrDir, "\\", "/", -1)
-	var html = downloads
-	var files = ""
-	tbl := `<tr> <td>{{name}}</td> <td>{{size}}</td> <td>{{type}}</td> <td>{{date}}</td> </tr>`
-	for _, v := range f {
-		var TorrDirV = TorrDir
-		if !v.IsDir() {
-			TorrDirV = TorrDir + "/" + v.Name()
-		} else {
-			TorrDirV = TorrDir + "/" + v.Name() + "/"
-		}
-		files += tbl
-		Size := ByteCountSI(int64(v.Size()))
-		FileType, _, _ := GetFileType(v.Name())
-		if v.IsDir() {
-			FileType = "Folder"
-			Size = "-"
-		}
-		files = strings.Replace(files, "{{name}}", fmt.Sprintf(`<a href="%s">`+strings.Title(GetFileName(v.Name()))+`</a>`, TorrDirV), -1)
-		files = strings.Replace(files, "{{size}}", Size, -1)
-		files = strings.Replace(files, "{{type}}", FileType, -1)
-		files = strings.Replace(files, "{{date}}", strings.ReplaceAll(v.ModTime().String(), "+0000 GMT", ""), -1)
-	}
-	html = strings.Replace(html, "{{files}}", files, -1)
-	html = strings.Replace(html, "{{ip}}", IP, -1)
-	return html
-}
-
-func File(w http.ResponseWriter, r *http.Request) {
-	path := filepath.Join(Root, r.URL.Path)
-	if filepath.Ext(path) == "" {
-		serveDir(w, r, path)
-		return
-	}
-	stat, err := os.Stat(path)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	if stat.IsDir() {
-		serveDir(w, r, path)
-		return
-	}
-	http.ServeFile(w, r, path)
-}
-
-func serveDir(w http.ResponseWriter, r *http.Request, path string) {
-	defer func() {
-		if err, ok := recover().(error); ok {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	}()
-	file, err := os.Open(path)
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer file.Close()
-	if err != nil {
-		fmt.Println(err)
-	}
-	files, err := file.Readdir(-1)
-	if err != nil {
-		fmt.Println(err)
-	}
-	var list = make(map[string]os.FileInfo)
-	for _, file := range files {
-		list[file.Name()] = file
-	}
-	IP := GetIP(r)
-	w.Write([]byte(GetHTMLDir(list, IP, path)))
 }
 
 func GetTorrDir(w http.ResponseWriter, r *http.Request) {
@@ -279,7 +205,7 @@ func TorrentSearchPage(w http.ResponseWriter, r *http.Request) {
 		}
 		data += table
 		data = strings.Replace(data, "{{id}}", strconv.Itoa(i+1), -1)
-		data = strings.Replace(data, "{{name}}", GetFileName(v.Name), -1)
+		data = strings.Replace(data, "{{name}}", v.Name, -1)
 		data = strings.Replace(data, "{{size}}", ByteCountSI(StringToInt64(v.Size)), -1)
 		data = strings.Replace(data, "{{seeders}}", v.Seeders, -1)
 		data = strings.Replace(data, "{{leechers}}", v.Leechers, -1)

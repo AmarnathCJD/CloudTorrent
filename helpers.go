@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -24,12 +23,12 @@ type FileInfo struct {
 	Name       string `json:"name,omitempty"`
 	Size       string `json:"size,omitempty"`
 	Type       string `json:"type,omitempty"`
-	Icon       string `json:"icon,omitempty"`
 	Color      string `json:"color,omitempty"`
 	Path       string `json:"path,omitempty"`
 	IsDir      string `json:"is_dir,omitempty"`
 	Ext        string `json:"ext,omitempty"`
 	StreamLink string `json:"stream,omitempty"`
+	Class      string `json:"class,omitempty"`
 }
 
 func DiskUsage(path string) DiskStatus {
@@ -48,19 +47,8 @@ func MemUsage() string {
 	return ByteCountSI(int64(m.Alloc))
 }
 
-func GetFileName(f string) string {
-	name := strings.TrimSuffix(f, filepath.Ext(f))
-	if len(name) > 45 {
-		name = name[:45] + "..."
-	}
-	return name
-}
-
-func GetDirName(name string) string {
-	if len(name) > 45 {
-		name = name[:45] + "..."
-	}
-	return name
+func GetName(f string) string {
+	return strings.TrimSuffix(f, filepath.Ext(f))
 }
 
 func GetFileType(f string) (string, string, string) {
@@ -172,16 +160,16 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 		return files, err
 	}
 	for i, file := range DirWalk {
-		var Name, Size, Type, Icon, Color, Ext, StreamURL string
+		var Size, Type, Icon, Color, Ext, StreamURL string
 		if file.IsDir() {
-			Name = GetDirName(file.Name())
 			Type = "Folder"
 			Icon = "bi bi-folder"
 			Color = "blue"
 			Ext = "-"
 			StreamURL = ServerPath(path + "/" + file.Name())
+			DirSize, _ := DirSize(path + "/" + file.Name())
+			Size = ByteCountSI(DirSize)
 		} else {
-			Name = GetFileName(file.Name())
 			Size = ByteCountSI(file.Size())
 			Type, Icon, Color = GetFileType(file.Name())
 			Ext = filepath.Ext(file.Name())
@@ -189,18 +177,16 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 		}
 		f := FileInfo{
 			ID:         strconv.Itoa(i),
-			Name:       Name,
+			Name:       GetName(file.Name()),
 			Size:       Size,
 			Type:       Type,
 			Path:       ServerPath(path + "/" + file.Name()),
-			Icon:       Icon,
 			Color:      Color,
 			IsDir:      strconv.FormatBool(file.IsDir()),
 			Ext:        Ext,
 			StreamLink: StreamURL,
+			Class:      Icon,
 		}
-		d, _ := json.Marshal(f)
-		fmt.Println(string(d))
 		files = append(files, f)
 	}
 	return files, nil
@@ -216,4 +202,18 @@ func AbsPath(path string) string {
 
 func ServerPath(path string) string {
 	return strings.Replace(AbsPath(path), AbsPath(Root), "", 1)
+}
+
+func DirSize(path string) (int64, error) {
+	var size int64
+	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			size += info.Size()
+		}
+		return err
+	})
+	return size, err
 }
