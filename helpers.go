@@ -19,15 +19,16 @@ type DiskStatus struct {
 }
 
 type FileInfo struct {
-	ID    string `json:"id,omitempty"`
-	Name  string `json:"name,omitempty"`
-	Size  string `json:"size,omitempty"`
-	Type  string `json:"type,omitempty"`
-	Icon  string `json:"icon,omitempty"`
-	Color string `json:"color,omitempty"`
-	Path  string `json:"path,omitempty"`
-	IsDir string `json:"is_dir,omitempty"`
-	Ext   string `json:"ext,omitempty"`
+	ID         string `json:"id,omitempty"`
+	Name       string `json:"name,omitempty"`
+	Size       string `json:"size,omitempty"`
+	Type       string `json:"type,omitempty"`
+	Icon       string `json:"icon,omitempty"`
+	Color      string `json:"color,omitempty"`
+	Path       string `json:"path,omitempty"`
+	IsDir      string `json:"is_dir,omitempty"`
+	Ext        string `json:"ext,omitempty"`
+	StreamLink string `json:"stream,omitempty"`
 }
 
 func DiskUsage(path string) DiskStatus {
@@ -170,13 +171,14 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 		return files, err
 	}
 	for i, file := range DirWalk {
-		var Name, Size, Type, Icon, Color, Ext string
+		var Name, Size, Type, Icon, Color, Ext, StreamURL string
 		if file.IsDir() {
 			Name = GetDirName(file.Name())
 			Type = "Folder"
 			Icon = "bi bi-folder"
 			Color = "blue"
 			Ext = "-"
+			StreamURL = "/stream/" + ServerPath(path+"/"+file.Name())
 		} else {
 			Name = GetFileName(file.Name())
 			Size = ByteCountSI(file.Size())
@@ -184,17 +186,18 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 			Ext = filepath.Ext(file.Name())
 		}
 		f := FileInfo{
-			ID:    strconv.Itoa(i),
-			Name:  Name,
-			Size:  Size,
-			Type:  Type,
-			Path:  ServerPath(path + "/" + file.Name()),
-			Icon:  Icon,
-			Color: Color,
-			IsDir: strconv.FormatBool(file.IsDir()),
-			Ext:   Ext,
+			ID:         strconv.Itoa(i),
+			Name:       Name,
+			Size:       Size,
+			Type:       Type,
+			Path:       ServerPath(path + "/" + file.Name()),
+			Icon:       Icon,
+			Color:      Color,
+			IsDir:      strconv.FormatBool(file.IsDir()),
+			Ext:        Ext,
+			StreamLink: StreamURL,
 		}
-		fmt.Println(f.Path)
+		fmt.Println(f.StreamLink)
 		files = append(files, f)
 	}
 	return files, nil
