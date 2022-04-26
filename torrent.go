@@ -89,7 +89,7 @@ func GetTorrents() []*torrent.Torrent {
 
 func GetTorrentPath(id string) string {
 	if Torr := client.GetTorrent(id); Torr != nil {
-		return Root + "/downloads/torrents/" + Torr.ID() + "/" + Torr.Stats().Name
+		return "/downloads/torrents/" + Torr.ID() + "/" + Torr.Stats().Name
 	}
 	return ""
 }
