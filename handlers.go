@@ -91,7 +91,6 @@ func DeleteFile(w http.ResponseWriter, r *http.Request) {
 
 func streamTorrentUpdate() {
 	fmt.Println("Streaming Torrents started")
-	return
 	for range time.Tick(time.Second * 1) {
 		SSEFeed.SendString("", "torrents", TorrHtml())
 	}
@@ -121,7 +120,7 @@ func GetDirContents(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 	path := strings.Replace(AbsPath(filepath.Join(Root, r.URL.Path)), "/dir", "", 1)
-        fmt.Println(path)
+	fmt.Println(path)
 	if IsDir, err := isDirectory(path); err == nil && IsDir {
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			http.Error(w, "Directory not found", http.StatusNotFound)
