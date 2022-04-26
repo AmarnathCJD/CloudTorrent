@@ -184,7 +184,7 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 			Size = ByteCountSI(file.Size())
 			Type, Icon, Color = GetFileType(file.Name())
 			Ext = filepath.Ext(file.Name())
-			StreamURL = "/stream/" + strings.Replace(AbsPath(ServerPath(path+"/"+file.Name())), "/downloads/", "/dir/", 1)
+			StreamURL = AbsPath("/stream/" + strings.Replace(AbsPath(ServerPath(path+"/"+file.Name())), "/downloads/", "/dir/", 1))
 		}
 		f := FileInfo{
 			ID:         strconv.Itoa(i),
