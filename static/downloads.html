@@ -174,6 +174,21 @@
         var ToastContainer = document.querySelector('.toast-container');
         var darkSwitch = document.getElementById("darkSwitch");
         var table = document.getElementById("files-table");
+        var bt = `<button type="button" class="btn btn-primary" id="liveToastBtn">Show live toast</button>
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+  <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <img src="..." class="rounded me-2" alt="...">
+      <strong class="me-auto">Bootstrap</strong>
+      <small>11 mins ago</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      Hello, world! This is a toast message.
+    </div>
+  </div>
+</div>`;
         window.addEventListener("load", function () {
             if (darkSwitch) {
                 initTheme();
@@ -266,7 +281,7 @@
             },
         });
         function ToastMessage(message) {
-            ToastContainer.innerHTML = '<div class="toast position-fixed bottom-0 end-0 p-3" role="alert" aria-live="assertive" aria-atomic="true" id="toast-main"><div class="toast-header"><strong class="me-auto">Bootstrap</strong><small class="text-muted">just now</small><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button></div><div class="toast-body">' + message + '</div></div>';
+            ToastContainer.innerHTML = bt
             var Toast = bootstrap.Toast.getOrCreateInstance(document.getElementById("toast-main"));
             Toast.options = {
                 delay: 5000,
