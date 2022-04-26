@@ -108,7 +108,8 @@ func TorrentsStats(w http.ResponseWriter, r *http.Request) {
 func TorrHtml() string {
 	var html = `<tr><th class="id">ID</th><th class="name">Name</th><th class="size">Size</th><th class="status">Status</th><th class="status">Progress</th><th class="status">ETA</th><th class="status">Download Speed</th><th class="action">Action</th></tr>`
 	for _, torrent := range GetAllTorrents() {
-		html += "<tr><th class='id'>" + torrent.ID + "</th>" + "<th class='name'><a href='/downloads/" + ServerPath(GetTorrentPath(torrent.UID)) + "'>" + torrent.Name + "</a>" + "</th>" + "<th class='size'>" + torrent.Size + "</th>" + "<th class='status'>" + torrent.Status + "</th>" + "<th class='status'>" + torrent.Perc + "</th>" + "<th class='status'>" + torrent.Eta + "</th>" + "<th class='status'>" + torrent.Speed + "</th>" + "<th class='action'>" + "<a href='torrents/details?uid=" + torrent.UID + "' class='download'>Download</a>" + "<a href='/' class='delete' onclick='return DeleteBtn(this)' data-uid='" + torrent.UID + "'>Delete</a>" + "</th></tr>"
+		p := ServerPath(GetTorrentPath(torrent.UID))
+		html += "<tr><th class='id'>" + torrent.ID + "</th>" + "<th class='name'><a href='/downloads/" + p + "'>" + torrent.Name + "</a>" + "</th>" + "<th class='size'>" + torrent.Size + "</th>" + "<th class='status'>" + torrent.Status + "</th>" + "<th class='status'>" + torrent.Perc + "</th>" + "<th class='status'>" + torrent.Eta + "</th>" + "<th class='status'>" + torrent.Speed + "</th>" + "<th class='action'>" + "<a href='torrents/details?uid=" + torrent.UID + "' class='download'>Download</a>" + "<a href='/' class='delete' onclick='return DeleteBtn(this)' data-uid='" + torrent.UID + "'>Delete</a>" + "</th></tr>"
 	}
 	return html
 }
