@@ -85,7 +85,7 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdn.plyr.io/3.7.2/plyr.js"></script>
     <script>
-        var src = "/dir" + window.location.pathname.replace("/stream", "");
+        var src = window.location.pathname.replace("/stream/dir", "/dir/downloads/");
         var player_div = document.getElementById("player-div");
         player_div.innerHTML =
             '<video id="player" playsinline controls><source src="' +
