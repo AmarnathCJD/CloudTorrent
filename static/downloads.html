@@ -226,7 +226,7 @@
                         row.append("<td><a href='" + file.path + '/' + "'><b>" + file.name + "</b></a> " + faclass + "</td>");
                     } else {
                         var faclass = "<i style='font-size: 1rem; color: " + file.color + ";' class='" + file.class + "'></i>    ";
-                        row.append("<td>" + "<a href='" + AbsPath + "'><b>" + file.name + "</b></a> " + faclass + "</td>");
+                        row.append("<td>" + "<a href='" + file.path + "'><b>" + file.name + "</b></a> " + faclass + "</td>");
                     }
                     if (file.isdir == 'true') {
                         row.append("<td></td>");
