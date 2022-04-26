@@ -173,7 +173,7 @@ func GetStats(id string) string {
 	torr := client.GetTorrent(id)
 	if torr != nil {
 		if torr.Stats().Bytes.Total == 0 {
-			return "Waiting"
+			return "Downloading metadata"
 		} else if torr.Stats().Bytes.Downloaded == torr.Stats().Bytes.Total {
 			return "Complete"
 		} else {
