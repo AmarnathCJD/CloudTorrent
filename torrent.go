@@ -100,7 +100,7 @@ func GetAllTorrents() []TorrentMeta {
 	for _, t := range GetTorrents() {
 		Torrents = append(Torrents, TorrentMeta{
 			Name:   t.Stats().Name,
-			Size:   fmt.Sprint(t.Stats().Bytes.Total),
+			Size:   ByteCountSI(t.Stats().Bytes.Total),
 			Status: GetStats(t.ID()),
 			Magnet: t.Stats().InfoHash.String(),
 			UID:    t.ID(),
