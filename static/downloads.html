@@ -208,6 +208,7 @@
             dataType: "json",
             success: function (data) {
                 console.log(window.location.pathname.split("/", 5));
+                console.log(data);
                 var table = $("#files-table");
                 table.empty();
                 table.append(
