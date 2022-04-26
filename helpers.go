@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -184,7 +185,7 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 			Size = ByteCountSI(file.Size())
 			Type, Icon, Color = GetFileType(file.Name())
 			Ext = filepath.Ext(file.Name())
-			StreamURL = AbsPath("/stream/" + strings.Replace(AbsPath(ServerPath(path+"/"+file.Name())), "/downloads/", "/dir/", 1))
+			StreamURL = AbsPath("/stream" + strings.Replace(ServerPath(path+"/"+file.Name()), "/downloads/", "/dir/", 1))
 		}
 		f := FileInfo{
 			ID:         strconv.Itoa(i),
@@ -198,7 +199,8 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 			Ext:        Ext,
 			StreamLink: StreamURL,
 		}
-		fmt.Println(f.StreamLink)
+		d, _ := json.Marshal(f)
+		fmt.Println(string(d))
 		files = append(files, f)
 	}
 	return files, nil
