@@ -178,12 +178,13 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 			Icon = "bi bi-folder"
 			Color = "blue"
 			Ext = "-"
-			StreamURL = "/stream/" + ServerPath(path+"/"+file.Name())
+			StreamURL = "/downloads/" + ServerPath(path+"/"+file.Name())
 		} else {
 			Name = GetFileName(file.Name())
 			Size = ByteCountSI(file.Size())
 			Type, Icon, Color = GetFileType(file.Name())
 			Ext = filepath.Ext(file.Name())
+			StreamURL = "/stream/" + ServerPath(path+"/"+file.Name())
 		}
 		f := FileInfo{
 			ID:         strconv.Itoa(i),
