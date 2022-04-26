@@ -106,7 +106,7 @@ func GetAllTorrents() []TorrentMeta {
 			UID:    t.ID(),
 			Perc:   GetDownloadPercentage(t.ID()),
 			Eta:    fmt.Sprint(t.Stats().ETA),
-			Speed:  fmt.Sprint(ByteCountSI(int64(t.Stats().Speed.Download))) + "/s",
+			Speed:  GetDownloadSpeed(t),
 		})
 	}
 	Torrents = SortAlpha(Torrents)
@@ -135,6 +135,14 @@ func GetTorrentSize(id string) int64 {
 		}
 	}
 	return 0
+}
+
+func GetDownloadSpeed(t *torrent.Torrent) string {
+	if t.Stats().Speed.Download != 0 {
+		return ByteCountSI(int64(t.Stats().Speed.Download)) + "/s"
+	} else {
+		return "-"
+	}
 }
 
 func CheckDuplicateTorrent(magnet string) bool {
