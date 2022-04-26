@@ -220,6 +220,7 @@
                     row.append("<td>" + num + "</td>");
                     var AbsPath = file.path.replace("/downloads", "/dir")
                     if (file.isdir == 'true') {
+                        console.log(file.path);
                         var faclass = "<i style='font-size: 1rem; color: #f3da35;' class='fa fa-folder'></i>"
                         row.append("<td><a href='" + file.path + '/' + "'><b>" + file.name + "</b></a> " + faclass + "</td>");
                     } else {
