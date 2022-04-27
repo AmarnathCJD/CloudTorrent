@@ -53,7 +53,7 @@ func GetName(f string) string {
 
 func GetFileType(f string) (string, string, string) {
 	f = strings.ToLower(f)
-	if strings.HasSuffix(f, ".mp4") || strings.HasSuffix(f, ".avi") || strings.HasSuffix(f, ".mkv") {
+	if strings.HasSuffix(f, ".mp4") || strings.HasSuffix(f, ".avi") || strings.HasSuffix(f, ".mkv") || strings.HasSuffix(f, ".webm") {
 		return "Video", "bi bi-file-earmark-play", "blue"
 	} else if strings.HasSuffix(f, ".mp3") || strings.HasSuffix(f, ".wav") || strings.HasSuffix(f, ".flac") {
 		return "Audio", "bi bi-file-earmark-music", "green"
@@ -164,7 +164,7 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 		if file.IsDir() {
 			Type = "Folder"
 			Icon = "bi bi-folder"
-			Color = "blue"
+			Color = "yellow"
 			Ext = "-"
 			StreamURL = ServerPath(path + "/" + file.Name())
 			DirSize, _ := DirSize(path + "/" + file.Name())

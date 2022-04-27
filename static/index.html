@@ -355,7 +355,7 @@
     <script>
         function GetSystemInfo() {
             $.ajax({
-                url: "/api/v1/status",
+                url: "/api/status",
                 type: "GET",
                 success: function (data) {
                     $(".system-info").html(data);
@@ -364,7 +364,7 @@
         }
         function UpdateTorrents() {
             $.ajax({
-                url: "/api/v1/torrents",
+                url: "/api/torrents",
                 type: "GET",
                 success: function (data) {
                     document.getElementById("torrents").innerHTML = data;

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -164,56 +165,54 @@ func GetTorrDir(w http.ResponseWriter, r *http.Request) {
 			http.ServeFile(w, r, path)
 		}
 	}
-
 }
 
-func TorrentSearchPage(w http.ResponseWriter, r *http.Request) {
+func AutoComplete(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err, ok := recover().(error); ok {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}()
 	r.ParseForm()
-	query := r.Form.Get("query")
-	if query == "" {
+	q := r.Form.Get("q")
+	if q == "" {
 		http.Error(w, "No query", http.StatusBadRequest)
 		return
 	}
-	var t []TpbTorrent
-	if query == "top100" {
-		t = GenMagnetFromResult(Top100Torrents())
-	} else {
-		t = GenMagnetFromResult(SearchTorrentReq(query))
+	var client = http.DefaultClient
+	resp, err := client.Get("https://streamm4u.ws/searchJS?term=" + url.QueryEscape(q))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	data := ""
-	table := `<li class="table-row">
-    <div class="col col-1" data-label="ID">{{id}}</div>
-    <div class="col col-2" data-label="Name">{{name}}</div>
-    <div class="col col-3" data-label="Size">{{size}}</div>
-    <div class="col col-4" data-label="Seeders">{{seeders}}</div>
-    <div class="col col-5" data-label="Leechers">{{leechers}}</div>
-    <div class="col col-6" data-label="Action">
-        <button class="btn" onclick="AddedTorr(this)" data-magnet="{{magnet}}"><i class="fa fa-download"></i>Download</button>
-    </div>
-</li>`
-	total := 0
-	page := torrentsearch
-	for i, v := range t {
-		total++
-		if total > 25 {
-			break
+	defer resp.Body.Close()
+	var data []string
+	json.NewDecoder(resp.Body).Decode(&data)
+	b, _ := json.Marshal(data)
+	w.Write(b)
+}
+
+func SearchTorrents(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-		data += table
-		data = strings.Replace(data, "{{id}}", strconv.Itoa(i+1), -1)
-		data = strings.Replace(data, "{{name}}", v.Name, -1)
-		data = strings.Replace(data, "{{size}}", ByteCountSI(StringToInt64(v.Size)), -1)
-		data = strings.Replace(data, "{{seeders}}", v.Seeders, -1)
-		data = strings.Replace(data, "{{leechers}}", v.Leechers, -1)
-		data = strings.Replace(data, "{{added}}", v.Added, -1)
-		data = strings.Replace(data, "{{magnet}}", v.Magnet, -1)
+	}()
+	r.ParseForm()
+	q := r.Form.Get("q")
+	if q == "" {
+		http.Error(w, "No query", http.StatusBadRequest)
+		return
 	}
-	page = strings.Replace(page, "{{#torrents}}", data, -1)
-	page = strings.Replace(page, "{{query}}", query, -1)
-	page = strings.Replace(page, "{{count}}", strconv.Itoa(len(t)), -1)
-	w.Write([]byte(page))
+	if q == "top100" {
+		S := Top100Torrents()
+		b, _ := json.Marshal(S)
+		w.Write(b)
+		return
+	} else {
+		S := SearchTorrentReq(q)
+		b, _ := json.Marshal(S)
+		w.Write(b)
+		return
+	}
 }
