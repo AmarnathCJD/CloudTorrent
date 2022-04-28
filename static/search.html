@@ -50,7 +50,7 @@
                         Home <i class="bi bi-house"></i></button></a>
                 <a class="nav-link" href="/downloads"><button class="btn btn-primary">
                         Files <i class="bi bi-list-ul"></i></button></a>
-                <a class="nav-link" href="/search?query=top100" target="_blank"><button class="btn btn-danger active">
+                <a class="nav-link" href="/search/" target="_blank"><button class="btn btn-danger active">
                         Search <i class="bi bi-search"></i></button></a>
                 <div class="nav-link">
                     <div class="form-check form-switch">
@@ -64,15 +64,13 @@
         <div class="align-self-end" style="margin-top: 20px;">
             <div class="input-group">
                 <div class="form-outline" id="search-bar">
-                    <input id="search-input" type="search" id="form1" class="form-control" aria-label="Search"
-                        placeholder="Type query" />
+                    <input id="search-input" type="search" id="form1" class="form-control dropdown-toggle show"
+                        aria-label="Search" placeholder="Type query" data-provide="typeahead" />
                 </div>
-                <button id="search-button" type="button" class="btn btn-primary" onclick="Search()">
+                <button id="search-button" type="button" class="btn btn-primary" onclick="FetchTorrents()">
                     <i class="bi bi-search"></i>
                 </button>
             </div>
-            <ul class="list-group list-group-numbered" id="search-results" style="margin-top: 5px;">
-            </ul>
         </div>
         <main>
             <div class="table-responsive">
@@ -84,11 +82,133 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js">
+    </script>
     <script>
         var darkSwitch = document.getElementById("darkSwitch");
         var DarkIcon = document.getElementById("dark-icon");
         var table = document.getElementById("files-table");
         var searchBox = document.getElementById("search-bar");
+
+        const DEFAULTS = {
+            treshold: 2,
+            maximumItems: 5,
+            highlightTyped: true,
+            highlightClass: 'text-primary',
+        };
+
+        class Autocomplete {
+            constructor(field, options) {
+                this.field = field;
+                this.options = Object.assign({}, DEFAULTS, options);
+                this.dropdown = null;
+
+                field.parentNode.classList.add('dropdown');
+                field.setAttribute('data-toggle', 'dropdown');
+                field.classList.add('dropdown-toggle');
+
+                const dropdown = ce(`<div id="drop-down" class="dropdown-menu" ></div>`);
+                if (this.options.dropdownClass)
+                    dropdown.classList.add(this.options.dropdownClass);
+
+                insertAfter(dropdown, field);
+
+                this.dropdown = new bootstrap.Dropdown(field, this.options.dropdownOptions)
+
+                field.addEventListener('click', (e) => {
+                    if (this.createItems() === 0) {
+                        e.stopPropagation();
+                        this.dropdown.hide();
+                    }
+                });
+
+                field.addEventListener('input', () => {
+                    if (this.options.onInput)
+                        this.options.onInput(this.field.value);
+                    this.renderIfNeeded();
+                });
+
+                field.addEventListener('keydown', (e) => {
+                    if (e.keyCode === 27) {
+                        this.dropdown.hide();
+                        return;
+                    }
+                });
+            }
+
+            setData(data) {
+                this.options.data = data;
+            }
+
+            renderIfNeeded() {
+                if (this.createItems() > 0)
+                    this.dropdown.show();
+                else
+                    this.field.click();
+            }
+
+            createItem(lookup, item) {
+                let label;
+                if (this.options.highlightTyped) {
+                    const idx = item.label.toLowerCase().indexOf(lookup.toLowerCase());
+                    const className = Array.isArray(this.options.highlightClass) ? this.options.highlightClass.join(' ')
+                        : (typeof this.options.highlightClass == 'string' ? this.options.highlightClass : '')
+                    label = item.label.substring(0, idx)
+                        + `<span class="${className}">${item.label.substring(idx, idx + lookup.length)}</span>`
+                        + item.label.substring(idx + lookup.length, item.label.length);
+                } else
+                    label = item.label;
+                return ce(`<button type="button" class="dropdown-item" data-value="${item.value}">${label}</button>`);
+            }
+
+            createItems() {
+                const lookup = this.field.value;
+                if (lookup.length < this.options.treshold) {
+                    this.dropdown.hide();
+                    return 0;
+                }
+
+                const items = this.field.nextSibling;
+                items.innerHTML = '';
+
+                let count = 0;
+                for (let i = 0; i < this.options.data.length; i++) {
+                    const { label, value } = this.options.data[i];
+                    const item = { label, value };
+                    if (item.label.toLowerCase().indexOf(lookup.toLowerCase()) >= 0) {
+                        items.appendChild(this.createItem(lookup, item));
+                        if (this.options.maximumItems > 0 && ++count >= this.options.maximumItems)
+                            break;
+                    }
+                }
+
+                this.field.nextSibling.querySelectorAll('.dropdown-item').forEach((item) => {
+                    item.addEventListener('click', (e) => {
+                        let dataValue = e.target.getAttribute('data-value');
+                        this.field.value = e.target.innerText;
+                        if (this.options.onSelectItem)
+                            this.options.onSelectItem({
+                                value: e.target.value,
+                                label: e.target.innerText,
+                            });
+                        this.dropdown.hide();
+                    })
+                });
+
+                return items.childNodes.length;
+            }
+        }
+
+        function ce(html) {
+            let div = document.createElement('div');
+            div.innerHTML = html;
+            return div.firstChild;
+        }
+
+        function insertAfter(elem, refElem) {
+            return refElem.parentNode.insertBefore(elem, refElem.nextSibling)
+        }
+
         window.addEventListener("load", function () {
             if (darkSwitch) {
                 initTheme();
@@ -108,9 +228,11 @@
             if (darkThemeSelected) {
                 DarkIcon.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
                 table.classList.add("table-dark");
+                DarkDropDown(true)
             } else {
                 DarkIcon.innerHTML = "&#x2600;";
                 table.classList.remove("table-dark");
+                DarkDropDown(false)
             }
         }
         function resetTheme() {
@@ -118,143 +240,85 @@
                 document.body.setAttribute("data-theme", "dark");
                 localStorage.setItem("darkSwitch", "dark");
                 DarkIcon.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
-                AutoCompleteDark(true);
                 table.classList.add("table-dark");
+                DarkDropDown(true)
             } else {
                 document.body.removeAttribute("data-theme");
                 localStorage.removeItem("darkSwitch");
                 DarkIcon.innerHTML = "&#x2600;";
-                AutoCompleteDark(false);
                 table.classList.remove("table-dark");
+                DarkDropDown(false)
             }
-        }
-
-        function AutoCompleteDark(o) {
-            if (o) {
-                var col = document.getElementsByClassName("list-group-item");
-                for (var i = 0; i < col.length; i++) {
-                    col[i].style.backgroundColor = "#222";
-                    col[i].style.color = "#eee";
-                }
-            } else {
-                var col = document.getElementsByClassName("list-group-item");
-                for (var i = 0; i < col.length; i++) {
-                    col[i].style.backgroundColor = "#eee";
-                    col[i].style.color = "#000";
-                }
-            }
-        }
-        var search = document.getElementById("search-bar");
-        function RemYear(s) {
-            var year = s.split("(");
-            return year[0];
         }
         var Input = document.getElementById("search-input");
         Input.addEventListener("keyup", function (event) {
             var val = Input.value;
-            if (event.keyCode === 8) {
-                document.getElementById("search-results").innerHTML = "";
-                return;
-            }
-            if (val.split("").length > 3 && val.split("").length % 2 == 0) {
+            if (val.split("").length > 2) {
                 $.ajax({
                     url: "/api/autocomplete?q=" + val,
                     type: "GET",
                     success: function (data) {
                         var match = JSON.parse(data);
-                        var results = document.getElementById("search-results");
-                        results.innerHTML = "";
+                        var data = []
                         for (var i = 0; i < match.length; i++) {
-                            var li = results.appendChild(document.createElement("li"));
-                            var name = match[i].substring(0, 22) + "..."
-                            li.className = "list-group-item";
-                            li.id = "result-" + i;
-                            li.data = match[i];
-                            li.onclick = function (e) {
-                                document.getElementById("search-input").value = RemYear(this.data);
-                                document.getElementById(this.id).classList.add("active");
-                                var col = document.getElementsByClassName("list-group-item");
-                                for (var i = 0; i < col.length; i++) {
-                                    if (col[i].id != this.id) {
-                                        col[i].classList.remove("active");
-                                    }
-                                }
-                            }
-                            li.innerHTML = name;
-                            results.appendChild(li);
-                            if (i == 5) {
-                                break;
-                            }
+                            data.push({
+                                label: match[i].substring(0, 22),
+                                value: i
+                            });
                         }
-                        if (darkSwitch.checked) {
-                            AutoCompleteDark(true);
-                        }
-                    },
+                        ac.setData(data);
+                    }
                 });
             }
         });
-        $(document).on("click", function (e) {
-            if (!$(e.target).closest("#search-input").length) {
-                document.getElementById("search-results").innerHTML = "";
+
+        const ac = new Autocomplete(document.getElementById("search-input"));
+        ac.setData([]);
+
+        function DarkDropDown(mode) {
+            var DropDown = document.getElementById("drop-down");
+            if (DropDown !== null) {
+                if (mode) {
+                    DropDown.classList.add("dropdown-menu-dark");
+                } else {
+                    DropDown.classList.remove("dropdown-menu-dark");
+                }
             }
-        });
-        function FetchTopTorrents() {
-            $.ajax({
-                url: "/api/search?q=top100",
-                type: "GET",
-                dataType: "json",
-                success: function (data) {
-                    var table = $("#files-table");
-                    table.empty();
-                    table.append(
-                        "<caption>Top Trending</caption><tr><th style='width: 3.66%'>ID</th><th>Name</th><th>Size</th><th>Seeds/Peers</th><th >Actions</th></tr>"
-                    );
-                    for (var i = 0; i < data.length; i++) {
-                        var file = data[i];
-                        var row = $("<tr></tr>");
-                        var num = i + 1;
-                        row.append("<td>" + num + "</td>");
-                        row.append("<td>" + file.name + "</td>");
-                        row.append("<td>" + file.size + "</td>");
-                        row.append("<td>" + file.seeders + "/" + file.leechers + "</td>");
-                        row.append(
-                            "<td><a href='/torrents/add?uid=" +
-                            file.info_hash +
-                            "' class='btn btn-primary'><i class='bi bi-download'></i> Download</a></td>"
-                        );
-                        table.append(row);
-                        if (i == 24) {
-                            break;
-                        }
-                    }
-                },
-            });
         }
 
-        function Search() {
-            var val = document.getElementById("search-input").value;
+        function FetchTorrents() {
+            var Query = Input.value;
+            var url = `/api/search?q=` + Query;
+            var querytype = "Search results for: " + Query;
+            if (Query == "") {
+                url = `/api/search?q=top100`;
+                querytype = "Top Trending"
+            }
             $.ajax({
-                url: "/api/search?q=" + val,
+                url: url,
                 type: "GET",
                 dataType: "json",
                 success: function (data) {
                     var table = $("#files-table");
                     table.empty();
                     table.append(
-                        "<caption>Search results for " + val + "</caption><tr><th style='width: 3.66%'>ID</th><th>Name</th><th>Size</th><th>Seeds/Peers</th><th >Actions</th></tr>"
+                        "<caption>" + querytype + "</caption><tr><th style='width: 3.66%'>ID</th><th>Name</th><th>Size</th><th>Seeds</th><th>Peers</th><th>Actions</th></tr>"
                     );
                     for (var i = 0; i < data.length; i++) {
                         var file = data[i];
                         var row = $("<tr></tr>");
                         var num = i + 1;
                         row.append("<td>" + num + "</td>");
-                        row.append("<td>" + file.name + "</td>");
+                        row.append("<td>" + file.name.substring(0, 52) + "..." + "</td>");
                         row.append("<td>" + file.size + "</td>");
-                        row.append("<td>" + file.seeders + "/" + file.leechers + "</td>");
+                        row.append("<td>" + file.seeders + "</td>");
+                        row.append("<td>" + file.leechers + "</td>");
                         row.append(
-                            "<td><a href='/torrents/add?uid=" +
+                            "<td><div class='btn-group'><a href='/torrents/add?uid=" +
                             file.info_hash +
-                            "' class='btn btn-primary'><i class='bi bi-download'></i> Download</a></td>"
+                            "' class='btn btn-primary'><i class='bi bi-download'></i></a><a href='/torrents/add?uid=" +
+                            file.info_hash +
+                            "' class='btn btn-danger'><i class='bi bi-plus-square'></i></i></a></div></td>"
                         );
                         table.append(row);
                         if (i == 24) {
@@ -262,9 +326,9 @@
                         }
                     }
                 }
-            });
+            })
         }
-        FetchTopTorrents();
+        FetchTorrents();
     </script>
 </body>
 

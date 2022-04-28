@@ -65,6 +65,38 @@ func DeleteTorrent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func PauseTorrent(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	r.ParseForm()
+	id := r.FormValue("uid")
+	if id == "" {
+		http.Error(w, "No uid provided", http.StatusBadRequest)
+		return
+	}
+	PauseTorrentByID(id)
+	w.WriteHeader(http.StatusOK)
+}
+
+func ResumeTorrent(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	r.ParseForm()
+	id := r.FormValue("uid")
+	if id == "" {
+		http.Error(w, "No uid provided", http.StatusBadRequest)
+		return
+	}
+	ResumeTorrentByID(id)
+	w.WriteHeader(http.StatusOK)
+}
+
 func SystemStats(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err, ok := recover().(error); ok {
@@ -72,7 +104,7 @@ func SystemStats(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 	Disk := DiskUsage(Root)
-	SystemStat := "<p><b>IP:</b> " + GetIP(r) + " " + "<b>OS:</b> " + runtime.GOOS + " " + "<b>Arch:</b> " + runtime.GOARCH + " " + "<b>CPU:</b> " + fmt.Sprint(runtime.NumCPU()) + " " + "<b>RAM:</b> " + MemUsage() + " " + "<b>Disk:</b> " + fmt.Sprintf("%s/%s", Disk.Used, Disk.All) + " " + "<b>Downloads:</b> " + strconv.Itoa(0) + "</p>"
+	SystemStat := "<p><b>IP:</b> " + GetIP(r) + " " + "<b>OS:</b> " + runtime.GOOS + " " + "<b>Arch:</b> " + runtime.GOARCH + " " + "<b>CPU:</b> " + fmt.Sprint(runtime.NumCPU()) + " " + "<b>RAM:</b> " + MemUsage() + " " + "<b>Disk:</b> " + fmt.Sprintf("%s/%s", Disk.Used, Disk.All) + " " + "<b>Downloads:</b> " + strconv.Itoa(GetLenTorrents()) + "</p>"
 	w.Write([]byte(SystemStat))
 }
 
@@ -93,26 +125,22 @@ func DeleteFile(w http.ResponseWriter, r *http.Request) {
 
 func streamTorrentUpdate() {
 	fmt.Println("Streaming Torrents started")
-	for range time.Tick(time.Second * 1) {
-		SSEFeed.SendString("", "torrents", TorrHtml())
+	for range time.Tick(time.Millisecond * 600) {
+		TORRENTS := GetAllTorrents()
+		d, _ := json.Marshal(TORRENTS)
+		SSEFeed.SendString("", "torrents", string(d))
 	}
 }
 
-func TorrentsStats(w http.ResponseWriter, r *http.Request) {
+func ActiveTorrents(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err, ok := recover().(error); ok {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}()
-	fmt.Fprint(w, TorrHtml())
-}
-
-func TorrHtml() string {
-	var html = `<tr><th class="id">ID</th><th class="name">Name</th><th class="size">Size</th><th class="status">Status</th><th class="status">Progress</th><th class="status">ETA</th><th class="status">Download Speed</th><th class="action">Action</th></tr>`
-	for _, torrent := range GetAllTorrents() {
-		html += "<tr><th class='id'>" + torrent.ID + "</th>" + "<th class='name'><a href='" + GetTorrentPath(torrent.UID) + "'>" + torrent.Name + "</a>" + "</th>" + "<th class='size'>" + torrent.Size + "</th>" + "<th class='status'>" + torrent.Status + "</th>" + "<th class='status'>" + torrent.Perc + "</th>" + "<th class='status'>" + torrent.Eta + "</th>" + "<th class='status'>" + torrent.Speed + "</th>" + "<th class='action'>" + "<a href='torrents/details?uid=" + torrent.UID + "' class='download'>Download</a>" + "<a href='/' class='delete' onclick='return DeleteBtn(this)' data-uid='" + torrent.UID + "'>Delete</a>" + "</th></tr>"
-	}
-	return html
+	TORRENTS := GetAllTorrents()
+	d, _ := json.Marshal(TORRENTS)
+	w.Write(d)
 }
 
 func GetDirContents(w http.ResponseWriter, r *http.Request) {
@@ -154,7 +182,6 @@ func GetTorrDir(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := GetTorrentPath(uid)
-	fmt.Println(path)
 	if p, err := os.Stat(path); err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -205,12 +232,12 @@ func SearchTorrents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if q == "top100" {
-		S := Top100Torrents()
+		S := PretifyResult(Top100Torrents())
 		b, _ := json.Marshal(S)
 		w.Write(b)
 		return
 	} else {
-		S := SearchTorrentReq(q)
+		S := PretifyResult(SearchTorrentReq(q))
 		b, _ := json.Marshal(S)
 		w.Write(b)
 		return

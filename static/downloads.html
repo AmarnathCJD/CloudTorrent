@@ -128,12 +128,11 @@
                 </h1>
             </div>
             <nav class="nav justify-content-center float-md-end">
-                <a class="nav-item nav-link active" href="/"><button class="btn btn-primary navbar-btn">
+                <a class="nav-item nav-link active" href="/"><button class="btn btn-primary">
                         Home <i class="bi bi-house"></i></button></a>
-                <a class="nav-link" href="/downloads"><button class="btn btn-danger active">
+                <a class="nav-link" href="/downloads/"><button class="btn btn-danger active">
                         Files <i class="bi bi-list-ul"></i></button></a>
-                <a class="nav-link" href="/search?query=top100" target="_blank"><button
-                        class="btn btn-primary">
+                <a class="nav-link" href="/search/" target="_blank"><button class="btn btn-primary">
                         Search <i class="bi bi-search"></i></button></a>
                 <div class="nav-link">
                     <div class="form-check form-switch">
@@ -208,8 +207,6 @@
                 type: "GET",
                 dataType: "json",
                 success: function (data) {
-                    console.log(window.location.pathname.split("/", 5));
-                    console.log(data);
                     var table = $("#files-table");
                     table.empty();
                     table.append(

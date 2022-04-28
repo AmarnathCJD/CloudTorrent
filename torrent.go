@@ -22,15 +22,17 @@ type TorrentsResponse struct {
 }
 
 type TorrentMeta struct {
-	Name   string `json:"name,omitempty"`
-	Size   string `json:"size,omitempty"`
-	Status string `json:"status,omitempty"`
-	Magnet string `json:"magnet,omitempty"`
-	ID     string `json:"id,omitempty"`
-	UID    string `json:"uid,omitempty"`
-	Perc   string `json:"perc,omitempty"`
-	Eta    string `json:"eta,omitempty"`
-	Speed  string `json:"speed,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Size     string `json:"size,omitempty"`
+	Status   string `json:"status,omitempty"`
+	Magnet   string `json:"magnet,omitempty"`
+	ID       string `json:"id,omitempty"`
+	UID      string `json:"uid,omitempty"`
+	Perc     string `json:"perc,omitempty"`
+	Eta      string `json:"eta,omitempty"`
+	Speed    string `json:"speed,omitempty"`
+	Progress string `json:"progress,omitempty"`
+	Icon     string `json:"icon,omitempty"`
 }
 
 type TpbTorrent struct {
@@ -83,6 +85,18 @@ func DeleteTorrentByID(id string) (bool, error) {
 	return false, nil
 }
 
+func PauseTorrentByID(id string) {
+	if t := client.GetTorrent(id); t != nil {
+		t.Stop()
+	}
+}
+
+func ResumeTorrentByID(id string) {
+	if t := client.GetTorrent(id); t != nil {
+		t.Start()
+	}
+}
+
 func GetTorrents() []*torrent.Torrent {
 	return client.ListTorrents()
 }
@@ -96,23 +110,30 @@ func GetTorrentPath(id string) string {
 
 func GetAllTorrents() []TorrentMeta {
 	var Torrents []TorrentMeta
-	var Sno int
 	for _, t := range GetTorrents() {
+		Perc := GetDownloadPercentage(t.ID())
+		Name := t.Stats().Name
+		Icon := "bi bi-pause-circle"
+		if Name == "" {
+			Name = "unknown"
+		}
+		Stats, Icon := GetStats(t.ID())
 		Torrents = append(Torrents, TorrentMeta{
-			Name:   t.Stats().Name,
-			Size:   ByteCountSI(t.Stats().Bytes.Total),
-			Status: GetStats(t.ID()),
-			Magnet: t.Stats().InfoHash.String(),
-			UID:    t.ID(),
-			Perc:   GetDownloadPercentage(t.ID()),
-			Eta:    fmt.Sprint(t.Stats().ETA),
-			Speed:  GetDownloadSpeed(t),
+			Name:     Name,
+			Size:     ByteCountSI(t.Stats().Bytes.Total),
+			Status:   Stats,
+			Magnet:   t.Stats().InfoHash.String(),
+			UID:      t.ID(),
+			Perc:     Perc,
+			Eta:      fmt.Sprint(t.Stats().ETA),
+			Speed:    GetDownloadSpeed(t),
+			Progress: GetProgress(Perc),
+			Icon:     Icon,
 		})
 	}
 	Torrents = SortAlpha(Torrents)
 	for i := range Torrents {
-		Torrents[i].ID = strconv.Itoa(Sno)
-		Sno++
+		Torrents[i].ID = strconv.Itoa(i + 1)
 	}
 	return Torrents
 }
@@ -125,6 +146,10 @@ func GetDownloadPercentage(id string) string {
 		}
 	}
 	return "0%"
+}
+
+func GetProgress(perc string) string {
+	return strings.Replace(perc, "%", "", 1)
 }
 
 func GetTorrentSize(id string) int64 {
@@ -141,7 +166,7 @@ func GetDownloadSpeed(t *torrent.Torrent) string {
 	if t.Stats().Speed.Download != 0 {
 		return ByteCountSI(int64(t.Stats().Speed.Download)) + "/s"
 	} else {
-		return "-"
+		return "-/-"
 	}
 }
 
@@ -169,22 +194,24 @@ func ParseHashFromMagnet(magnet string) string {
 	return strings.ToLower(argv[1])
 }
 
-func GetStats(id string) string {
+func GetStats(id string) (string, string) {
 	torr := client.GetTorrent(id)
 	if torr != nil {
-		if torr.Stats().Bytes.Total == 0 {
-			return "Downloading metadata"
-		} else if torr.Stats().Bytes.Downloaded == torr.Stats().Bytes.Total {
-			return "Complete"
+		if torr.Stats().Bytes.Total == 0 || torr.Stats().Status == torrent.DownloadingMetadata {
+			return "Fetching Metadata", "bi bi-meta"
+		} else if torr.Stats().Bytes.Downloaded >= torr.Stats().Bytes.Total {
+			return "Completed", "bi bi-cloud-upload"
+		} else if torr.Stats().Status == torrent.Downloading {
+			return "Downloading", "bi bi-pause-circle"
 		} else {
 			if fmt.Sprint(torr.Stats().Status) == "Stopped" {
-				return "Completed"
+				return "Stopped", "bi bi-skip-start"
 			} else {
-				return fmt.Sprint(torr.Stats().Status)
+				return fmt.Sprint(torr.Stats().Status), "bi bi-play-circle"
 			}
 		}
 	}
-	return "Error"
+	return "Error", "bi bi-bug"
 }
 
 func SearchTorrentReq(query string) []TpbTorrent {
@@ -229,10 +256,11 @@ func Top100Torrents() []TpbTorrent {
 	return tpb
 }
 
-func GenMagnetFromResult(result []TpbTorrent) []TpbTorrent {
+func PretifyResult(result []TpbTorrent) []TpbTorrent {
 	var Torr = result
 	for i, t := range Torr {
 		Torr[i].Magnet = "magnet:?xt=urn:btih:" + t.InfoHash + "&dn=" + url.QueryEscape(t.Name)
+		Torr[i].Size = ByteCountSI(StringToInt64(t.Size))
 	}
 	return Torr
 }
