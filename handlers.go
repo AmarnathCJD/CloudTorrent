@@ -97,6 +97,16 @@ func ResumeTorrent(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func DropAll(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	DropAllTorrents()
+	w.WriteHeader(http.StatusOK)
+}
+
 func SystemStats(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err, ok := recover().(error); ok {

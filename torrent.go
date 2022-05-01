@@ -105,6 +105,15 @@ func ResumeTorrentByID(id string) (bool, error) {
 	return true, nil
 }
 
+func DropAllTorrents() error {
+	log.Println("Dropping all torrents")
+	var err error
+	for _, t := range GetTorrents() {
+		err = client.RemoveTorrent(t.ID())
+	}
+	return err
+}
+
 func GetTorrents() []*torrent.Torrent {
 	return client.ListTorrents()
 }
@@ -196,6 +205,7 @@ func ParseHashFromMagnet(magnet string) string {
 		args = []string{magnet}
 	}
 	argv := strings.Split(args[0], "btih:")
+	log.Println(argv)
 	if len(argv) <= 1 {
 		return ""
 	}

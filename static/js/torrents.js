@@ -43,6 +43,9 @@ function updateTorrents(data) {
     table.append(
         "<caption>Active Torrents</caption><tr><th style='width: 3.66%'>ID</th><th>Name</th><th>Size</th><th>Status</th><th>ETA</th><th>Download Speed</th><th>Actions</th></tr>"
     );
+    if (torrent == null || torrent.length == 0) {
+        table.append("<tr><td colspan='7'>No active torrents.</td></tr>");
+    }
     for (var i = 0; i < torrents.length; i++) {
         var torrent = torrents[i];
         var row = $("<tr></tr>");
@@ -118,7 +121,7 @@ function ResumeTorrent(id) {
     });
 }
 
-function ToastMessage(message, bg) {
+function ToastMessage(message, bg, position) {
     document.querySelector(".toast-container").innerHTML =
         `<div class="toast align-items-center text-white bg-` +
         bg +
@@ -151,6 +154,17 @@ function GetSystemInfo() {
         type: "GET",
         success: function (data) {
             $(".system-info").html(data);
+        },
+    });
+}
+
+function removeAll() {
+    $.ajax({
+        url: "/api/removeall",
+        type: "POST",
+        success: function (data) {
+            ToastMessage("All torrents removed successfully.", "success");
+            getTorrents();
         },
     });
 }

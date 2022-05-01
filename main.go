@@ -35,6 +35,7 @@ func ServeApiEndpoints() {
 	http.HandleFunc("/api/remove", DeleteTorrent)
 	http.HandleFunc("/api/pause", PauseTorrent)
 	http.HandleFunc("/api/resume", ResumeTorrent)
+	http.HandleFunc("/api/removeall", DropAll)
 	// update Server Events
 	http.Handle("/torrents/update", SSEFeed)
 }
