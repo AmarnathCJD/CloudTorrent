@@ -63,6 +63,21 @@
                 <table id="files-table" class="table caption-top primary"></table>
             </div>
             <div class="text-center">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-primary" onclick="startAll()">
+                        <i class="bi bi-play"></i> Start All
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="stopAll()">
+                        <i class="bi bi-stop"></i> Stop All
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="removeAll()">
+                        <i class="bi bi-trash"></i> Remove All
+                    </button>
+                </div>
+                <div class="storage-info">
+                    <i class="bi bi-hdd" style="color: cornflowerblue; size: 1;"></i> Disk
+                    21.6 GB / <b>100 GB</b>
+                </div>
                 <div class="system-info"></div>
             </div>
             <div class="toast-container top-0 end-0"></div>

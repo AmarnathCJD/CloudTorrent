@@ -103,3 +103,13 @@ html {
     padding: 10px;
     margin-top: 10px;
 }
+
+.storage-info {
+    font-size: 14px;
+    color: black;
+    width: 100%;
+    font-weight: 700;
+    display: block;
+    line-height: 31px;
+}
+
