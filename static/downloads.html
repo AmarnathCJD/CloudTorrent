@@ -64,46 +64,8 @@
     ></script>
     <script>
       var Audd = new Audio();
-      var darkSwitch = document.getElementById("darkSwitch");
       var table = document.getElementById("files-table");
-      var DarkIcon = document.getElementById("dark-icon");
       var CurrentPlaying = [null, null];
-      window.addEventListener("load", function () {
-        if (darkSwitch) {
-          initTheme();
-          darkSwitch.addEventListener("change", function () {
-            resetTheme();
-          });
-        }
-      });
-      function initTheme() {
-        var darkThemeSelected =
-          localStorage.getItem("darkSwitch") !== null &&
-          localStorage.getItem("darkSwitch") === "dark";
-        darkSwitch.checked = darkThemeSelected;
-        darkThemeSelected
-          ? document.body.setAttribute("data-theme", "dark")
-          : document.body.removeAttribute("data-theme");
-        if (darkThemeSelected) {
-          table.classList.add("table-dark");
-          DarkIcon.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
-        } else {
-          DarkIcon.innerHTML = "&#x2600;";
-        }
-      }
-      function resetTheme() {
-        if (darkSwitch.checked) {
-          document.body.setAttribute("data-theme", "dark");
-          localStorage.setItem("darkSwitch", "dark");
-          table.classList.add("table-dark");
-          DarkIcon.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
-        } else {
-          document.body.removeAttribute("data-theme");
-          localStorage.removeItem("darkSwitch");
-          table.classList.remove("table-dark");
-          DarkIcon.innerHTML = "&#x2600;";
-        }
-      }
       function UpdateDir() {
         $.ajax({
           url: "/dir/" + window.location.pathname,
@@ -304,5 +266,6 @@
       UpdateDir();
       ToastMessage("Welcome to the File Manager!");
     </script>
+    <script src="/static/js/dark.js"></script>
   </body>
 </html>
