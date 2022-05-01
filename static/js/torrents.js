@@ -43,8 +43,10 @@ function updateTorrents(data) {
     table.append(
         "<caption>Active Torrents</caption><tr><th style='width: 3.66%'>ID</th><th>Name</th><th>Size</th><th>Status</th><th>ETA</th><th>Download Speed</th><th>Actions</th></tr>"
     );
-    if (torrent == null || torrent.length == 0) {
+    if (torrents == null || torrents.length == 0) {
+        console.log("No torrents");
         table.append("<tr><td colspan='7'>No active torrents.</td></tr>");
+        return;
     }
     for (var i = 0; i < torrents.length; i++) {
         var torrent = torrents[i];
@@ -121,23 +123,6 @@ function ResumeTorrent(id) {
     });
 }
 
-function ToastMessage(message, bg, position) {
-    document.querySelector(".toast-container").innerHTML =
-        `<div class="toast align-items-center text-white bg-` +
-        bg +
-        ` border-0" role="alert" aria-live="assertive" aria-atomic="true" id="toast-main"><div class="d-flex"><div class="toast-body">` +
-        message +
-        `</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div></div>`;
-    var Toast = bootstrap.Toast.getOrCreateInstance(
-        document.getElementById("toast-main")
-    );
-    Toast.options = {
-        delay: 5000,
-        autohide: true,
-    };
-    Toast.show();
-}
-
 const torr = new EventSource("/torrents/update");
 
 torr.addEventListener(
@@ -171,3 +156,4 @@ function removeAll() {
 
 GetSystemInfo();
 getTorrents();
+ToastMessage("Welcome to the Torrent Manager.", "success");

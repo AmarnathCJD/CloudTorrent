@@ -172,13 +172,7 @@ function FetchTorrents() {
                 row.append("<td>" + file.size + "</td>");
                 row.append("<td>" + file.seeders + "</td>");
                 row.append("<td>" + file.leechers + "</td>");
-                row.append(
-                    "<td><div class='btn-group'><a href='/torrents/add?uid=" +
-                    file.info_hash +
-                    "' class='btn btn-primary'><i class='bi bi-download'></i></a><a href='/torrents/add?uid=" +
-                    file.info_hash +
-                    "' class='btn btn-danger'><i class='bi bi-plus-square'></i></i></a></div></td>"
-                );
+                row.append("<td><button class='btn btn-primary' onclick='addTorrent(" + file.magnet + ")'>Add</button></td>");
                 table.append(row);
                 if (i == 24) {
                     break;
@@ -187,4 +181,19 @@ function FetchTorrents() {
         }
     })
 }
+
+function addTorrent(magnet) {
+    $.ajax({
+        url: "/api/add",
+        type: "POST",
+        data: {
+            magnet: magnet,
+        },
+        success: function (data) {
+            ToastMessage("Torrent added successfully");
+        }
+    })
+}
+
+
 FetchTorrents();
