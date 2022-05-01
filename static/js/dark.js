@@ -9,6 +9,7 @@ window.addEventListener("load", function () {
         });
     }
 });
+
 function initTheme() {
     var darkThemeSelected =
         localStorage.getItem("darkSwitch") !== null &&
@@ -24,6 +25,7 @@ function initTheme() {
         DarkIcon.innerHTML = "&#x2600;";
     }
 }
+
 function resetTheme() {
     if (darkSwitch.checked) {
         document.body.setAttribute("data-theme", "dark");
