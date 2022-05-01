@@ -70,11 +70,7 @@ function updateTorrents(data) {
         row.append(
             "<td><div class='btn-group'> <button class='btn btn-danger' onclick='removeTorrent(" +
             torrent.uid +
-            ")'><i class='bi bi-x-circle'></i></button> <button class='btn btn-primary' onclick='pauseTorrent(" +
-            torrent.uid +
-            ")'><i class='" +
-            torrent.icon +
-            "'></i></button></div></td>"
+            ")'><i class='bi bi-x-circle'></i></button><a href='" + torrent.path + "'><button class='btn btn-warning'><i class='bi bi-folder-plus'></i></button></a></div></td>"
         );
         table.append(row);
     }
