@@ -85,16 +85,24 @@ func DeleteTorrentByID(id string) (bool, error) {
 	return false, nil
 }
 
-func PauseTorrentByID(id string) {
+func PauseTorrentByID(id string) (bool, error) {
 	if t := client.GetTorrent(id); t != nil {
-		t.Stop()
+		err := t.Stop()
+		if err != nil {
+			return false, err
+		}
 	}
+	return true, nil
 }
 
-func ResumeTorrentByID(id string) {
+func ResumeTorrentByID(id string) (bool, error) {
 	if t := client.GetTorrent(id); t != nil {
-		t.Start()
+		err := t.Start()
+		if err != nil {
+			return false, err
+		}
 	}
+	return true, nil
 }
 
 func GetTorrents() []*torrent.Torrent {
@@ -105,7 +113,7 @@ func GetTorrentPath(id string) string {
 	if Torr := client.GetTorrent(id); Torr != nil {
 		return "/downloads/torrents/" + Torr.ID() + "/" + Torr.Stats().Name
 	}
-	return ""
+	return "404 Not Found"
 }
 
 func GetAllTorrents() []TorrentMeta {

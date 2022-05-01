@@ -15,7 +15,20 @@ var (
 
 func main() {
 	fmt.Print("Starting server...")
-	http.Handle("/", http.FileServer(http.Dir("./static/")))
+	ApiEndpoints()
+	HTMLServe()
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+	http.Handle("/torrents/update", SSEFeed)
+	go streamTorrentUpdate()
+	http.HandleFunc("/dir/", GetDirContents)
+	http.HandleFunc("/delete/", DeleteFile)
+	http.HandleFunc("/torrents/details", GetTorrDir)
+	if err := http.ListenAndServe(":"+PORT(), nil); err != nil {
+		panic(err)
+	}
+}
+
+func ApiEndpoints() {
 	http.HandleFunc("/api/status", SystemStats)
 	http.HandleFunc("/api/torrents", ActiveTorrents)
 	http.HandleFunc("/api/autocomplete/", AutoComplete)
@@ -24,6 +37,12 @@ func main() {
 	http.HandleFunc("/api/remove", DeleteTorrent)
 	http.HandleFunc("/api/pause", PauseTorrent)
 	http.HandleFunc("/api/resume", ResumeTorrent)
+}
+
+func HTMLServe() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/index.html")
+	})
 	http.HandleFunc("/downloads/", func(w http.ResponseWriter, r *http.Request) {
 		template := template.Must(template.ParseFiles("./static/downloads.html"))
 		template.Execute(w, nil)
@@ -36,10 +55,4 @@ func main() {
 		template := template.Must(template.ParseFiles("./static/search.html"))
 		template.Execute(w, nil)
 	})
-	http.Handle("/torrents/update", SSEFeed)
-	go streamTorrentUpdate()
-	http.HandleFunc("/dir/", GetDirContents)
-	http.HandleFunc("/delete/", DeleteFile)
-	http.HandleFunc("/torrents/details", GetTorrDir)
-	fmt.Println(http.ListenAndServe(":"+PORT(), nil))
 }
