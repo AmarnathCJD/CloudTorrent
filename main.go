@@ -9,16 +9,14 @@ import (
 )
 
 var (
-	WD, _ = os.Getwd()
-	Root  = filepath.Join(WD, "downloads")
+	Wd, _ = os.Getwd()
+	Root  = filepath.Join(Wd, "downloads")
 )
 
 func main() {
 	fmt.Print("Starting server...")
-	ApiEndpoints()
+	ServeApiEndpoints()
 	HTMLServe()
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
-	http.Handle("/torrents/update", SSEFeed)
 	go streamTorrentUpdate()
 	http.HandleFunc("/dir/", GetDirContents)
 	http.HandleFunc("/delete/", DeleteFile)
@@ -28,7 +26,7 @@ func main() {
 	}
 }
 
-func ApiEndpoints() {
+func ServeApiEndpoints() {
 	http.HandleFunc("/api/status", SystemStats)
 	http.HandleFunc("/api/torrents", ActiveTorrents)
 	http.HandleFunc("/api/autocomplete/", AutoComplete)
@@ -37,6 +35,8 @@ func ApiEndpoints() {
 	http.HandleFunc("/api/remove", DeleteTorrent)
 	http.HandleFunc("/api/pause", PauseTorrent)
 	http.HandleFunc("/api/resume", ResumeTorrent)
+	// update Server Events
+	http.Handle("/torrents/update", SSEFeed)
 }
 
 func HTMLServe() {
@@ -55,4 +55,6 @@ func HTMLServe() {
 		template := template.Must(template.ParseFiles("./static/search.html"))
 		template.Execute(w, nil)
 	})
+	// static files
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 }
