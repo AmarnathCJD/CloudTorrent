@@ -22,7 +22,7 @@ See [Future Features here](#future-features)
 See [the latest release](https://github.com/jpillora/cloud-torrent/releases/latest) or download and install it now with
 
 ```
-curl https://github.com/AmarnathCJD/CloudTorrent && cd CloudTorrent && go build . && ./main
+git clone https://github.com/AmarnathCJD/CloudTorrent && cd CloudTorrent && go build . && ./main
 ```
 
 **Source**
@@ -36,10 +36,9 @@ $ go get -v github.com/jpillora/cloud-torrent
 ### Usage
 
 ```
-clone the repository
-go build 
-sudo ./main
-```
+$ https://github.com/AmarnathCJD/CloudTorrent
+$ go build 
+$ ./main```
 
 ### Future features
 
