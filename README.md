@@ -38,7 +38,8 @@ $ go get -v github.com/jpillora/cloud-torrent
 ```
 clone the repository
 go build 
-sudo ./main```
+sudo ./main
+```
 
 ### Future features
 
