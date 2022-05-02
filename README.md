@@ -38,7 +38,8 @@ $ go get -v github.com/jpillora/cloud-torrent
 ```
 $ https://github.com/AmarnathCJD/CloudTorrent
 $ go build 
-$ ./main```
+$ ./main
+```
 
 ### Future features
 
