@@ -56,9 +56,4 @@ TODO
 
 Once completed, cloud-torrent will no longer be a simple torrent client and most likely project be renamed.
 
-### Notes
-nil
-
-Credits to {Rain Torrent]
-
 Copyright (c) 2022 RoseLoverX
