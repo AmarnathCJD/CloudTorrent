@@ -64,7 +64,7 @@ function UpdateDir() {
                     row.append("<td>" + file.type + "</td>");
                 }
                 var GroupButtons = `<td style='width: 10.66%'><div class="btn-group" role="group"><button type="button" class="btn btn-danger `;
-                if (file.is_dir == "true") {
+                if (file.is_dir == "true" && file.size !== '0 B') {
                     GroupButtons += `disabled`;
                 }
                 GroupButtons +=

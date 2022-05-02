@@ -33,6 +33,7 @@ type TorrentMeta struct {
 	Speed    string `json:"speed,omitempty"`
 	Progress string `json:"progress,omitempty"`
 	Icon     string `json:"icon,omitempty"`
+	Path     string `json:"path,omitempty"`
 }
 
 type TpbTorrent struct {
@@ -132,7 +133,7 @@ func GetAllTorrents() []TorrentMeta {
 		Name := t.Stats().Name
 		Icon := "bi bi-pause-circle"
 		if Name == "" {
-			Name = "unknown"
+			Name = "fetching metadata..."
 		}
 		Stats, Icon := GetStats(t.ID())
 		Torrents = append(Torrents, TorrentMeta{
@@ -146,6 +147,7 @@ func GetAllTorrents() []TorrentMeta {
 			Speed:    GetDownloadSpeed(t),
 			Progress: GetProgress(Perc),
 			Icon:     Icon,
+			Path:     ServerPath(GetTorrentPath(t.ID())),
 		})
 	}
 	Torrents = SortAlpha(Torrents)

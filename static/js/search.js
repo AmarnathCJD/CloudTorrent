@@ -172,7 +172,7 @@ function FetchTorrents() {
                 row.append("<td>" + file.size + "</td>");
                 row.append("<td>" + file.seeders + "</td>");
                 row.append("<td>" + file.leechers + "</td>");
-                row.append("<td><button class='btn btn-primary' onclick='addTorrent(" + file.magnet + ")'>Add</button></td>");
+                row.append(`<td><button class='btn btn-primary' onclick='addTorrent("` + file.magnet + `")'>Add</button></td>`);
                 table.append(row);
                 if (i == 24) {
                     break;
@@ -190,7 +190,7 @@ function addTorrent(magnet) {
             magnet: magnet,
         },
         success: function (data) {
-            ToastMessage("Torrent added successfully");
+            ToastMessage("Torrent added successfully", "success");
         }
     })
 }

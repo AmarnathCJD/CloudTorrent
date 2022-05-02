@@ -56,9 +56,14 @@ function updateTorrents(data) {
             `<div class="progress" style="height: 10px; border-top: 4px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: ` +
             torrent.progress +
             `%"></div></div>`;
-        if (torrent.progress == 100) {
+        if (torrent.progress >= 85) {
             progress_bb =
-                `<div class="progress" style="height: 10px; border-top: 4px;"><div class="progress-bar progress-bar-animated bg-success" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: ` +
+                `<div class="progress" style="height: 10px; border-top: 4px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: ` +
+                torrent.progress +
+                `%"></div></div>`;
+        } else if (torrent.progress <= 35) {
+            progress_bb =
+                `<div class="progress" style="height: 10px; border-top: 4px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: ` +
                 torrent.progress +
                 `%"></div></div>`;
         }
@@ -68,9 +73,9 @@ function updateTorrents(data) {
         row.append("<td>" + torrent.eta + "</td>");
         row.append("<td>" + torrent.speed + "</td>");
         row.append(
-            "<td><div class='btn-group'> <button class='btn btn-danger' onclick='removeTorrent(" +
+            "<td><div class='btn-group'> <button class='btn btn-danger' onclick='removeTorrent(\"" +
             torrent.uid +
-            ")'><i class='bi bi-x-circle'></i></button><a href='" + torrent.path + "'><button class='btn btn-warning'><i class='bi bi-folder-plus'></i></button></a></div></td>"
+            "\")'><i class='bi bi-x-circle'></i></button><a href='" + torrent.path + "'><button class='btn btn-warning'><i class='bi bi-folder-plus'></i></button></a></div></td>"
         );
         table.append(row);
     }
