@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -107,6 +109,26 @@ func DropAll(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func StartAllHandler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	StartAll()
+	w.WriteHeader(http.StatusOK)
+}
+
+func StopAllHandler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	StopAll()
+	w.WriteHeader(http.StatusOK)
+}
+
 func SystemStats(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err, ok := recover().(error); ok {
@@ -133,9 +155,51 @@ func DeleteFile(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func UploadFileHandler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	r.ParseMultipartForm(32 << 20)
+	file, handler, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+	log.Printf("Uploaded file: %+v\n", handler.Filename)
+	log.Printf("File size: %+v\n", handler.Size)
+	log.Printf("MIME header: %+v\n", handler.Header)
+	DirPath := strings.Replace(filepath.Join(Root, r.FormValue("path")), "/downloads", "", 1)
+	f, err := os.OpenFile(filepath.Join(DirPath, handler.Filename), os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer f.Close()
+	io.Copy(f, file)
+	w.WriteHeader(http.StatusOK)
+}
+
+func CreateFolderHandler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	r.ParseForm()
+	DirPath := strings.Replace(filepath.Join(Root, r.URL.Path), "/api/create/downloads", "", 1)
+	if err := os.MkdirAll(DirPath, 0777); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
 func streamTorrentUpdate() {
 	fmt.Println("Streaming Torrents started")
-	for range time.Tick(time.Millisecond * 600) {
+	for range time.Tick(time.Minute * 600) {
 		TORRENTS := GetAllTorrents()
 		d, _ := json.Marshal(TORRENTS)
 		SSEFeed.SendString("", "torrents", string(d))
@@ -160,7 +224,6 @@ func GetDirContents(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 	path := strings.Replace(AbsPath(filepath.Join(Root, r.URL.Path)), "/dir", "", 1)
-	fmt.Println(path)
 	if IsDir, err := isDirectory(path); err == nil && IsDir {
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			http.Error(w, "Directory not found", http.StatusNotFound)
@@ -171,36 +234,14 @@ func GetDirContents(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		if len(files) == 0 {
+			http.Error(w, "Directory is empty", http.StatusNotFound)
+			return
+		}
 		d, _ := json.Marshal(files)
 		w.Write(d)
 	} else {
 		http.ServeFile(w, r, path)
-	}
-}
-
-func GetTorrDir(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if err, ok := recover().(error); ok {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	}()
-	r.ParseForm()
-	uid := r.Form.Get("uid")
-	if uid == "" {
-		http.Error(w, "No UID", http.StatusBadRequest)
-		return
-	}
-
-	path := GetTorrentPath(uid)
-	if p, err := os.Stat(path); err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	} else {
-		if p.IsDir() {
-			http.Redirect(w, r, "/downloads/downloads/torrents/"+uid, http.StatusFound)
-		} else {
-			http.ServeFile(w, r, path)
-		}
 	}
 }
 
@@ -241,15 +282,13 @@ func SearchTorrents(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No query", http.StatusBadRequest)
 		return
 	}
+	var b []byte
 	if q == "top100" {
-		S := PretifyResult(Top100Torrents())
-		b, _ := json.Marshal(S)
-		w.Write(b)
-		return
+		Search := PretifyResult(Top100Torrents())
+		b, _ = json.Marshal(Search)
 	} else {
-		S := PretifyResult(SearchTorrentReq(q))
-		b, _ := json.Marshal(S)
-		w.Write(b)
-		return
+		Search := PretifyResult(SearchTorrentReq(q))
+		b, _ = json.Marshal(Search)
 	}
+	w.Write(b)
 }

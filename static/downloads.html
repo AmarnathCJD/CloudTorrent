@@ -20,12 +20,23 @@
         </h1>
       </div>
       <nav class="nav justify-content-center float-md-end">
-        <a class="nav-item nav-link active" href="/"><button class="btn btn-primary">
+        <a class="nav-item nav-link active" href="/"><button class="btn btn-primary" style="float: right">
             Home <i class="bi bi-house"></i></button></a>
-        <a class="nav-link" href="/downloads/"><button class="btn btn-danger active">
+        <a class="nav-link" href="/downloads/"><button class="btn btn-danger active" style="float: right">
             Files <i class="bi bi-list-ul"></i></button></a>
-        <a class="nav-link" href="/search/"><button class="btn btn-primary">
+        <a class="nav-link" href="/search/"><button class="btn btn-success">
             Search <i class="bi bi-search"></i></button></a>
+        <div class="nav-link">
+          <input type="file" name="file" id="file" style="display: none;" />
+          <label for="file" class="btn btn-info">
+            Upload <i class="bi bi-upload"></i>
+          </label>
+        </div>
+        <div class="nav-link">
+          <button style="float: right" id="add-folder-button" class="btn btn-secondary" onclick="backButton()">
+            <i class="bi bi-backspace"></i> Back
+          </button>
+        </div>
         <div class="nav-link">
           <div class="form-check form-switch">
             <input type="checkbox" class="form-check-input" id="darkSwitch" />
@@ -36,8 +47,8 @@
       </nav>
     </header>
     <main>
-      <div class="table-responsive">
-        <table id="files-table" class="table caption-top primary table-hover"></table>
+      <div class="table-responsive text-nowrap">
+        <table id="files-table" class="table caption-top primary table-hover w-auto table-striped"></table>
       </div>
       <div id="main-modal" class="modal">
         <span class="close">&times;</span>
@@ -46,6 +57,10 @@
       </div>
     </main>
     <div class="toast-container top-0 end-0"></div>
+    <div class="text-center">
+      <button style="float:right" id="add-folder-button" class="btn btn-secondary" onclick="CreateFolder()"><i
+          class="bi bi-plus-lg"></i> Create Folder</button>
+    </div>
   </div>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
@@ -55,4 +70,5 @@
   <script src="/static/js/main.js"></script>
   <script src="/static/js/dark.js"></script>
 </body>
+
 </html>

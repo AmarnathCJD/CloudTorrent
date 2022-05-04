@@ -11,6 +11,7 @@ import (
 var (
 	Wd, _ = os.Getwd()
 	Root  = filepath.Join(Wd, "downloads")
+	Port  = GetOutboundPort()
 )
 
 func main() {
@@ -18,26 +19,34 @@ func main() {
 	ServeApiEndpoints()
 	HTMLServe()
 	go streamTorrentUpdate()
-	http.HandleFunc("/dir/", GetDirContents)
-	http.HandleFunc("/delete/", DeleteFile)
-	http.HandleFunc("/torrents/details", GetTorrDir)
-	if err := http.ListenAndServe(":"+PORT(), nil); err != nil {
+	if err := http.ListenAndServe(Port, nil); err != nil {
 		panic(err)
 	}
 }
 
 func ServeApiEndpoints() {
-	http.HandleFunc("/api/status", SystemStats)
-	http.HandleFunc("/api/torrents", ActiveTorrents)
-	http.HandleFunc("/api/autocomplete/", AutoComplete)
-	http.HandleFunc("/api/search/", SearchTorrents)
-	http.HandleFunc("/api/add", AddTorrent)
-	http.HandleFunc("/api/remove", DeleteTorrent)
-	http.HandleFunc("/api/pause", PauseTorrent)
-	http.HandleFunc("/api/resume", ResumeTorrent)
-	http.HandleFunc("/api/removeall", DropAll)
+	var API = []Handle{
+		{"/api/add", AddTorrent},
+		{"/api/torrents", ActiveTorrents},
+		{"/api/status", SystemStats},
+		{"/api/remove", DeleteTorrent},
+		{"/api/pause", PauseTorrent},
+		{"/api/resume", ResumeTorrent},
+		{"/api/search", SearchTorrents},
+		{"/api/autocomplete", AutoComplete},
+		{"/api/removeall", DropAll},
+		{"/api/stopall", StopAllHandler},
+		{"/api/startall", StartAllHandler},
+		{"/api/upload", UploadFileHandler},
+		{"/api/create/", CreateFolderHandler},
+	}
+	for _, api := range API {
+		http.HandleFunc(api.Path, api.Func)
+	}
 	// update Server Events
 	http.Handle("/torrents/update", SSEFeed)
+	http.HandleFunc("/dir/", GetDirContents)
+	http.HandleFunc("/delete/", DeleteFile)
 }
 
 func HTMLServe() {

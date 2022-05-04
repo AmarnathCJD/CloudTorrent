@@ -4,12 +4,12 @@
 
 ### Features
 
-* Single binary
-* Cross platform
-* Embedded torrent search
-* Real-time updates
-* Mobile-friendly
-* Fast [content server](http://golang.org/pkg/net/http/#ServeContent)
+- Single binary
+- Cross platform
+- Embedded torrent search
+- Real-time updates
+- Mobile-friendly
+- Fast [content server](http://golang.org/pkg/net/http/#ServeContent)
 
 See [Future Features here](#future-features)
 
@@ -27,9 +27,9 @@ git clone https://github.com/AmarnathCJD/CloudTorrent && cd CloudTorrent && go b
 
 **Source**
 
-*[Go](https://golang.org/dl/) is required to install from source*
+_[Go](https://golang.org/dl/) is required to install from source_
 
-``` sh
+```sh
 $ go get -v github.com/jpillora/cloud-torrent
 ```
 
@@ -37,7 +37,7 @@ $ go get -v github.com/jpillora/cloud-torrent
 
 ```
 $ https://github.com/AmarnathCJD/CloudTorrent
-$ go build 
+$ go build
 $ ./main
 ```
 
@@ -46,13 +46,12 @@ $ ./main
 In summary, the core features will be:
 TODO
 
-* **File Transforms**
+- **File Transforms**
 
   During a file tranfer, one could apply different transforms against the byte stream for various effect. For example, supported transforms might include: video transcoding (using ffmpeg), encryption and decryption, [media sorting](https://github.com/jpillora/cloud-torrent/issues/4) (file renaming), and writing multiple files as a single zip file.
-  
-* **Automatic updates** Binary will upgrade itself, adding new features as they get released.
-  
-* **RSS** Automatically add torrents, with smart episode filter.
+
+- **Automatic updates** Binary will upgrade itself, adding new features as they get released.
+- **RSS** Automatically add torrents, with smart episode filter.
 
 Once completed, cloud-torrent will no longer be a simple torrent client and most likely project be renamed.
 

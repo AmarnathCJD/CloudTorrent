@@ -19,9 +19,10 @@ function addTorrent() {
         },
         success: function (data) {
             ToastMessage("Torrent added successfully.", "success");
+            Input.value = "";
         },
         error: function (data) {
-            ToastMessage("Error adding torrent.", "danger");
+            ToastMessage("Error adding torrent, " + data.responseText, "danger");
         },
     });
 }
@@ -72,10 +73,17 @@ function updateTorrents(data) {
         row.append("<td>" + torrent.status + "</td>");
         row.append("<td>" + torrent.eta + "</td>");
         row.append("<td>" + torrent.speed + "</td>");
+        var actionbutton = ""
+        if (torrent.status == "Downloading") {
+            actionbutton = `<button class="btn btn-danger" onclick="pauseTorrent('` + torrent.uid + `')"><i class="bi bi-pause-fill"></i></button>`;
+        } else {
+            actionbutton = `<button class="btn btn-success" onclick="resumeTorrent('` + torrent.uid + `')"><i class="bi bi-play-fill"></i></button>`;
+        }
         row.append(
             "<td><div class='btn-group'> <button class='btn btn-danger' onclick='removeTorrent(\"" +
             torrent.uid +
-            "\")'><i class='bi bi-x-circle'></i></button><a href='" + torrent.path + "'><button class='btn btn-warning'><i class='bi bi-folder-plus'></i></button></a></div></td>"
+            "\")'><i class='bi bi-x-circle'></i></button><a href='" + torrent.path + "'><button class='btn btn-warning'><i class='bi bi-folder-plus'></i></button></a>" + actionbutton
+            + "</div></td>"
         );
         table.append(row);
     }
@@ -104,13 +112,12 @@ function pauseTorrent(id) {
         },
         success: function (data) {
             ToastMessage("Torrent paused successfully.", "primary");
-            document.getElementById("btn-" + id).innerHTML =
-                '<i class="bi bi-play-circle"></i>';
+            getTorrents();
         },
     });
 }
 
-function ResumeTorrent(id) {
+function resumeTorrent(id) {
     $.ajax({
         url: "/api/resume",
         type: "POST",
@@ -119,6 +126,28 @@ function ResumeTorrent(id) {
         },
         success: function (data) {
             ToastMessage("Torrent resumed successfully.", "success");
+            getTorrents();
+        },
+    });
+}
+
+function stopAll() {
+    $.ajax({
+        url: "/api/stopall",
+        type: "POST",
+        success: function (data) {
+            ToastMessage("All torrents stopped.", "danger");
+            getTorrents();
+        },
+    });
+}
+
+function startAll() {
+    $.ajax({
+        url: "/api/startall",
+        type: "POST",
+        success: function (data) {
+            ToastMessage("All torrents started.", "primary");
             getTorrents();
         },
     });
@@ -143,6 +172,7 @@ function GetSystemInfo() {
         },
     });
 }
+setInterval(GetSystemInfo, 10000);
 
 function removeAll() {
     $.ajax({

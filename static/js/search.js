@@ -172,7 +172,7 @@ function FetchTorrents() {
                 row.append("<td>" + file.size + "</td>");
                 row.append("<td>" + file.seeders + "</td>");
                 row.append("<td>" + file.leechers + "</td>");
-                row.append(`<td><button class='btn btn-primary' onclick='addTorrent("` + file.magnet + `")'>Add</button></td>`);
+                row.append(`<td><div class="btn-group"><button class='btn btn-primary' onclick='addTorrent("` + file.magnet + `")'>Add <i class="bi bi-plus-square-dotted"></i></button>` + `<button class="btn btn-danger" onclick="ToClipboard('` + i + `')" data-clipboard-text="` + file.magnet + `" id="btn-` + i + `"><i class="bi bi-clipboard"></i></button></div>` + "</td>");
                 table.append(row);
                 if (i == 24) {
                     break;
@@ -194,6 +194,17 @@ function addTorrent(magnet) {
         }
     })
 }
+
+function ToClipboard(id) {
+    elem = document.getElementById("btn-" + id);
+    data = elem.getAttribute("data-clipboard-text");
+    navigator.clipboard.writeText(data).then(function () {
+        ToastMessage("Copied to clipboard", "success");
+    }, function () {
+        ToastMessage("Failed to copy to clipboard", "error");
+    });
+}
+
 
 
 FetchTorrents();

@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 
@@ -17,8 +16,16 @@ var (
 	client = InitClient()
 )
 
-type TorrentsResponse struct {
-	Torrents []TorrentMeta `json:"torrents,omitempty"`
+func InitClient() *torrent.Session {
+	config := torrent.DefaultConfig
+	PrepareWD()
+	config.DataDir = Root + "/torrents/"
+	config.Database = Root + "/torrents.db"
+	client, err := torrent.NewSession(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return client
 }
 
 type TorrentMeta struct {
@@ -42,29 +49,8 @@ type TpbTorrent struct {
 	InfoHash string `json:"info_hash"`
 	Leechers string `json:"leechers"`
 	Seeders  string `json:"seeders"`
-	NumFiles string `json:"num_files"`
 	Size     string `json:"size"`
-	Username string `json:"username"`
-	Added    string `json:"added"`
-	Status   string `json:"status"`
 	Magnet   string `json:"magnet"`
-}
-
-func InitClient() *torrent.Session {
-	config := torrent.DefaultConfig
-	if _, err := os.Stat(Root + "/downloads/torrents/"); err != nil {
-		err := os.Mkdir(Root+"/downloads/torrents/", 0777)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	config.DataDir = Root + "/downloads/torrents/"
-	config.Database = Root + "/downloads/torrents/torrents.db"
-	client, err := torrent.NewSession(config)
-	if err != nil {
-		log.Print(err)
-	}
-	return client
 }
 
 func AddTorrentByMagnet(magnet string) (bool, error) {
@@ -92,8 +78,9 @@ func PauseTorrentByID(id string) (bool, error) {
 		if err != nil {
 			return false, err
 		}
+		return true, nil
 	}
-	return true, nil
+	return false, nil
 }
 
 func ResumeTorrentByID(id string) (bool, error) {
@@ -102,8 +89,17 @@ func ResumeTorrentByID(id string) (bool, error) {
 		if err != nil {
 			return false, err
 		}
+		return true, nil
 	}
-	return true, nil
+	return false, nil
+}
+
+func StopAll() {
+	client.StopAll()
+}
+
+func StartAll() {
+	client.StartAll()
 }
 
 func DropAllTorrents() error {
@@ -269,7 +265,6 @@ func Top100Torrents() []TpbTorrent {
 			Seeders:  fmt.Sprint(int64(v.(map[string]interface{})["seeders"].(float64))),
 			Leechers: fmt.Sprint(int64(v.(map[string]interface{})["leechers"].(float64))),
 			ID:       fmt.Sprint(int64(v.(map[string]interface{})["id"].(float64))),
-			Added:    fmt.Sprint(int64(v.(map[string]interface{})["added"].(float64))),
 			InfoHash: fmt.Sprint(v.(map[string]interface{})["info_hash"].(string)),
 		})
 	}

@@ -31,6 +31,11 @@ type FileInfo struct {
 	Class      string `json:"class,omitempty"`
 }
 
+type Handle struct {
+	Path string
+	Func func(http.ResponseWriter, *http.Request)
+}
+
 func DiskUsage(path string) DiskStatus {
 	data, _ := disk.Usage(path)
 	fs := DiskStatus{
@@ -57,7 +62,7 @@ func GetFileType(f string) (string, string, string) {
 		return "Video", "bi bi-file-earmark-play", "blue"
 	} else if strings.HasSuffix(f, ".mp3") || strings.HasSuffix(f, ".wav") || strings.HasSuffix(f, ".flac") {
 		return "Audio", "bi bi-file-earmark-music", "green"
-	} else if strings.HasSuffix(f, ".jpg") || strings.HasSuffix(f, ".png") || strings.HasSuffix(f, ".gif") {
+	} else if strings.HasSuffix(f, ".jpg") || strings.HasSuffix(f, ".png") || strings.HasSuffix(f, ".gif") || strings.HasSuffix(f, ".webp") {
 		return "Image", "bi bi-image", "orange"
 	} else if strings.HasSuffix(f, ".pdf") {
 		return "Pdf", "bi bi-filetype-pdf", "red"
@@ -89,6 +94,8 @@ func GetFileType(f string) (string, string, string) {
 		return "Html", "bi bi-filetype-html", "green"
 	} else if strings.HasSuffix(f, ".css") {
 		return "Css", "bi bi-filetype-css", "blue"
+	} else if strings.HasSuffix(f, ".db") {
+		return "Db", "bi bi-box2", "blue"
 	} else {
 		return "Other", "bi bi-question", "black"
 	}
@@ -138,11 +145,13 @@ func StringToInt64(s string) int64 {
 	return i
 }
 
-func PORT() string {
+func GetOutboundPort() string {
 	if p := os.Getenv("PORT"); p != "" {
-		return p
+		if !strings.HasPrefix(p, ":") {
+			return ":" + p
+		}
 	}
-	return "80"
+	return ":80"
 }
 
 func isDirectory(path string) (bool, error) {
@@ -161,11 +170,10 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 	}
 	for i, file := range DirWalk {
 		var Size, Type, Icon, Color, Ext, StreamURL string
+		var Path = filepath.Join(path, file.Name())
+		Path = "/downloads" + ServerPath(path+"/"+file.Name())
 		if file.IsDir() {
 			Type = "Folder"
-			Icon = "bi bi-folder"
-			Color = "yellow"
-			Ext = "-"
 			StreamURL = ServerPath(path + "/" + file.Name())
 			DirSize, _ := DirSize(path + "/" + file.Name())
 			Size = ByteCountSI(DirSize)
@@ -173,21 +181,20 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 			Size = ByteCountSI(file.Size())
 			Type, Icon, Color = GetFileType(file.Name())
 			Ext = filepath.Ext(file.Name())
-			StreamURL = AbsPath("/stream" + strings.Replace(ServerPath(path+"/"+file.Name()), "/downloads/", "/dir/", 1))
+			StreamURL = AbsPath("/stream" + strings.Replace(Path, "downloads", "dir", 1))
 		}
-		f := FileInfo{
+		files = append(files, FileInfo{
 			ID:         strconv.Itoa(i),
 			Name:       GetName(file.Name()),
 			Size:       Size,
 			Type:       Type,
-			Path:       ServerPath(path + "/" + file.Name()),
+			Path:       Path,
 			Color:      Color,
 			IsDir:      strconv.FormatBool(file.IsDir()),
 			Ext:        Ext,
 			StreamLink: StreamURL,
 			Class:      Icon,
-		}
-		files = append(files, f)
+		})
 	}
 	return files, nil
 
@@ -216,4 +223,12 @@ func DirSize(path string) (int64, error) {
 		return err
 	})
 	return size, err
+}
+
+func PrepareWD() {
+	if _, err := os.Stat(filepath.Join(Root, "torrents")); os.IsNotExist(err) {
+		if err := os.MkdirAll(filepath.Join(Root, "torrents"), 0755); err != nil {
+			panic(err)
+		}
+	}
 }

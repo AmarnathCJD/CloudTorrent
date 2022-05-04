@@ -2,10 +2,9 @@ var Audd = new Audio();
 var table = document.getElementById("files-table");
 var CurrentPlaying = [null, null];
 
-
 function UpdateDir() {
     $.ajax({
-        url: "/dir/" + window.location.pathname,
+        url: "/dir/" + window.location.pathname.replace("/downloads", ""),
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -25,7 +24,6 @@ function UpdateDir() {
                 }
                 var AbsPath = file.path.replace("/downloads", "/dir");
                 if (file.is_dir == "true") {
-                    console.log(file.path);
                     var faclass =
                         "<i style='font-size: 1rem; color: #f3da35;' class='bi bi-folder'></i>";
                     row.append(
@@ -47,8 +45,8 @@ function UpdateDir() {
                         "'></i>    ";
                     row.append(
                         "<td class='text-wrap'>" +
-                        "<a href='/dir" +
-                        AbsPath.replace("dir", "downloads") +
+                        "<a href='" +
+                        file.path.replace("downloads", "dir") +
                         "'><b>" +
                         FileName +
                         "</b></a> " +
@@ -64,7 +62,7 @@ function UpdateDir() {
                     row.append("<td>" + file.type + "</td>");
                 }
                 var GroupButtons = `<td style='width: 10.66%'><div class="btn-group" role="group"><button type="button" class="btn btn-danger `;
-                if (file.is_dir == "true" && file.size !== '0 B') {
+                if (file.is_dir == "true" && file.size !== "0 B") {
                     GroupButtons += `disabled`;
                 }
                 GroupButtons +=
@@ -106,8 +104,8 @@ function UpdateDir() {
                     file.ext == ".flac"
                 ) {
                     GroupButtons +=
-                        `<button type="button" class="btn btn-danger" onclick='playAudio("/dir/` +
-                        file.path +
+                        `<button type="button" class="btn btn-danger" onclick='playAudio("` +
+                        AbsPath +
                         `", this.id)' id="` +
                         i +
                         `"><i class="bi bi-filetype-mp3"></i></button></div>`;
@@ -117,8 +115,8 @@ function UpdateDir() {
                     file.ext == ".jpeg"
                 ) {
                     GroupButtons +=
-                        `<button type="button" class="btn btn-warning" onclick='showImage("/dir/` +
-                        file.path +
+                        `<button type="button" class="btn btn-warning" onclick='showImage("` +
+                        AbsPath +
                         `", this.id)' id="` +
                         i +
                         `"><i class="bi bi-image"></i></button></div>`;
@@ -129,9 +127,11 @@ function UpdateDir() {
                 table.append(row);
             }
         },
+        error: function (data) {
+            ToastMessage("Error: " + data.responseText, "danger");
+        },
     });
 }
-
 
 function playAudio(url, uid) {
     Audd.src = url;
@@ -143,7 +143,7 @@ function playAudio(url, uid) {
         `", this.id)' id="` +
         uid +
         `"><i class="bi bi-pause-circle"></i></button>`;
-    ToastMessage("Playing " + url.split("downloads/")[1]);
+    ToastMessage("Playing " + url.split("/").pop(), "primary");
     if (CurrentPlaying[0] != null && CurrentPlaying[0] != uid) {
         var btn = document.getElementById(CurrentPlaying[0]);
         btn.outerHTML =
@@ -154,6 +154,16 @@ function playAudio(url, uid) {
             `"><i class="bi bi-play-circle"></i></button>`;
     }
     CurrentPlaying = [uid, url];
+    Audd.onended = function () {
+        btn.outerHTML =
+            `<button type="button" class="btn btn-danger" onclick='playAudio("` +
+            url +
+            `", this.id)' id="` +
+            uid +
+            `"><i class="bi bi-play-circle"></i></button>`;
+        CurrentPlaying = [null, null];
+    }
+
 }
 
 function pauseAudio(url, uid) {
@@ -192,5 +202,59 @@ function deleteFile(name) {
     });
 }
 
+function backButton() {
+    var path = window.location.pathname;
+    if (path.length > 1) {
+        var newPath = path.substring(0, path.lastIndexOf("/"));
+        window.location.href = newPath;
+    }
+}
+
 UpdateDir();
-ToastMessage("Welcome to the File Manager!");
+if (window.location.pathname == "/downloads/") {
+    ToastMessage("Welcome to File Manager", "primary");
+}
+
+const handleFileUpload = (e) => {
+    const files = e.target.files;
+    const uploadData = new FormData();
+    uploadData.append("file", files[0]);
+    uploadData.append("path", window.location.pathname);
+    fetch(
+        "/api/upload",
+        {
+            method: "POST",
+            body: uploadData,
+        }
+    )
+        .then((res) => res.json())
+        .then((data) => {
+            UpdateDir();
+        })
+        .catch((err) => {
+            ToastMessage("Upload Failed", "danger");
+        });
+}
+
+document.querySelector('#file').addEventListener('change', event => {
+    handleFileUpload(event)
+})
+
+function CreateFolder() {
+    var name = prompt("Enter Folder Name");
+    if (name != null) {
+        $.ajax({
+            url: "/api/create/" + window.location.pathname + name,
+            type: "GET",
+            success: function (data) {
+                ToastMessage("Created " + name, "primary");
+                UpdateDir();
+            },
+            error: function (data) {
+                ToastMessage("Error: " + data.responseText, "danger");
+            },
+        });
+    } else {
+        ToastMessage("Name cannot be null", "danger");
+    }
+}
