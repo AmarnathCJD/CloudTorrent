@@ -199,7 +199,7 @@ func CreateFolderHandler(w http.ResponseWriter, r *http.Request) {
 
 func streamTorrentUpdate() {
 	fmt.Println("Streaming Torrents started")
-	for range time.Tick(time.Minute * 600) {
+	for range time.Tick(time.Millisecond * 600) {
 		TORRENTS := GetAllTorrents()
 		d, _ := json.Marshal(TORRENTS)
 		SSEFeed.SendString("", "torrents", string(d))
