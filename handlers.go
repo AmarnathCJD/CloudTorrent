@@ -171,7 +171,7 @@ func UploadFileHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Uploaded file: %+v\n", handler.Filename)
 	log.Printf("File size: %+v\n", handler.Size)
 	log.Printf("MIME header: %+v\n", handler.Header)
-	DirPath := strings.Replace(filepath.Join(Root, r.FormValue("path")), "/downloads", "", 1)
+	DirPath := AbsPath(strings.Replace(AbsPath(filepath.Join(Root, r.FormValue("path"))), "/downloads", "", 1))
 	f, err := os.OpenFile(filepath.Join(DirPath, handler.Filename), os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -189,7 +189,7 @@ func CreateFolderHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 	r.ParseForm()
-	DirPath := AbsPath(strings.Replace(filepath.Join(Root, r.URL.Path), "api/create/downloads", "", 1))
+	DirPath := AbsPath(strings.Replace(AbsPath(filepath.Join(Root, r.URL.Path)), "/api/create/downloads", "", 1))
 	log.Println(DirPath)
 	if err := os.MkdirAll(DirPath, 0777); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
