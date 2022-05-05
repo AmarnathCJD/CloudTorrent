@@ -30,7 +30,6 @@ type FileInfo struct {
 	Path       string `json:"path,omitempty"`
 	IsDir      string `json:"is_dir,omitempty"`
 	Ext        string `json:"ext,omitempty"`
-	StreamLink string `json:"stream,omitempty"`
 	Class      string `json:"class,omitempty"`
 }
 
@@ -152,6 +151,8 @@ func GetOutboundPort() string {
 	if p := os.Getenv("PORT"); p != "" {
 		if !strings.HasPrefix(p, ":") {
 			return ":" + p
+		} else {
+			return p
 		}
 	}
 	return ":80"
@@ -239,13 +240,13 @@ func GetPath(path string, file os.FileInfo) string {
 
 // for later
 func ZipDir(path string) (string, error) {
-	file, err := os.Create(filepath.Base(path) + ".zip")
+	Zipfile, err := os.Create(filepath.Base(path) + ".zip")
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer Zipfile.Close()
 
-	w := zip.NewWriter(file)
+	w := zip.NewWriter(Zipfile)
 	defer w.Close()
 
 	walker := func(path string, info os.FileInfo, err error) error {
@@ -276,5 +277,5 @@ func ZipDir(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return file.Name(), nil
+	return Zipfile.Name(), nil
 }
