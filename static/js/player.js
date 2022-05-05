@@ -1,5 +1,4 @@
 var src = window.location.pathname.replace("/stream", "");
-console.log(src, window.location.pathname);
 var player_div = document.getElementById("player-div");
 
 player_div.innerHTML =
