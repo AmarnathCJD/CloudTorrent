@@ -1,7 +1,9 @@
 package main
 
 import (
+	"archive/zip"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -233,4 +235,46 @@ func GetPath(path string, file os.FileInfo) string {
 	} else {
 		return "/dir" + ServerPath(path+"/"+file.Name())
 	}
+}
+
+// for later
+func ZipDir(path string) (string, error) {
+	file, err := os.Create(filepath.Base(path) + ".zip")
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	w := zip.NewWriter(file)
+	defer w.Close()
+
+	walker := func(path string, info os.FileInfo, err error) error {
+		fmt.Printf("Crawling: %#v\n", path)
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		f, err := w.Create(path)
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(f, file)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+	err = filepath.Walk(path, walker)
+	if err != nil {
+		return "", err
+	}
+	return file.Name(), nil
 }

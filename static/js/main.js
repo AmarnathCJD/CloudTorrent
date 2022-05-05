@@ -162,8 +162,7 @@ function playAudio(url, uid) {
             uid +
             `"><i class="bi bi-play-circle"></i></button>`;
         CurrentPlaying = [null, null];
-    }
-
+    };
 }
 
 function pauseAudio(url, uid) {
@@ -220,25 +219,18 @@ const handleFileUpload = (e) => {
     const uploadData = new FormData();
     uploadData.append("file", files[0]);
     uploadData.append("path", window.location.pathname);
-    fetch(
-        "/api/upload",
-        {
-            method: "POST",
-            body: uploadData,
-        }
-    )
-        .then((res) => res.json())
-        .then((data) => {
-            UpdateDir();
-        })
-        .catch((err) => {
-            ToastMessage("Upload Failed", "danger");
-        });
-}
+    fetch("/api/upload", {
+        method: "POST",
+        body: uploadData,
+    }).then((response) => {
+        ToastMessage("Uploaded " + files[0].name, "success");
+        UpdateDir();
+    });
+};
 
-document.querySelector('#file').addEventListener('change', event => {
-    handleFileUpload(event)
-})
+document.querySelector("#file").addEventListener("change", (event) => {
+    handleFileUpload(event);
+});
 
 function CreateFolder() {
     var name = prompt("Enter Folder Name");

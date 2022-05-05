@@ -1,58 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta name="og:title" content="Downloads" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta charset="utf-8" />
-    <meta name="description" content="" />
-    <meta class="foundation-mq-small">
-    <meta class="foundation-mq-small-only">
-    <meta class="foundation-mq-medium">
-    <meta class="foundation-mq-medium-only">
-    <meta class="foundation-mq-large">
-    <meta class="foundation-mq-large-only">
-    <meta class="foundation-mq-xlarge">
-    <meta class="foundation-mq-xlarge-only">
-    <meta class="foundation-mq-xxlarge">
-    <meta class="foundation-data-attribute-namespace">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap Static Navbar</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/static/css/style.css" />
     <link rel="stylesheet" href="/static/css/dark.css" />
+    <style>
+        @media only screen and (max-width: 760px),
+        (min-device-width: 768px) and (max-device-width: 1024px) {
+
+            /* Force table to not be like tables anymore */
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+            }
+
+            /* Hide table headers (but not display: none;, for accessibility) */
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tr {
+                border: 1px solid #ccc;
+            }
+
+            td {
+                /* Behave  like a "row" */
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+            }
+
+            td:before {
+                /* Now like a table header */
+                position: absolute;
+                /* Top/left values mimic padding */
+                top: 6px;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+            }
+
+            /*
+	Label the data
+	*/
+            
+        }
+    </style>
 </head>
 
 <body>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-        crossorigin="anonymous"></script>
     <div class="toast-container top-0 end-0"></div>
-    <script src="/static/js/addons.js"></script>
-    <script src="/static/js/torr.js"></script>
-    <div class="custom-font">
-        <div class="container d-flex p-3 mx-auto w-100 flex-column">
-            <header class="mb-auto">
-                <div class="float-md-start fw-bold fs-5">
+    <div class="m-4">
+        <nav class="navbar navbar-expand-lg navbar-light" id="main-nav">
+            <div class="container-fluid">
+                <a href="#" class="navbar-brand">
                     <h1>
                         <i class="bi bi-cloud-download" style="color: cornflowerblue"></i>
                         Cloud Torrent
                     </h1>
-                </div>
-                <nav class="nav justify-content-center float-md-end">
-                    <a class="nav-item nav-link active" href="/"><button class="btn btn-danger active">
-                            Home <i class="bi bi-house"></i></button></a>
-                    <a class="nav-link" href="/downloads/"><button class="btn btn-primary">
-                            Files <i class="bi bi-list-ul"></i></button></a>
-                    <a class="nav-link" href="/search/"><button class="btn btn-primary">
-                            Search <i class="bi bi-search"></i></button></a>
-                    <div class="nav-link">
-                        <div class="form-check form-switch">
-                            <input type="checkbox" class="form-check-input" id="darkSwitch" />
-                            <label class="custom-control-label" for="darkSwitch" id="dark-icon"><i
-                                    class="bi bi-brightness-high"></i></label>
+                </a>
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto">
+                        <div class="navbar-nav">
+                            <a class="nav-item nav-link active" href="/"><button class="btn btn-danger active">
+                                    Home <i class="bi bi-house"></i></button></a>
+                            <a class="nav-link" href="/downloads/"><button class="btn btn-primary" data-toggle="tooltip"
+                                    data-placement="top" title="File Manager">
+                                    Files <i class="bi bi-list-ul"></i></button></a>
+                            <a class="nav-link" href="/search/"><button class="btn btn-primary" data-toggle="tooltip"
+                                    data-placement="top" title="Torrent search TPB">
+                                    Search <i class="bi bi-search"></i></button></a>
+                            <div class="nav-link">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" id="darkSwitch" />
+                                    <label class="custom-control-label" for="darkSwitch" id="dark-icon"><i
+                                            class="bi bi-brightness-high"></i></label>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </nav>
-            </header>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="container d-flex p-3 mx-auto w-100 flex-column">
+        <div class="jumbotron">
+            <hr class="my-4">
             <main>
                 <div class="form-inline" style="margin-top: 29px">
                     <div class="form-group mx-sm-3 mb-2 has-feedback">
@@ -67,8 +117,7 @@
                         </div>
                     </div>
                 </div>
-                <button style="float:right" id="add-folder-button" class="btn btn-secondary"><i
-                        class="bi bi-plus-lg"></i> Create Folder</button>
+                <hr class="my-4">
                 <table id="files-table" class="table caption-top primary table-hover"></table>
                 <div class="text-center">
                     <div class="btn-group" role="group">
@@ -91,11 +140,9 @@
         </main>
     </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-        crossorigin="anonymous"></script>
+    <script src="/static/js/addons.js"></script>
     <script src="/static/js/dark.js"></script>
+    <script src="/static/js/torr.js"></script>
 </body>
 
 </html>

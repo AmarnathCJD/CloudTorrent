@@ -33,7 +33,7 @@ func ServeApiEndpoints() {
 		{"/api/remove", DeleteTorrent},
 		{"/api/pause", PauseTorrent},
 		{"/api/resume", ResumeTorrent},
-		{"/api/search", SearchTorrents},
+		{"/api/search/", SearchTorrents},
 		{"/api/autocomplete", AutoComplete},
 		{"/api/removeall", DropAll},
 		{"/api/stopall", StopAllHandler},
