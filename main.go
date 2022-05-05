@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -20,7 +21,7 @@ func main() {
 	HTMLServe()
 	go streamTorrentUpdate()
 	if err := http.ListenAndServe(Port, nil); err != nil {
-		panic(err)
+		log.Fatal("ListenAndServe: ", err)
 	}
 }
 

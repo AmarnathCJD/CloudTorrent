@@ -189,7 +189,8 @@ func CreateFolderHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 	r.ParseForm()
-	DirPath := strings.Replace(filepath.Join(Root, r.URL.Path), "/api/create/downloads", "", 1)
+	DirPath := AbsPath(strings.Replace(filepath.Join(Root, r.URL.Path), "api/create/downloads", "", 1))
+	log.Println(DirPath)
 	if err := os.MkdirAll(DirPath, 0777); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

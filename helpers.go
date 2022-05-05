@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -123,7 +124,7 @@ func GetIP(r *http.Request) string {
 	return r.RemoteAddr
 }
 
-func SortAlpha(sortData []TorrentMeta) []TorrentMeta {
+func SortAlpha(sortData []TorrentData) []TorrentData {
 	var data = sortData
 	sort.Slice(data, func(p, q int) bool {
 		return data[p].Name < data[q].Name
@@ -169,42 +170,35 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 		return files, err
 	}
 	for i, file := range DirWalk {
-		var Size, Type, Icon, Color, Ext, StreamURL string
-		var Path = filepath.Join(path, file.Name())
-		Path = "/downloads" + ServerPath(path+"/"+file.Name())
+		var Size, Type, Icon, Color, Ext string
 		if file.IsDir() {
 			Type = "Folder"
-			StreamURL = ServerPath(path + "/" + file.Name())
 			DirSize, _ := DirSize(path + "/" + file.Name())
 			Size = ByteCountSI(DirSize)
 		} else {
 			Size = ByteCountSI(file.Size())
 			Type, Icon, Color = GetFileType(file.Name())
 			Ext = filepath.Ext(file.Name())
-			StreamURL = AbsPath("/stream" + strings.Replace(Path, "downloads", "dir", 1))
 		}
 		files = append(files, FileInfo{
-			ID:         strconv.Itoa(i),
-			Name:       GetName(file.Name()),
-			Size:       Size,
-			Type:       Type,
-			Path:       Path,
-			Color:      Color,
-			IsDir:      strconv.FormatBool(file.IsDir()),
-			Ext:        Ext,
-			StreamLink: StreamURL,
-			Class:      Icon,
+			ID:    strconv.Itoa(i),
+			Name:  GetName(file.Name()),
+			Size:  Size,
+			Type:  Type,
+			Path:  GetPath(path, file),
+			Color: Color,
+			IsDir: strconv.FormatBool(file.IsDir()),
+			Ext:   Ext,
+			Class: Icon,
 		})
+		log.Println(GetPath(path, file))
 	}
 	return files, nil
 
 }
 
 func AbsPath(path string) string {
-	if runtime.GOOS == "windows" {
-		return filepath.ToSlash(path)
-	}
-	return path
+	return filepath.ToSlash(path)
 }
 
 func ServerPath(path string) string {
@@ -230,5 +224,13 @@ func PrepareWD() {
 		if err := os.MkdirAll(filepath.Join(Root, "torrents"), 0755); err != nil {
 			panic(err)
 		}
+	}
+}
+
+func GetPath(path string, file os.FileInfo) string {
+	if file.IsDir() {
+		return "/downloads" + ServerPath(path+"/"+file.Name())
+	} else {
+		return "/dir" + ServerPath(path+"/"+file.Name())
 	}
 }

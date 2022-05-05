@@ -28,7 +28,7 @@ func InitClient() *torrent.Session {
 	return client
 }
 
-type TorrentMeta struct {
+type TorrentData struct {
 	Name     string `json:"name,omitempty"`
 	Size     string `json:"size,omitempty"`
 	Status   string `json:"status,omitempty"`
@@ -122,8 +122,8 @@ func GetTorrentPath(id string) string {
 	return "404 Not Found"
 }
 
-func GetAllTorrents() []TorrentMeta {
-	var Torrents []TorrentMeta
+func GetAllTorrents() []TorrentData {
+	var Torrents []TorrentData
 	for _, t := range GetTorrents() {
 		Perc := GetDownloadPercentage(t.ID())
 		Name := t.Stats().Name
@@ -132,7 +132,7 @@ func GetAllTorrents() []TorrentMeta {
 			Name = "fetching metadata..."
 		}
 		Stats, Icon := GetStats(t.ID())
-		Torrents = append(Torrents, TorrentMeta{
+		Torrents = append(Torrents, TorrentData{
 			Name:     Name,
 			Size:     ByteCountSI(t.Stats().Bytes.Total),
 			Status:   Stats,
