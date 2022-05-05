@@ -20,8 +20,8 @@ function initTheme() {
         : document.body.removeAttribute("data-theme");
     if (darkThemeSelected) {
         DarkIcon.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
-        ToggleTableDark()
-        NavBarDark()
+        ToggleTableDark();
+        NavBarDark();
     } else {
         DarkIcon.innerHTML = "&#x2600;";
     }
@@ -32,16 +32,16 @@ function resetTheme() {
         document.body.setAttribute("data-theme", "dark");
         localStorage.setItem("darkSwitch", "dark");
         DarkIcon.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
-        ToggleTableDark()
-        NavBarDark()
-        DarkDropDown(true)
+        ToggleTableDark();
+        NavBarDark();
+        DarkDropDown(true);
     } else {
         document.body.removeAttribute("data-theme");
         localStorage.removeItem("darkSwitch");
         DarkIcon.innerHTML = "&#x2600;";
-        ToggleTableDark()
-        NavBarDark()
-        DarkDropDown(false)
+        ToggleTableDark();
+        NavBarDark();
+        DarkDropDown(false);
     }
 }
 

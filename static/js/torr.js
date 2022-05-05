@@ -73,17 +73,26 @@ function updateTorrents(data) {
         row.append("<td>" + torrent.status + "</td>");
         row.append("<td>" + torrent.eta + "</td>");
         row.append("<td>" + torrent.speed + "</td>");
-        var actionbutton = ""
+        var actionbutton = "";
         if (torrent.status == "Downloading") {
-            actionbutton = `<button class="btn btn-danger" onclick="pauseTorrent('` + torrent.uid + `')"><i class="bi bi-pause-fill"></i></button>`;
+            actionbutton =
+                `<button class="btn btn-danger" onclick="pauseTorrent('` +
+                torrent.uid +
+                `')"><i class="bi bi-pause-fill"></i></button>`;
         } else {
-            actionbutton = `<button class="btn btn-success" onclick="resumeTorrent('` + torrent.uid + `')"><i class="bi bi-play-fill"></i></button>`;
+            actionbutton =
+                `<button class="btn btn-success" onclick="resumeTorrent('` +
+                torrent.uid +
+                `')"><i class="bi bi-play-fill"></i></button>`;
         }
         row.append(
             "<td><div class='btn-group'> <button class='btn btn-danger' onclick='removeTorrent(\"" +
             torrent.uid +
-            "\")'><i class='bi bi-x-circle'></i></button><a href='" + torrent.path + "'><button class='btn btn-warning'><i class='bi bi-folder-plus'></i></button></a>" + actionbutton
-            + "</div></td>"
+            "\")'><i class='bi bi-x-circle'></i></button><a href='" +
+            torrent.path +
+            "'><button class='btn btn-warning'><i class='bi bi-folder-plus'></i></button></a>" +
+            actionbutton +
+            "</div></td>"
         );
         table.append(row);
     }

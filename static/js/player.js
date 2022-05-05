@@ -6,7 +6,6 @@ player_div.innerHTML =
     src +
     '" type="video/mp4" /></video>';
 
-
 const player = new Plyr("video", {
     controls: [
         "play-large",
@@ -24,6 +23,5 @@ const player = new Plyr("video", {
     clickToPlay: true,
     settings: ["captions", "quality", "speed"],
 });
-
 
 window.player = player;
