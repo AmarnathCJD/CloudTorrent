@@ -174,7 +174,7 @@ function pauseAudio(url, uid) {
         `", this.id)' id="` +
         uid +
         `"><i class="bi bi-play-circle"></i></button>`;
-    ToastMessage("Paused Audio");
+    ToastMessage("Paused Audio", "primary");
 }
 
 function showImage(url, uid) {
@@ -195,7 +195,7 @@ function deleteFile(name) {
         url: "/delete/" + window.location.pathname + name,
         type: "GET",
         success: function (data) {
-            ToastMessage("Deleted " + name);
+            ToastMessage("Deleted " + name, "success");
             UpdateDir();
         },
     });
