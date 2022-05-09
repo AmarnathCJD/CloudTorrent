@@ -17,37 +17,11 @@ var (
 
 func main() {
 	fmt.Print("Starting server...")
-	ServeApiEndpoints()
 	HTMLServe()
 	go streamTorrentUpdate()
 	if err := http.ListenAndServe(Port, nil); err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
-}
-
-func ServeApiEndpoints() {
-	var API = []Handle{
-		{"/api/add", AddTorrent},
-		{"/api/torrents", ActiveTorrents},
-		{"/api/status", SystemStats},
-		{"/api/remove", DeleteTorrent},
-		{"/api/pause", PauseTorrent},
-		{"/api/resume", ResumeTorrent},
-		{"/api/search/", SearchTorrents},
-		{"/api/autocomplete", AutoComplete},
-		{"/api/removeall", DropAll},
-		{"/api/stopall", StopAllHandler},
-		{"/api/startall", StartAllHandler},
-		{"/api/upload", UploadFileHandler},
-		{"/api/create/", CreateFolderHandler},
-	}
-	for _, api := range API {
-		http.HandleFunc(api.Path, api.Func)
-	}
-	// update Server Events
-	http.Handle("/torrents/update", SSEFeed)
-	http.HandleFunc("/dir/", GetDirContents)
-	http.HandleFunc("/delete/", DeleteFile)
 }
 
 func HTMLServe() {

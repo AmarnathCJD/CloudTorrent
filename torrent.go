@@ -8,12 +8,14 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cenkalti/rain/torrent"
 )
 
 var (
-	client = InitClient()
+	client     = InitClient()
+	httpclient = &http.Client{Timeout: time.Second * 10}
 )
 
 func InitClient() *torrent.Session {
@@ -41,16 +43,6 @@ type TorrentData struct {
 	Progress string `json:"progress,omitempty"`
 	Icon     string `json:"icon,omitempty"`
 	Path     string `json:"path,omitempty"`
-}
-
-type TpbTorrent struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	InfoHash string `json:"info_hash"`
-	Leechers string `json:"leechers"`
-	Seeders  string `json:"seeders"`
-	Size     string `json:"size"`
-	Magnet   string `json:"magnet"`
 }
 
 func AddTorrentByMagnet(magnet string) (bool, error) {
@@ -230,54 +222,43 @@ func GetStats(id string) (string, string) {
 	return "Error", "bi bi-bug"
 }
 
-func SearchTorrentReq(query string) []TpbTorrent {
-	var baseUrl = "https://tpb23.ukpass.co/apibay/q.php" + "?q=" + url.QueryEscape(query) + "&cat=0"
-	var resp *http.Response
-	var err error
-	if resp, err = http.Get(baseUrl); err != nil {
-		return []TpbTorrent{}
+func GatherSearchResults(query string) []byte {
+	var tpb []SearchReq
+	if query == "top100" {
+		var top100 []TopTorr
+		if resp, err := httpclient.Get("https://tpb23.ukpass.co/apibay/precompiled/data_top100_all.json"); err != nil {
+			return []byte("[]")
+		} else {
+			defer resp.Body.Close()
+			if err = json.NewDecoder(resp.Body).Decode(&top100); err != nil {
+				return []byte("[]")
+			}
+			for _, v := range top100 {
+				tpb = append(tpb, SearchReq{
+					Name:     v.Name,
+					Size:     fmt.Sprint(int64(v.Size)),
+					Seeders:  fmt.Sprint(int64(v.Seeders)),
+					Leechers: fmt.Sprint(int64(v.Leechers)),
+					InfoHash: fmt.Sprint(v.InfoHash),
+				})
+			}
+		}
+	} else {
+		if resp, err := httpclient.Get("https://tpb23.ukpass.co/apibay/q.php" + "?q=" + url.QueryEscape(query) + "&cat=0"); err != nil {
+			return []byte("[]")
+		} else {
+			defer resp.Body.Close()
+			if err = json.NewDecoder(resp.Body).Decode(&tpb); err != nil {
+				return []byte("[]")
+			}
+		}
 	}
-	defer resp.Body.Close()
-	var tpb []TpbTorrent
-	if err = json.NewDecoder(resp.Body).Decode(&tpb); err != nil {
-		return []TpbTorrent{}
+	for i, t := range tpb {
+		tpb[i].Magnet = "magnet:?xt=urn:btih:" + t.InfoHash + "&dn=" + url.QueryEscape(t.Name)
+		tpb[i].Size = ByteCountSI(StringToInt64(t.Size))
 	}
-	return tpb
-}
-
-func Top100Torrents() []TpbTorrent {
-	baseUrl := "https://tpb23.ukpass.co/apibay/precompiled/data_top100_all.json"
-	var resp *http.Response
-	var err error
-	if resp, err = http.Get(baseUrl); err != nil {
-		return []TpbTorrent{}
-	}
-	defer resp.Body.Close()
-	var tpb []TpbTorrent
-	var data []interface{}
-	if err = json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return []TpbTorrent{}
-	}
-	for _, v := range data {
-		tpb = append(tpb, TpbTorrent{
-			Name:     v.(map[string]interface{})["name"].(string),
-			Size:     fmt.Sprint(int64(v.(map[string]interface{})["size"].(float64))),
-			Seeders:  fmt.Sprint(int64(v.(map[string]interface{})["seeders"].(float64))),
-			Leechers: fmt.Sprint(int64(v.(map[string]interface{})["leechers"].(float64))),
-			ID:       fmt.Sprint(int64(v.(map[string]interface{})["id"].(float64))),
-			InfoHash: fmt.Sprint(v.(map[string]interface{})["info_hash"].(string)),
-		})
-	}
-	return tpb
-}
-
-func PretifyResult(result []TpbTorrent) []TpbTorrent {
-	var Torr = result
-	for i, t := range Torr {
-		Torr[i].Magnet = "magnet:?xt=urn:btih:" + t.InfoHash + "&dn=" + url.QueryEscape(t.Name)
-		Torr[i].Size = ByteCountSI(StringToInt64(t.Size))
-	}
-	return Torr
+	data, _ := json.Marshal(tpb)
+	return data
 }
 
 func GetLenTorrents() int {

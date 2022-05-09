@@ -34,6 +34,23 @@ type FileInfo struct {
 	Class      string `json:"class,omitempty"`
 }
 
+type TopTorr struct {
+	Name     string
+	Size     float64
+	Seeders  float64
+	Leechers float64
+	InfoHash string
+}
+
+type SearchReq struct {
+	Name     string `json:"name"`
+	InfoHash string `json:"info_hash"`
+	Leechers string `json:"leechers"`
+	Seeders  string `json:"seeders"`
+	Size     string `json:"size"`
+	Magnet   string `json:"magnet"`
+}
+
 type Handle struct {
 	Path string
 	Func func(http.ResponseWriter, *http.Request)

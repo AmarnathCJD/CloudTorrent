@@ -79,8 +79,15 @@ func PauseTorrent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No uid provided", http.StatusBadRequest)
 		return
 	}
-	PauseTorrentByID(id)
-	w.WriteHeader(http.StatusOK)
+	if ok, err := PauseTorrentByID(id); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	} else if !ok {
+		http.Error(w, "Torrent not found", http.StatusNotFound)
+		return
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
 func ResumeTorrent(w http.ResponseWriter, r *http.Request) {
@@ -95,8 +102,15 @@ func ResumeTorrent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No uid provided", http.StatusBadRequest)
 		return
 	}
-	ResumeTorrentByID(id)
-	w.WriteHeader(http.StatusOK)
+	if ok, err := ResumeTorrentByID(id); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	} else if !ok {
+		http.Error(w, "Torrent not found", http.StatusNotFound)
+		return
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
 func DropAll(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +119,10 @@ func DropAll(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}()
-	DropAllTorrents()
+	if err := DropAllTorrents(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -140,7 +157,7 @@ func SystemStats(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(SystemStat))
 }
 
-func DeleteFile(w http.ResponseWriter, r *http.Request) {
+func DeleteFileHandler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err, ok := recover().(error); ok {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -199,7 +216,7 @@ func CreateFolderHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func streamTorrentUpdate() {
-	fmt.Println("Streaming Torrents started")
+	fmt.Println("Streaming Torrents started...")
 	for range time.Tick(time.Millisecond * 600) {
 		TORRENTS := GetAllTorrents()
 		d, _ := json.Marshal(TORRENTS)
@@ -283,13 +300,31 @@ func SearchTorrents(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No query", http.StatusBadRequest)
 		return
 	}
-	var b []byte
-	if q == "top100" {
-		Search := PretifyResult(Top100Torrents())
-		b, _ = json.Marshal(Search)
-	} else {
-		Search := PretifyResult(SearchTorrentReq(q))
-		b, _ = json.Marshal(Search)
+	w.Write(GatherSearchResults(q))
+}
+
+func init() {
+	var API = []Handle{
+		{"/api/add", AddTorrent},
+		{"/api/torrents", ActiveTorrents},
+		{"/api/status", SystemStats},
+		{"/api/remove", DeleteTorrent},
+		{"/api/pause", PauseTorrent},
+		{"/api/resume", ResumeTorrent},
+		{"/api/search/", SearchTorrents},
+		{"/api/autocomplete", AutoComplete},
+		{"/api/removeall", DropAll},
+		{"/api/stopall", StopAllHandler},
+		{"/api/startall", StartAllHandler},
+		{"/api/upload", UploadFileHandler},
+		{"/api/create/", CreateFolderHandler},
+		{"/api/deletefile/", DeleteFileHandler},
 	}
-	w.Write(b)
+	for _, api := range API {
+		http.HandleFunc(api.Path, api.Func)
+	}
+	// update Server Events
+	http.Handle("/torrents/update", SSEFeed)
+	// Serve files
+	http.HandleFunc("/dir/", GetDirContents)
 }
