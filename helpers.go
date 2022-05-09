@@ -22,23 +22,23 @@ type DiskStatus struct {
 }
 
 type FileInfo struct {
-	ID         string `json:"id,omitempty"`
-	Name       string `json:"name,omitempty"`
-	Size       string `json:"size,omitempty"`
-	Type       string `json:"type,omitempty"`
-	Color      string `json:"color,omitempty"`
-	Path       string `json:"path,omitempty"`
-	IsDir      string `json:"is_dir,omitempty"`
-	Ext        string `json:"ext,omitempty"`
-	Class      string `json:"class,omitempty"`
+	ID    string `json:"id,omitempty"`
+	Name  string `json:"name,omitempty"`
+	Size  string `json:"size,omitempty"`
+	Type  string `json:"type,omitempty"`
+	Color string `json:"color,omitempty"`
+	Path  string `json:"path,omitempty"`
+	IsDir string `json:"is_dir,omitempty"`
+	Ext   string `json:"ext,omitempty"`
+	Class string `json:"class,omitempty"`
 }
 
 type TopTorr struct {
-	Name     string
-	Size     float64
-	Seeders  float64
-	Leechers float64
-	InfoHash string
+	Name     string  `json:"name,omitempty"`
+	Size     float64 `json:"size,omitempty"`
+	Seeders  float64 `json:"seeders,omitempty"`
+	Leechers float64 `json:"leechers,omitempty"`
+	InfoHash string  `json:"info_hash,omitempty"`
 }
 
 type SearchReq struct {

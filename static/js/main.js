@@ -70,7 +70,7 @@ function UpdateDir() {
                     file.name +
                     file.ext +
                     `')"><i class="bi bi-x-circle"></i></button><a href="/dir` +
-                    AbsPath.replace("dir", "downloads") +
+                    AbsPath.replace("dir", "downloads").replace("/downloads", "") +
                     `" download="` +
                     file.name +
                     file.ext +
@@ -192,10 +192,10 @@ function showImage(url, uid) {
 
 function deleteFile(name) {
     $.ajax({
-        url: "/delete/" + window.location.pathname + name,
+        url: "/api/deletefile/" + window.location.pathname + name,
         type: "GET",
         success: function (data) {
-            ToastMessage("Deleted " + name, "success");
+            ToastMessage("Deleted " + name, "danger");
             UpdateDir();
         },
     });

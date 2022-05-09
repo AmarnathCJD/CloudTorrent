@@ -89,7 +89,7 @@ function updateTorrents(data) {
             "<td><div class='btn-group'> <button class='btn btn-danger' onclick='removeTorrent(\"" +
             torrent.uid +
             "\")'><i class='bi bi-x-circle'></i></button><a href='" +
-            torrent.path +
+            torrent.path.replace("/downloads", "") +
             "'><button class='btn btn-warning'><i class='bi bi-folder-plus'></i></button></a>" +
             actionbutton +
             "</div></td>"

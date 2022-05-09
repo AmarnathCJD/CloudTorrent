@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	client     = InitClient()
-	httpclient = &http.Client{Timeout: time.Second * 10}
+	client  = InitClient()
+	hClient = &http.Client{Timeout: time.Second * 10}
 )
 
 func InitClient() *torrent.Session {
@@ -226,7 +226,7 @@ func GatherSearchResults(query string) []byte {
 	var tpb []SearchReq
 	if query == "top100" {
 		var top100 []TopTorr
-		if resp, err := httpclient.Get("https://tpb23.ukpass.co/apibay/precompiled/data_top100_all.json"); err != nil {
+		if resp, err := hClient.Get("https://tpb23.ukpass.co/apibay/precompiled/data_top100_all.json"); err != nil {
 			return []byte("[]")
 		} else {
 			defer resp.Body.Close()
@@ -244,7 +244,7 @@ func GatherSearchResults(query string) []byte {
 			}
 		}
 	} else {
-		if resp, err := httpclient.Get("https://tpb23.ukpass.co/apibay/q.php" + "?q=" + url.QueryEscape(query) + "&cat=0"); err != nil {
+		if resp, err := hClient.Get("https://tpb23.ukpass.co/apibay/q.php" + "?q=" + url.QueryEscape(query) + "&cat=0"); err != nil {
 			return []byte("[]")
 		} else {
 			defer resp.Body.Close()
