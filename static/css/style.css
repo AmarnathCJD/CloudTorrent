@@ -111,11 +111,6 @@ html {
     line-height: 31px;
 }
 
-.custom-font {
-    font-weight: 700;
-    font-size: 14px;
-}
-
 @media screen and (max-width: 768px) {
     .storage-info {
         font-size: 12px;

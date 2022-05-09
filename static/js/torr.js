@@ -32,9 +32,53 @@ function getTorrents() {
         url: "/api/torrents",
         type: "GET",
         success: function (data) {
-            updateTorrents(data);
+            updateTorrentList(data);
         },
     });
+}
+
+function updateTorrentList(data) {
+    var torrents = JSON.parse(data);
+    var list = $("#torrent-list");
+    list.empty();
+    if (torrents == null || torrents.length == 0) {
+        list.append("<li class='list-group-item'>No torrents found.</li>");
+        return;
+    }
+    for (var i = 0; i < torrents.length; i++) {
+        var torrent = torrents[i];
+        var a = "<a class='list-group-item list-group-item-action flex-column align-items-start '>"
+        if (IsDark()) {
+            a = "<a class='list-group-item list-group-item-action flex-column align-items-start bg-secondary text-white'>"
+        }
+        a += "<div class='d-flex w-100 justify-content-between'>"
+        a += "<h5 class='mb-1'>" + torrent.name + "</h5>"
+        a += "<small>" + torrent.size + "</small>"
+        a += "</div>"
+        a += "<p class='mb-1'>" + torrent.status
+        if (torrent.status == "Downloading") {
+            a += " (" + torrent.speed + ")" + " ETA: " + torrent.eta
+        }
+        a += "</p>"
+        if (torrent.status == "Downloading") {
+            a += "<div class='progress'>"
+            a += "<div class='progress-bar progress-bar-striped progress-bar-animated' role='progressbar' aria-valuenow='" + torrent.progress + "' aria-valuemin='0' aria-valuemax='100' style='width: " + torrent.progress + "%'>" + torrent.progress + "%</div>"
+            a += "</div>"
+        }
+        a += `<div class="mt-2 pt-2 border-top">`
+        a += `<button type="button" class="btn btn-primary btn-sm">Browse</button>`
+        a += `<button type="button" class="btn btn-danger btn-sm">Delete</button>`
+        if (torrent.status == "Downloading" || torrent.status == "Fetching Metadata") {
+            a += `<button type="button" class="btn btn-warning btn-sm" onclick="pauseTorrent('${torrent.uid}')">Pause</button>`
+        } else if (torrent.status == "Completed") {
+            a += `<button type="button" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-zip"></i> Zip</button>`
+        } else if (torrent.status == "Stopped") {
+            a += `<button type="button" class="btn btn-secondary btn-sm" onclick="resumeTorrent('${torrent.uid}')">Resume</button>`
+        }
+        a += `</div>`
+        a += "</a>"
+        list.append(a);
+    }
 }
 
 function updateTorrents(data) {
@@ -167,7 +211,7 @@ const torr = new EventSource("/torrents/update");
 torr.addEventListener(
     "torrents",
     (e) => {
-        updateTorrents(e.data);
+        updateTorrentList(e.data);
     },
     false
 );

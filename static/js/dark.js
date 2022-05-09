@@ -22,6 +22,7 @@ function initTheme() {
         DarkIcon.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
         ToggleTableDark();
         NavBarDark();
+        ListToDark();
     } else {
         DarkIcon.innerHTML = "&#x2600;";
     }
@@ -35,6 +36,7 @@ function resetTheme() {
         ToggleTableDark();
         NavBarDark();
         DarkDropDown(true);
+        ListToDark();
     } else {
         document.body.removeAttribute("data-theme");
         localStorage.removeItem("darkSwitch");
@@ -42,6 +44,7 @@ function resetTheme() {
         ToggleTableDark();
         NavBarDark();
         DarkDropDown(false);
+        ListToDark();
     }
 }
 
@@ -76,6 +79,25 @@ function NavBarDark() {
         } else {
             navbar.classList.remove("navbar-light");
             navbar.classList.add("navbar-dark");
+        }
+    }
+}
+
+function IsDark() {
+    return document.body.getAttribute("data-theme") === "dark";
+}
+
+function ListToDark() {
+    var list = document.getElementById("torrent-list");
+    if (list !== null) {
+        for (var i = 0; i < list.children.length; i++) {
+            if (list.children[i].classList.contains("bg-secondary")) {
+                list.children[i].classList.remove("bg-secondary");
+                list.children[i].classList.remove("text-white");
+            } else {
+                list.children[i].classList.add("bg-secondary");
+                list.children[i].classList.add("text-white");
+            }
         }
     }
 }
