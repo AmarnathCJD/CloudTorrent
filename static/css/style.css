@@ -116,3 +116,44 @@ html {
         font-size: 12px;
     }
 }
+
+.form__field {
+    font-family: inherit;
+    width: 100%;
+    border: 0;
+    border-bottom: 4px solid #db3939;
+    outline: 0;
+    font-size: 1.1rem;
+    padding: 5px 0;
+    transition: border-color 0.2s;
+}
+
+
+.form__field:placeholder-shown~.form__label {
+    font-size: 1.1rem;
+    cursor: text;
+    top: 20px;
+}
+
+.form__field:focus {
+    padding-bottom: 6px;
+    font-weight: 550;
+    border-width: 4px;
+    border-image: linear-gradient(to right, #11998e, #38ef7d, #11998e, #38ef7d, #11998e);
+    border-image-slice: 1;
+}
+
+.form__field:focus~.form__label {
+    position: absolute;
+    top: 0;
+    display: block;
+    transition: 0.2s;
+    font-size: 1rem;
+    color: #11998e;
+    font-weight: 550;
+}
+
+.form__field:required,
+.form__field:invalid {
+    box-shadow: rebeccapurple 0 0 0 1px inset;
+}

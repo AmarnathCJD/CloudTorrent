@@ -14,80 +14,67 @@
 </head>
 
 <body>
-    <div class="m-4">
-        <nav class="navbar navbar-expand-lg navbar-light" id="main-nav">
-            <div class="container-fluid">
-                <a href="#" class="navbar-brand">
-                    <h1>
-                        <i class="bi bi-cloud-download" style="color: cornflowerblue"></i>
-                        Cloud Torrent
-                    </h1>
-                </a>
-                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav ms-auto">
-                        <div class="navbar-nav">
-                            <a class="nav-item nav-link active" href="/"><button class="btn btn-danger active">
-                                    Home <i class="bi bi-house"></i></button></a>
-                            <a class="nav-link" href="/downloads/"><button class="btn btn-primary" data-toggle="tooltip"
-                                    data-placement="top" title="File Manager">
-                                    Files <i class="bi bi-list-ul"></i></button></a>
-                            <a class="nav-link" href="/search/"><button class="btn btn-primary" data-toggle="tooltip"
-                                    data-placement="top" title="Torrent search TPB">
-                                    Search <i class="bi bi-search"></i></button></a>
-                            <div class="nav-link">
-                                <div class="form-check form-switch">
-                                    <input type="checkbox" class="form-check-input" id="darkSwitch" />
-                                    <label class="custom-control-label" for="darkSwitch" id="dark-icon"><i
-                                            class="bi bi-brightness-high"></i></label>
-                                </div>
-                            </div>
+    <header>
+        <div class="m-4">
+            <nav class="navbar navbar-expand-lg navbar-light" id="main-nav">
+                <div class="container-fluid">
+                    <a href="#" class="navbar-brand">
+                        <h1>
+                            <i class="bi bi-cloud-download" style="color: cornflowerblue"></i>
+                            Cloud Torrent
+                        </h1>
+                        <div class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input" id="darkSwitch" />
+                            <label class="custom-control-label" for="darkSwitch" id="dark-icon"><i
+                                    class="bi bi-brightness-high"></i></label>
+                        </div>
+                    </a>
+                    <div class="nav-link">
+                        <nav class="nav nav-pills flex-column flex-sm-row">
+                            <a class="flex-sm-fill text-sm-center nav-link active" href="/">Home</a>
+                            <a class="flex-sm-fill text-sm-center nav-link" href="/downloads/">Files</a>
+                            <a class="flex-sm-fill text-sm-center nav-link" href="/search">Search</a>
+                        </nav>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <div class="container">
+        <main>
+            <form class="form-inline">
+                <div class="form-group mx-sm-3 mb-2">
+                    <div class="col-auto">
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control form__field" id="input" placeholder="Magnet Link">
                         </div>
                     </div>
+                </div>
+                <div class="text-center" style="border-top: -4px">
+                    <button type="submit" class="btn btn-primary mb-2" onclick="addTorrent()">Add Torrent</button>
+                </div>
+            </form>
+            <div class="toast-container top-0 end-0"></div>
+            <hr class="my-4">
+            <ol class="list-group" id="torrent-list"></ol>
+            <table id="files-table" class="table caption-top primary table-hover"></table>
+            <div class="text-center">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="startAll()" style="font-weight: 700;">
+                        <i class="bi bi-play"></i> Start All
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="stopAll()" style="font-weight: 700;">
+                        <i class="bi bi-stop-circle"></i> Stop All
+                    </button>
+                    <button type="button" class="btn btn-success btn-sm" onclick="removeAll()"
+                        style="font-weight: 700;">
+                        <i class="bi bi-shield-x"></i> Remove All
+                    </button>
+                </div>
+                <div class="storage-info">
+                    <div class="system-info"></div>
                 </div>
             </div>
-        </nav>
-    </div>
-    <div class="container d-flex p-3 mx-auto w-100 flex-column">
-        <div class="jumbotron">
-            <hr class="my-4">
-            <main>
-                <div class="form-inline" style="margin-top: 29px">
-                    <div class="form-group mx-sm-3 mb-2 has-feedback">
-                        <input type="input" class="form-control" id="input" placeholder="Magnet Link" />
-                        <small id="passwordHelpBlock" class="form-text text-muted">
-                            Enter the magnet link to the torrent.
-                        </small>
-                        <div class="text-center" style="border-top: -4px">
-                            <button class="btn btn-primary" onclick="addTorrent()">
-                                <i class="bi bi-cloud-download"></i> Add Torrent
-                            </button>
-                        </div>
-                        <div class="toast-container top-0 end-0"></div>
-                    </div>
-                </div>
-                <hr class="my-4">
-                <ol class="list-group" id="torrent-list"></ol>
-                <table id="files-table" class="table caption-top primary table-hover"></table>
-                <div class="text-center">
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-primary" onclick="startAll()" style="font-weight: 700;">
-                            <i class="bi bi-play"></i> Start All
-                        </button>
-                        <button type="button" class="btn btn-danger" onclick="stopAll()" style="font-weight: 700;">
-                            <i class="bi bi-stop-circle"></i> Stop All
-                        </button>
-                        <button type="button" class="btn btn-success" onclick="removeAll()" style="font-weight: 700;">
-                            <i class="bi bi-shield-x"></i> Remove All
-                        </button>
-                    </div>
-                    <div class="storage-info">
-                        <div class="system-info"></div>
-                    </div>
-                </div>
-        </div>
         </main>
     </div>
     </div>

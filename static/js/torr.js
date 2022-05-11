@@ -49,98 +49,58 @@ function updateTorrentList(data) {
         var torrent = torrents[i];
         var a = "<a class='list-group-item list-group-item-action flex-column align-items-start '>"
         if (IsDark()) {
-            a = "<a class='list-group-item list-group-item-action flex-column align-items-start bg-secondary text-white'>"
+            a = "<a class='list-group-item list-group-item-action flex-column align-items-start text-white' style='background-color: #212529'>"
         }
         a += "<div class='d-flex w-100 justify-content-between'>"
         a += "<h5 class='mb-1'>" + torrent.name + "</h5>"
         a += "<small>" + torrent.size + "</small>"
         a += "</div>"
-        a += "<p class='mb-1'>" + torrent.status
+        a += "<p class='mb-1 small'>" + torrent.status
         if (torrent.status == "Downloading") {
             a += " (" + torrent.speed + ")" + " ETA: " + torrent.eta
         }
         a += "</p>"
         if (torrent.status == "Downloading") {
             a += "<div class='progress'>"
-            a += "<div class='progress-bar progress-bar-striped progress-bar-animated' role='progressbar' aria-valuenow='" + torrent.progress + "' aria-valuemin='0' aria-valuemax='100' style='width: " + torrent.progress + "%'>" + torrent.progress + "%</div>"
+            a += "<div class='progress-bar progress-bar-striped progress-bar-animated bg-" + getBarColor(torrent.progress) + "' role='progressbar' aria-valuenow='" + torrent.progress + "' aria-valuemin='0' aria-valuemax='100' style='width: " + torrent.progress + "%'>" + torrent.progress + "%</div>"
             a += "</div>"
         }
         a += `<div class="mt-2 pt-2 border-top">`
-        a += `<button type="button" class="btn btn-primary btn-sm">Browse</button>`
-        a += `<button type="button" class="btn btn-danger btn-sm">Delete</button>`
+        a += `<div class="btn-group" role="group">`
+        a += `<button type="button" class="btn btn-primary btn-sm" data-path="${torrent.path}" onclick="btnHref(this)">Browse</button>`
+        a += `<button type="button" class="btn btn-danger btn-sm" onclick="removeTorrent('${torrent.uid}')">Delete</button>`
         if (torrent.status == "Downloading" || torrent.status == "Fetching Metadata") {
             a += `<button type="button" class="btn btn-warning btn-sm" onclick="pauseTorrent('${torrent.uid}')">Pause</button>`
         } else if (torrent.status == "Completed") {
             a += `<button type="button" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-zip"></i> Zip</button>`
         } else if (torrent.status == "Stopped") {
-            a += `<button type="button" class="btn btn-secondary btn-sm" onclick="resumeTorrent('${torrent.uid}')">Resume</button>`
+            a += `<button type="button" class="btn btn-info btn-sm" onclick="resumeTorrent('${torrent.uid}')">Resume</button>`
         }
-        a += `</div>`
+        a += `</div></div>`
         a += "</a>"
         list.append(a);
     }
 }
 
-function updateTorrents(data) {
-    var torrents = JSON.parse(data);
-    var table = $("#files-table");
-    table.empty();
-    table.append(
-        "<caption>Active Torrents</caption><tr><th style='width: 3.66%'>ID</th><th>Name</th><th>Size</th><th>Status</th><th>ETA</th><th>Download Speed</th><th>Actions</th></tr>"
-    );
-    if (torrents == null || torrents.length == 0) {
-        console.log("No torrents");
-        table.append("<tr><td colspan='7'>No active torrents.</td></tr>");
-        return;
-    }
-    for (var i = 0; i < torrents.length; i++) {
-        var torrent = torrents[i];
-        var row = $("<tr></tr>");
-        row.append("<td>" + torrent.id + "</td>");
-        var progress_bb =
-            `<div class="progress" style="height: 10px; border-top: 4px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: ` +
-            torrent.progress +
-            `%"></div></div>`;
-        if (torrent.progress >= 85) {
-            progress_bb =
-                `<div class="progress" style="height: 10px; border-top: 4px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: ` +
-                torrent.progress +
-                `%"></div></div>`;
-        } else if (torrent.progress <= 35) {
-            progress_bb =
-                `<div class="progress" style="height: 10px; border-top: 4px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: ` +
-                torrent.progress +
-                `%"></div></div>`;
-        }
-        row.append("<td>" + torrent.name + progress_bb + `</td>`);
-        row.append("<td>" + torrent.size + "</td>");
-        row.append("<td>" + torrent.status + "</td>");
-        row.append("<td>" + torrent.eta + "</td>");
-        row.append("<td>" + torrent.speed + "</td>");
-        var actionbutton = "";
-        if (torrent.status == "Downloading") {
-            actionbutton =
-                `<button class="btn btn-danger" onclick="pauseTorrent('` +
-                torrent.uid +
-                `')"><i class="bi bi-pause-fill"></i></button>`;
-        } else {
-            actionbutton =
-                `<button class="btn btn-success" onclick="resumeTorrent('` +
-                torrent.uid +
-                `')"><i class="bi bi-play-fill"></i></button>`;
-        }
-        row.append(
-            "<td><div class='btn-group'> <button class='btn btn-danger' onclick='removeTorrent(\"" +
-            torrent.uid +
-            "\")'><i class='bi bi-x-circle'></i></button><a href='" +
-            torrent.path.replace("/downloads", "") +
-            "'><button class='btn btn-warning'><i class='bi bi-folder-plus'></i></button></a>" +
-            actionbutton +
-            "</div></td>"
-        );
-        table.append(row);
+function getBarColor(perc) {
+    if (perc < 20) {
+        return "danger";
+    } else if (perc < 40) {
+        return "warning";
+    } else if (perc < 60) {
+        return "secondary";
+    } else if (perc < 80) {
+        return "success";
+    } else {
+        return "primary";
     }
 }
+
+function btnHref(e) {
+    var path = $(e).data("path");
+    window.location.href = path;
+}
+
 
 function removeTorrent(id) {
     $.ajax({

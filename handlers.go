@@ -303,6 +303,17 @@ func SearchTorrents(w http.ResponseWriter, r *http.Request) {
 	w.Write(GatherSearchResults(q))
 }
 
+func ZipFolderHandler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	r.ParseForm()
+	// TODO: Add a check to make sure dir exists
+}
+
 func init() {
 	var API = []Handle{
 		{"/api/add", AddTorrent},
@@ -319,6 +330,7 @@ func init() {
 		{"/api/upload", UploadFileHandler},
 		{"/api/create/", CreateFolderHandler},
 		{"/api/deletefile/", DeleteFileHandler},
+		{"/api/zip/", ZipFolderHandler},
 	}
 	for _, api := range API {
 		http.HandleFunc(api.Path, api.Func)

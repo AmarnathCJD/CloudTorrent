@@ -12,51 +12,42 @@
 </head>
 
 <body>
-  <div class="container d-flex p-3 mx-auto w-100 flex-column">
-    <header class="mb-auto">
-      <div class="float-md-start fw-bold fs-5">
-        <h1>
-          <i class="bi bi-cloud-download" style="color: cornflowerblue"></i>
-          Cloud Torrent
-        </h1>
-      </div>
-      <nav class="nav justify-content-center float-md-end">
-        <a class="nav-item nav-link active" href="/"><button class="btn btn-primary" style="float: right">
-            Home <i class="bi bi-house"></i></button></a>
-        <a class="nav-link" href="/downloads/"><button class="btn btn-danger active" style="float: right">
-            Files <i class="bi bi-list-ul"></i></button></a>
-        <a class="nav-link" href="/search/"><button class="btn btn-success">
-            Search <i class="bi bi-search"></i></button></a>
-        <div class="nav-link">
-          <input type="file" name="file" id="file" style="display: none" />
-          <label for="file" class="btn btn-info">
-            Upload <i class="bi bi-upload"></i>
-          </label>
-        </div>
-        <div class="nav-link">
-          <button style="float: right" id="add-folder-button" class="btn btn-secondary" onclick="backButton()">
-            <i class="bi bi-backspace"></i> Back
-          </button>
-        </div>
-        <div class="nav-link">
-          <div class="form-check form-switch">
-            <input type="checkbox" class="form-check-input" id="darkSwitch" />
-            <label class="custom-control-label" for="darkSwitch" id="dark-icon"><i
-                class="bi bi-brightness-high"></i></label>
+  <header>
+    <div class="m-4">
+      <nav class="navbar navbar-expand-lg navbar-light" id="main-nav">
+        <div class="container-fluid">
+          <a href="#" class="navbar-brand">
+            <h1>
+              <i class="bi bi-cloud-download" style="color: cornflowerblue"></i>
+              Cloud Torrent
+            </h1>
+            <div class="form-check form-switch">
+              <input type="checkbox" class="form-check-input" id="darkSwitch" />
+              <label class="custom-control-label" for="darkSwitch" id="dark-icon"><i
+                  class="bi bi-brightness-high"></i></label>
+            </div>
+          </a>
+          <div class="nav-link">
+            <nav class="nav nav-pills flex-column flex-sm-row">
+              <a class="flex-sm-fill text-sm-center nav-link" href="/">Home</a>
+              <a class="flex-sm-fill text-sm-center nav-link active" href="/downloads/">Files</a>
+              <a class="flex-sm-fill text-sm-center nav-link" href="/search">Search</a>
+            </nav>
           </div>
         </div>
       </nav>
-    </header>
-    <main>
-      <div class="table-responsive text-nowrap">
-        <table id="files-table" class="table caption-top primary table-hover w-auto table-striped"></table>
-      </div>
-      <div id="main-modal" class="modal">
-        <span class="close">&times;</span>
-        <img class="modal-content" id="main-modal-img" />
-        <div id="main-modal-caption" class="caption"></div>
-      </div>
-    </main>
+    </div>
+  </header>
+  <div class="container">
+    <ol class="list-group" id="dir-list"></ol>
+    <div class="table-responsive text-nowrap">
+      <table id="files-table" class="table caption-top primary table-hover w-auto table-striped"></table>
+    </div>
+    <div id="main-modal" class="modal">
+      <span class="close">&times;</span>
+      <img class="modal-content" id="main-modal-img" />
+      <div id="main-modal-caption" class="caption"></div>
+    </div>
     <div class="toast-container top-0 end-0"></div>
     <div class="text-center">
       <button style="float: right" id="add-folder-button" class="btn btn-secondary" onclick="CreateFolder()">

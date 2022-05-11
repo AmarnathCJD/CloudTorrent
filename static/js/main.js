@@ -2,6 +2,54 @@ var Audd = new Audio();
 var table = document.getElementById("files-table");
 var CurrentPlaying = [null, null];
 
+function updateDirList() {
+    $.ajax({
+        url: "/dir/" + window.location.pathname.replace("/downloads", ""),
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            var dirList = document.getElementById("dir-list");
+            dirList.innerHTML = "";
+            for (var i = 0; i < data.length; i++) {
+                var dir = data[i];
+                var a = `<a class='list-group-item list-group-item-action flex-column align-items-start' href="${dir.path}">`
+                if (IsDark()) {
+                    a = `<a class='list-group-item list-group-item-action flex-column align-items-start text-white' style='background-color: #212529' href="${dir.path}">`
+                }
+                a += "<div class='d-flex w-100 justify-content-between'>"
+                if (dir.is_dir == "true") {
+                    a += `<h5 class="mb-1">${dir.name}</h5>`
+                } else {
+                    a += `<h5 class="mb-1">${dir.name}${dir.ext}</h5>`
+                }
+                a += "<small>" + dir.size + "</small>"
+                a += "</div>"
+                a += "<p class='mb-1 small'>" + dir.type + "</p>"
+                a += `<div class="mt-2 pt-2 border-top">`
+                a += `<div class="btn-group" role="group">`
+                if (dir.is_dir == "true") {
+                    a += `<button type="button" class="btn btn-primary btn-sm" data-path="${dir.path}" onclick="btnHref(this)">Browse</button>`
+                } else {
+                    a += `<button type="button" class="btn btn-primary btn-sm" data-path="${dir.path}" onclick="downloadStart(this)" >Download</button>`
+                }
+                a += "</div></div>"
+                a += "</a>"
+                dirList.innerHTML += a;
+            }
+        }
+    });
+}
+
+function downloadStart(e) {
+    var path = e.getAttribute("data-path");
+    var name = path.split("/").pop();
+    var a = document.createElement("a");
+    a.href = path;
+    a.download = name;
+    a.click();
+}
+
+
 function UpdateDir() {
     $.ajax({
         url: "/dir/" + window.location.pathname.replace("/downloads", ""),
@@ -209,7 +257,7 @@ function backButton() {
     }
 }
 
-UpdateDir();
+updateDirList()
 if (window.location.pathname == "/downloads/") {
     ToastMessage("Welcome to File Manager", "primary");
 }

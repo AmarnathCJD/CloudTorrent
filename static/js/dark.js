@@ -23,6 +23,8 @@ function initTheme() {
         ToggleTableDark();
         NavBarDark();
         ListToDark();
+        SysInfoDark();
+        InputDark();
     } else {
         DarkIcon.innerHTML = "&#x2600;";
     }
@@ -37,6 +39,8 @@ function resetTheme() {
         NavBarDark();
         DarkDropDown(true);
         ListToDark();
+        SysInfoDark();
+        InputDark();
     } else {
         document.body.removeAttribute("data-theme");
         localStorage.removeItem("darkSwitch");
@@ -45,6 +49,8 @@ function resetTheme() {
         NavBarDark();
         DarkDropDown(false);
         ListToDark();
+        SysInfoDark();
+        InputDark();
     }
 }
 
@@ -89,15 +95,40 @@ function IsDark() {
 
 function ListToDark() {
     var list = document.getElementById("torrent-list");
+    if (list === null) {
+        list = document.getElementById("dir-list");
+    }
     if (list !== null) {
         for (var i = 0; i < list.children.length; i++) {
-            if (list.children[i].classList.contains("bg-secondary")) {
-                list.children[i].classList.remove("bg-secondary");
+            if (list.children[i].classList.contains("text-white")) {
                 list.children[i].classList.remove("text-white");
+                list.children[i].style.backgroundColor = "white";
             } else {
-                list.children[i].classList.add("bg-secondary");
                 list.children[i].classList.add("text-white");
+                list.children[i].style.backgroundColor = "#212529";
             }
+        }
+    }
+}
+
+function SysInfoDark() {
+    var s = document.getElementById("system-info");
+    if (s !== null) {
+        if (s.style.backgroundColor === "white") {
+            s.style.backgroundColor = "#212529";
+        } else {
+            s.style.backgroundColor = "white";
+        }
+    }
+}
+
+function InputDark() {
+    var input = document.getElementById("input");
+    if (input !== null) {
+        if (input.style.color === "white") {
+            input.style.color = "black";
+        } else {
+            input.style.color = "white";
         }
     }
 }
