@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -123,6 +125,10 @@ func GetAllTorrents() []TorrentData {
 		if Name == "" {
 			Name = "fetching metadata..."
 		}
+		var Path = ServerPath(GetTorrentPath(t.ID()))
+		if f, err := os.Stat(Path); err != nil && os.IsNotExist(err) || !f.IsDir() {
+			Path = strings.Replace(Path, filepath.Base(Path), "", 1)
+		}
 		Stats, Icon := GetStats(t.ID())
 		Torrents = append(Torrents, TorrentData{
 			Name:     Name,
@@ -135,7 +141,7 @@ func GetAllTorrents() []TorrentData {
 			Speed:    GetDownloadSpeed(t),
 			Progress: GetProgress(Perc),
 			Icon:     Icon,
-			Path:     ServerPath(GetTorrentPath(t.ID())),
+			Path:     Path,
 		})
 	}
 	Torrents = SortAlpha(Torrents)

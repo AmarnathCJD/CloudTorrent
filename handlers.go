@@ -163,9 +163,15 @@ func DeleteFileHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}()
-	path := strings.Replace(AbsPath(filepath.Join(Root, r.URL.Path)), "/delete", "", 1)
-	fmt.Println(path)
-	if err := os.Remove(path); err != nil {
+	path := strings.Replace(AbsPath(filepath.Join(Root, r.URL.Path)), "api/deletefile/", "", 1)
+	if strings.Contains(path, "/downloads/downloads") {
+		path = strings.Replace(path, "/downloads", "", 1)
+	}
+	if strings.Contains(path, "torrents.db") || r.URL.Path == "/api/deletefile/downloads/torrents" {
+		http.Error(w, "Protected path, cant delete!", http.StatusBadRequest)
+		return
+	}
+	if err := DeleteFile(path); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -207,7 +213,6 @@ func CreateFolderHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 	r.ParseForm()
 	DirPath := AbsPath(strings.Replace(AbsPath(filepath.Join(Root, r.URL.Path)), "/api/create/downloads", "", 1))
-	log.Println(DirPath)
 	if err := os.MkdirAll(DirPath, 0777); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -253,7 +258,7 @@ func GetDirContents(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if len(files) == 0 {
-			http.Error(w, "Directory is empty", http.StatusNotFound)
+			w.Write([]byte("[]"))
 			return
 		}
 		d, _ := json.Marshal(files)
@@ -311,7 +316,23 @@ func ZipFolderHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 	r.ParseForm()
-	// TODO: Add a check to make sure dir exists
+	path := strings.Replace(AbsPath(filepath.Join(Root, r.URL.Path)), "api/zip/", "", 1)
+	if strings.Contains(path, "/downloads/downloads") {
+		path = strings.Replace(path, "/downloads", "", 1)
+	}
+	folderName := filepath.Base(path)
+	_, err := ZipDir(path, folderName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	filePath := "/dir/torrents/" + folderName + ".zip"
+	var data = map[string]string{
+		"file": filePath,
+		"name": folderName + ".zip",
+	}
+	d, _ := json.Marshal(data)
+	w.Write(d)
 }
 
 func init() {

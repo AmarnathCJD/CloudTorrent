@@ -20,11 +20,7 @@ function initTheme() {
         : document.body.removeAttribute("data-theme");
     if (darkThemeSelected) {
         DarkIcon.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
-        ToggleTableDark();
-        NavBarDark();
-        ListToDark();
-        SysInfoDark();
-        InputDark();
+        toggleDarkElements();
     } else {
         DarkIcon.innerHTML = "&#x2600;";
     }
@@ -35,48 +31,24 @@ function resetTheme() {
         document.body.setAttribute("data-theme", "dark");
         localStorage.setItem("darkSwitch", "dark");
         DarkIcon.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
-        ToggleTableDark();
-        NavBarDark();
-        DarkDropDown(true);
-        ListToDark();
-        SysInfoDark();
-        InputDark();
+        toggleDarkElements();
     } else {
         document.body.removeAttribute("data-theme");
         localStorage.removeItem("darkSwitch");
         DarkIcon.innerHTML = "&#x2600;";
-        ToggleTableDark();
-        NavBarDark();
-        DarkDropDown(false);
-        ListToDark();
-        SysInfoDark();
-        InputDark();
+        toggleDarkElements();
     }
 }
 
-function DarkDropDown(mode) {
+function toggleDarkElements() {
     var DropDown = document.getElementById("drop-down");
     if (DropDown !== null) {
-        if (mode) {
+        if (!DropDown.classList.contains("dropdown-menu-dark")) {
             DropDown.classList.add("dropdown-menu-dark");
         } else {
             DropDown.classList.remove("dropdown-menu-dark");
         }
     }
-}
-
-function ToggleTableDark() {
-    var table = document.getElementById("files-table");
-    if (table !== null) {
-        if (table.classList.contains("table-dark")) {
-            table.classList.remove("table-dark");
-        } else {
-            table.classList.add("table-dark");
-        }
-    }
-}
-
-function NavBarDark() {
     var navbar = document.getElementById("main-nav");
     if (navbar !== null) {
         if (navbar.classList.contains("navbar-dark")) {
@@ -87,13 +59,6 @@ function NavBarDark() {
             navbar.classList.add("navbar-dark");
         }
     }
-}
-
-function IsDark() {
-    return document.body.getAttribute("data-theme") === "dark";
-}
-
-function ListToDark() {
     var list = document.getElementById("torrent-list");
     if (list === null) {
         list = document.getElementById("dir-list");
@@ -109,9 +74,6 @@ function ListToDark() {
             }
         }
     }
-}
-
-function SysInfoDark() {
     var s = document.getElementById("system-info");
     if (s !== null) {
         if (s.style.backgroundColor === "white") {
@@ -120,9 +82,6 @@ function SysInfoDark() {
             s.style.backgroundColor = "white";
         }
     }
-}
-
-function InputDark() {
     var input = document.getElementById("input");
     if (input !== null) {
         if (input.style.color === "white") {
@@ -131,4 +90,8 @@ function InputDark() {
             input.style.color = "white";
         }
     }
+}
+
+function IsDark() {
+    return document.body.getAttribute("data-theme") === "dark";
 }

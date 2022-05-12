@@ -2,43 +2,64 @@ var Audd = new Audio();
 var table = document.getElementById("files-table");
 var CurrentPlaying = [null, null];
 
-function updateDirList() {
+function updateDirList(url) {
+    if (url == null) {
+        url = "/dir/" + window.location.pathname.replace("/downloads", "")
+    }
     $.ajax({
-        url: "/dir/" + window.location.pathname.replace("/downloads", ""),
+        url: url,
         type: "GET",
         dataType: "json",
         success: function (data) {
             var dirList = document.getElementById("dir-list");
             dirList.innerHTML = "";
+            if (data.length === 0) {
+                data.push({ "name": "No Files...", "path": "", "type": "dir" });
+            }
             for (var i = 0; i < data.length; i++) {
                 var dir = data[i];
-                var a = `<a class='list-group-item list-group-item-action flex-column align-items-start' href="${dir.path}">`
+                var a = `<a class='list-group-item list-group-item-action flex-column align-items-start'>`;
                 if (IsDark()) {
-                    a = `<a class='list-group-item list-group-item-action flex-column align-items-start text-white' style='background-color: #212529' href="${dir.path}">`
+                    a = `<a class='list-group-item list-group-item-action flex-column align-items-start text-white' style='background-color: #212529'>`;
                 }
-                a += "<div class='d-flex w-100 justify-content-between'>"
+                a += "<div class='d-flex w-100 justify-content-between'>";
                 if (dir.is_dir == "true") {
-                    a += `<h5 class="mb-1">${dir.name}</h5>`
+                    a += `<h5 class="mb-1"><img src="https://img.icons8.com/color/48/000000/folder-invoices--v1.png" width="40px" style="margin-right: 3px;"/> ${dir.name}</h5>`;
                 } else {
-                    a += `<h5 class="mb-1">${dir.name}${dir.ext}</h5>`
+                    a += `<h5 class="mb-1"><img src="https://img.icons8.com/${dir.icon}" width="40px" style="margin-right: 3px;"/> ${dir.name}${dir.ext}</h5>`;
                 }
-                a += "<small>" + dir.size + "</small>"
-                a += "</div>"
-                a += "<p class='mb-1 small'>" + dir.type + "</p>"
-                a += `<div class="mt-2 pt-2 border-top">`
-                a += `<div class="btn-group" role="group">`
+                a += "<small>" + dir.size + "</small>";
+                a += "</div>";
+                a += "<p class='mb-1 small'>" + dir.type + "</p>";
+                a += `<div id="player_id_${i}"></div>`;
+                a += `<div class="mt-2 pt-2 border-top">`;
+                a += `<div class="btn-group" role="group">`;
                 if (dir.is_dir == "true") {
-                    a += `<button type="button" class="btn btn-primary btn-sm" data-path="${dir.path}" onclick="btnHref(this)">Browse</button>`
+                    a += `<button type="button" class="btn btn-primary btn-sm" data-path="${dir.path}" onclick="zipDir(this)">Zip & Download</button>`;
+                    a += `<button type="button" class="btn btn-secondary btn-sm" data-path="${dir.path}" onclick="btnHref(this)">Browse</button>`;
                 } else {
-                    a += `<button type="button" class="btn btn-primary btn-sm" data-path="${dir.path}" onclick="downloadStart(this)" >Download</button>`
+                    a += `<button type="button" class="btn btn-primary btn-sm" data-path="${dir.path}" onclick="downloadStart(this)" >Download</button>`;
+                    if (dir.type == "Video") {
+                        a += `<button type="button" class="btn btn-warning btn-sm" data-src="${dir.path}" data-id="${i}" onclick="playVideo(this)">Play</button>`;
+                    } else if (dir.type == "Audio") {
+                        a += `<button type="button" class="btn btn-danger btn-sm" data-path="${dir.path}" onclick="playAudio(this)">Play</button>`;
+                    } else if (dir.type == "Image") {
+                        a += `<button type="button" class="btn btn-success btn-sm" data-src="${dir.path}" onclick="showImage(this)">View</button>`;
+                    }
                 }
-                a += "</div></div>"
-                a += "</a>"
+                a += `<button type='button' class='btn btn-danger btn-sm' onclick='deleteFile(this)' data-path='${dir.path}'>Delete</button>`;
+                a += `<button type='button' class='btn btn-success btn-sm' data-url='${window.location.host}${dir.path}' onclick='copyToClipboard(this)'><i class="bi bi-clipboard-plus"></i></button>`;
+                a += "</div></div>";
+                a += "</a>";
                 dirList.innerHTML += a;
             }
-        }
+        },
+        error: function (err) {
+            console.log(err);
+        },
     });
 }
+
 
 function downloadStart(e) {
     var path = e.getAttribute("data-path");
@@ -47,138 +68,6 @@ function downloadStart(e) {
     a.href = path;
     a.download = name;
     a.click();
-}
-
-
-function UpdateDir() {
-    $.ajax({
-        url: "/dir/" + window.location.pathname.replace("/downloads", ""),
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
-            var table = $("#files-table");
-            table.empty();
-            table.append(
-                "<caption>List of Files</caption><tr><th style='width: 3.66%'>ID</th><th>File</th><th>Size</th><th>Type</th><th >Actions</th></tr>"
-            );
-            for (var i = 0; i < data.length; i++) {
-                var file = data[i];
-                var row = $("<tr></tr>");
-                var num = i + 1;
-                row.append("<td>" + num + "</td>");
-                var FileName = file.name;
-                if (file.name.length > 45) {
-                    FileName = file.name.substring(0, 43) + "...";
-                }
-                var AbsPath = file.path.replace("/downloads", "/dir");
-                if (file.is_dir == "true") {
-                    var faclass =
-                        "<i style='font-size: 1rem; color: #f3da35;' class='bi bi-folder'></i>";
-                    row.append(
-                        "<td><a href='" +
-                        file.path +
-                        "/" +
-                        "'><b>" +
-                        FileName +
-                        "</b></a> " +
-                        faclass +
-                        "</td>"
-                    );
-                } else {
-                    var faclass =
-                        "<i style='font-size: 1rem; color: " +
-                        file.color +
-                        ";' class='" +
-                        file.class +
-                        "'></i>    ";
-                    row.append(
-                        "<td class='text-wrap'>" +
-                        "<a href='" +
-                        file.path.replace("downloads", "dir") +
-                        "'><b>" +
-                        FileName +
-                        "</b></a> " +
-                        faclass +
-                        "</td>"
-                    );
-                }
-                row.append("<td>" + file.size + "</td>");
-                if (file.is_dir == "true") {
-                    AbsPath = file.path;
-                    row.append("<td>Folder</td>");
-                } else {
-                    row.append("<td>" + file.type + "</td>");
-                }
-                var GroupButtons = `<td style='width: 10.66%'><div class="btn-group" role="group"><button type="button" class="btn btn-danger `;
-                if (file.is_dir == "true" && file.size !== "0 B") {
-                    GroupButtons += `disabled`;
-                }
-                GroupButtons +=
-                    `" onclick="deleteFile('` +
-                    file.name +
-                    file.ext +
-                    `')"><i class="bi bi-x-circle"></i></button><a href="/dir` +
-                    AbsPath.replace("dir", "downloads").replace("/downloads", "") +
-                    `" download="` +
-                    file.name +
-                    file.ext +
-                    `"><button type="button" class="btn btn-primary"><i class="bi bi-download"></i></button></a>`;
-                if (file.is_dir == "true") {
-                    GroupButtons +=
-                        `<a href='` +
-                        file.path +
-                        `/` +
-                        `'><button type="button" class="btn btn-success"><i class="bi bi-folder-plus"></i></button></a></div>`;
-                } else if (
-                    file.ext == ".pdf" ||
-                    file.ext == ".txt" ||
-                    file.ext == ".docx" ||
-                    file.ext == ".doc"
-                ) {
-                    GroupButtons += `<button type="button" class="btn btn-success"><i class="bi bi-file-pdf"></i></button></div>`;
-                } else if (
-                    file.ext == ".mp4" ||
-                    file.ext == ".mkv" ||
-                    file.ext == ".avi" ||
-                    file.exit == ".webm"
-                ) {
-                    GroupButtons +=
-                        `<a href="/stream/` +
-                        AbsPath +
-                        `"><button type="button" class="btn btn-warning""><i class="bi bi-play-circle"></i></button></a></div>`;
-                } else if (
-                    file.ext == ".mp3" ||
-                    file.ext == ".wav" ||
-                    file.ext == ".flac"
-                ) {
-                    GroupButtons +=
-                        `<button type="button" class="btn btn-danger" onclick='playAudio("` +
-                        AbsPath +
-                        `", this.id)' id="` +
-                        i +
-                        `"><i class="bi bi-filetype-mp3"></i></button></div>`;
-                } else if (
-                    file.ext == ".jpg" ||
-                    file.ext == ".png" ||
-                    file.ext == ".jpeg"
-                ) {
-                    GroupButtons +=
-                        `<button type="button" class="btn btn-warning" onclick='showImage("` +
-                        AbsPath +
-                        `", this.id)' id="` +
-                        i +
-                        `"><i class="bi bi-image"></i></button></div>`;
-                } else {
-                    GroupButtons += `</div>`;
-                }
-                row.append(GroupButtons + "</td>");
-                table.append(row);
-            }
-        },
-        error: function (data) {
-            ToastMessage("Error: " + data.responseText, "danger");
-        },
-    });
 }
 
 function playAudio(url, uid) {
@@ -225,26 +114,45 @@ function pauseAudio(url, uid) {
     ToastMessage("Paused Audio", "primary");
 }
 
-function showImage(url, uid) {
+function showImage(e) {
+    url = $(e).data("src");
     var modal = document.getElementById("main-modal");
     var img = document.getElementById("main-modal-img");
     var captionText = document.getElementById("main-modal-caption");
     var closeSpan = document.getElementsByClassName("close")[0];
     modal.style.display = "block";
     img.src = url;
-    captionText.innerHTML = url.split("downloads/")[1];
+    captionText.innerHTML = url;
     closeSpan.onclick = function () {
         modal.style.display = "none";
     };
 }
 
-function deleteFile(name) {
+
+function playVideo(e) {
+    var url = $(e).data("src");
+    window.location.href = "/stream/" + url;
+}
+
+function deleteFile(e) {
+    var current_url = window.location.href;
+    var path = $(e).data("path");
+    var name = path.split("/").pop();
+    var r = confirm("Are you sure you want to delete " + name + "?");
+    if (r !== true) {
+        return;
+    }
+    path = path.replace("/dir/", "");
+    console.log(path);
     $.ajax({
-        url: "/api/deletefile/" + window.location.pathname + name,
+        url: "/api/deletefile/" + path,
         type: "GET",
         success: function (data) {
             ToastMessage("Deleted " + name, "danger");
-            UpdateDir();
+            updateDirList(current_url.replace("downloads", "dir"));
+        },
+        error: function (err) {
+            ToastMessage("Failed to delete " + err.responseText, "danger");
         },
     });
 }
@@ -257,7 +165,7 @@ function backButton() {
     }
 }
 
-updateDirList()
+updateDirList();
 if (window.location.pathname == "/downloads/") {
     ToastMessage("Welcome to File Manager", "primary");
 }

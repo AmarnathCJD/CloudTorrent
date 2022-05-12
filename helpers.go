@@ -3,9 +3,7 @@ package main
 import (
 	"archive/zip"
 	"fmt"
-	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -26,11 +24,10 @@ type FileInfo struct {
 	Name  string `json:"name,omitempty"`
 	Size  string `json:"size,omitempty"`
 	Type  string `json:"type,omitempty"`
-	Color string `json:"color,omitempty"`
 	Path  string `json:"path,omitempty"`
 	IsDir string `json:"is_dir,omitempty"`
 	Ext   string `json:"ext,omitempty"`
-	Class string `json:"class,omitempty"`
+	Icon  string `json:"icon,omitempty"`
 }
 
 type TopTorr struct {
@@ -75,48 +72,58 @@ func GetName(f string) string {
 	return strings.TrimSuffix(f, filepath.Ext(f))
 }
 
-func GetFileType(f string) (string, string, string) {
+func GetFileType(f string) (string, string) {
 	f = strings.ToLower(f)
 	if strings.HasSuffix(f, ".mp4") || strings.HasSuffix(f, ".avi") || strings.HasSuffix(f, ".mkv") || strings.HasSuffix(f, ".webm") {
-		return "Video", "bi bi-file-earmark-play", "blue"
+		return "Video", "fluency/48/000000/video.png"
 	} else if strings.HasSuffix(f, ".mp3") || strings.HasSuffix(f, ".wav") || strings.HasSuffix(f, ".flac") {
-		return "Audio", "bi bi-file-earmark-music", "green"
+		return "Audio", "nolan/64/musical.png"
 	} else if strings.HasSuffix(f, ".jpg") || strings.HasSuffix(f, ".png") || strings.HasSuffix(f, ".gif") || strings.HasSuffix(f, ".webp") {
-		return "Image", "bi bi-image", "orange"
+		return "Image", "color-glass/48/000000/image.png"
 	} else if strings.HasSuffix(f, ".pdf") {
-		return "Pdf", "bi bi-filetype-pdf", "red"
+		return "Pdf", "color/48/000000/pdf.png"
 	} else if strings.HasSuffix(f, ".txt") {
-		return "Text", "bi bi-journal-text", "purple"
+		return "Text", "external-prettycons-flat-prettycons/47/000000/external-text-text-formatting-prettycons-flat-prettycons-1.png"
 	} else if strings.HasSuffix(f, ".zip") || strings.HasSuffix(f, ".rar") || strings.HasSuffix(f, ".7z") {
-		return "Archive", "bi bi-file-earmark-zip", "brown"
+		return "Archive", "external-gradients-pongsakorn-tan/64/000000/external-archive-file-and-document-gradients-pongsakorn-tan-4.png"
 	} else if strings.HasSuffix(f, ".iso") {
-		return "Iso", "bi bi-disc", "brown"
+		return "ISO", "external-justicon-lineal-color-justicon/64/000000/external-iso-file-file-type-justicon-lineal-color-justicon.png"
 	} else if strings.HasSuffix(f, ".exe") {
-		return "Exe", "bi bi-filetype-exe", "red"
+		return "Exe", "bi bi-filetype-exe"
 	} else if strings.HasSuffix(f, ".doc") || strings.HasSuffix(f, ".docx") {
-		return "Doc", "bi bi-file-word", "red"
+		return "Doc", "bi bi-file-word"
 	} else if strings.HasSuffix(f, ".xls") || strings.HasSuffix(f, ".xlsx") {
-		return "Xls", "bi bi-file-earmark-excel", "green"
+		return "Xls", "bi bi-file-earmark-excel"
 	} else if strings.HasSuffix(f, ".ppt") || strings.HasSuffix(f, ".pptx") {
-		return "Ppt", "bi bi-filetype-pptx", "orange"
+		return "Ppt", "bi bi-filetype-pptx"
 	} else if strings.HasSuffix(f, ".torrent") {
-		return "Torrent", "bi bi-magnet", "green"
+		return "Torrent", "fluency/48/000000/utorrent.png"
 	} else if strings.HasSuffix(f, ".py") {
-		return "Python", "bi bi-filetype-py", "blue"
+		return "Python", "color/48/000000/python--v1.png"
 	} else if strings.HasSuffix(f, ".go") {
-		return "Go", "bi bi-filetype-go", "blue"
+		return "Go", "color/48/000000/golang.png"
 	} else if strings.HasSuffix(f, ".js") {
-		return "Js", "bi bi-filetype-js", "blue"
+		return "Js", "color/48/000000/javascript--v1.png"
 	} else if strings.HasSuffix(f, ".json") {
-		return "Json", "bi bi-filetype-json", "blue"
+		return "JSON", "bi bi-filetype-json"
 	} else if strings.HasSuffix(f, ".html") {
-		return "Html", "bi bi-filetype-html", "green"
+		return "HTML", "color/48/000000/html-5--v1.png"
 	} else if strings.HasSuffix(f, ".css") {
-		return "Css", "bi bi-filetype-css", "blue"
+		return "CSS", "external-flaticons-flat-flat-icons/64/000000/external-css-web-development-flaticons-flat-flat-icons.png"
 	} else if strings.HasSuffix(f, ".db") {
-		return "Db", "bi bi-box2", "blue"
+		return "Database", "color/48/000000/data-configuration.png"
 	} else {
-		return "Other", "bi bi-question", "black"
+		return "Unknown", "bi bi-file-earmark"
+	}
+}
+
+func DeleteFile(path string) error {
+	if f, err := os.Stat(path); os.IsNotExist(err) {
+		return err
+	} else if f.IsDir() {
+		return os.RemoveAll(path)
+	} else {
+		return os.Remove(path)
 	}
 }
 
@@ -190,14 +197,14 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 		return files, err
 	}
 	for i, file := range DirWalk {
-		var Size, Type, Icon, Color, Ext string
+		var Size, Type, Ext, Icon string
 		if file.IsDir() {
 			Type = "Folder"
 			DirSize, _ := DirSize(path + "/" + file.Name())
 			Size = ByteCountSI(DirSize)
 		} else {
 			Size = ByteCountSI(file.Size())
-			Type, Icon, Color = GetFileType(file.Name())
+			Type, Icon = GetFileType(file.Name())
 			Ext = filepath.Ext(file.Name())
 		}
 		files = append(files, FileInfo{
@@ -206,12 +213,10 @@ func GetDirContentsMap(path string) ([]FileInfo, error) {
 			Size:  Size,
 			Type:  Type,
 			Path:  GetPath(path, file),
-			Color: Color,
 			IsDir: strconv.FormatBool(file.IsDir()),
 			Ext:   Ext,
-			Class: Icon,
+			Icon:  Icon,
 		})
-		log.Println(GetPath(path, file))
 	}
 	return files, nil
 
@@ -255,44 +260,45 @@ func GetPath(path string, file os.FileInfo) string {
 	}
 }
 
-// for later
-func ZipDir(path string) (string, error) {
-	Zipfile, err := os.Create(filepath.Base(path) + ".zip")
+func ZipDir(path string, torrName string) (string, error) {
+	path = path + "/"
+	var zipPath = filepath.Join(Root, "torrents", torrName+".zip")
+	if _, err := os.Stat(zipPath); !os.IsNotExist(err) {
+		return zipPath, err
+	}
+	var zipFile, _ = os.Create(zipPath)
+	defer zipFile.Close()
+	var zipWriter = zip.NewWriter(zipFile)
+	defer zipWriter.Close()
+	addFiles(zipWriter, path, "")
+	return zipPath, nil
+}
+
+func addFiles(w *zip.Writer, basePath, baseInZip string) {
+	files, err := ioutil.ReadDir(basePath)
 	if err != nil {
-		return "", err
+		fmt.Println(err)
 	}
-	defer Zipfile.Close()
 
-	w := zip.NewWriter(Zipfile)
-	defer w.Close()
+	for _, file := range files {
+		if !file.IsDir() {
+			dat, err := ioutil.ReadFile(basePath + file.Name())
+			if err != nil {
+				fmt.Println(err)
+			}
 
-	walker := func(path string, info os.FileInfo, err error) error {
-		fmt.Printf("Crawling: %#v\n", path)
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil
-		}
-		file, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-		f, err := w.Create(path)
-		if err != nil {
-			return err
-		}
-		_, err = io.Copy(f, file)
-		if err != nil {
-			return err
-		}
+			f, err := w.Create(baseInZip + file.Name())
+			if err != nil {
+				fmt.Println(err)
+			}
+			_, err = f.Write(dat)
+			if err != nil {
+				fmt.Println(err)
+			}
+		} else if file.IsDir() {
 
-		return nil
+			newBase := basePath + file.Name() + "/"
+			addFiles(w, newBase, baseInZip+file.Name()+"/")
+		}
 	}
-	err = filepath.Walk(path, walker)
-	if err != nil {
-		return "", err
-	}
-	return Zipfile.Name(), nil
 }

@@ -52,7 +52,7 @@ function updateTorrentList(data) {
             a = "<a class='list-group-item list-group-item-action flex-column align-items-start text-white' style='background-color: #212529'>"
         }
         a += "<div class='d-flex w-100 justify-content-between'>"
-        a += "<h5 class='mb-1'>" + torrent.name + "</h5>"
+        a += "<h5 class='mb-1'><div style='word-wrap: break-word;'><img src='https://img.icons8.com/fluency/48/000000/utorrent.png' width='38px' style='margin-right: 3px;' /> " + torrent.name + "</div></h5>"
         a += "<small>" + torrent.size + "</small>"
         a += "</div>"
         a += "<p class='mb-1 small'>" + torrent.status
@@ -72,7 +72,7 @@ function updateTorrentList(data) {
         if (torrent.status == "Downloading" || torrent.status == "Fetching Metadata") {
             a += `<button type="button" class="btn btn-warning btn-sm" onclick="pauseTorrent('${torrent.uid}')">Pause</button>`
         } else if (torrent.status == "Completed") {
-            a += `<button type="button" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-zip"></i> Zip</button>`
+            a += `<button type="button" class="btn btn-success btn-sm" onclick='zipDir(this)' data-path="${torrent.path}"><i class="bi bi-file-earmark-zip"></i> Zip</button>`
         } else if (torrent.status == "Stopped") {
             a += `<button type="button" class="btn btn-info btn-sm" onclick="resumeTorrent('${torrent.uid}')">Resume</button>`
         }
@@ -85,20 +85,13 @@ function updateTorrentList(data) {
 function getBarColor(perc) {
     if (perc < 20) {
         return "danger";
-    } else if (perc < 40) {
-        return "warning";
     } else if (perc < 60) {
-        return "secondary";
+        return "warning";
     } else if (perc < 80) {
         return "success";
     } else {
         return "primary";
     }
-}
-
-function btnHref(e) {
-    var path = $(e).data("path");
-    window.location.href = path;
 }
 
 
