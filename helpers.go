@@ -301,12 +301,12 @@ func ZipFiles(filename string, folder string) error {
 		upOne, err := filepath.Abs(filepath.Join(folder, ".."))
 		os.Chdir(upOne)
 		if err != nil {
-			panic(err)
+			log.Printlnt(err)
 		}
 		for _, loc := range localFiles {
 			relpath, err := filepath.Rel(upOne, loc)
 			if err != nil {
-				panic(err)
+				log.Printlnt(err)
 			}
 			if err = addFileToZip(zipWriter, filepath.Join(relpath)); err != nil {
 				return err
