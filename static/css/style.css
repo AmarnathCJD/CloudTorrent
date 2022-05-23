@@ -1,6 +1,27 @@
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css");
 @import url("https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css");
 
+[data-theme="dark"] {
+    background-color: #111 !important;
+    color: #eee;
+}
+
+[data-theme="dark"] .bg-black {
+    background-color: #fff !important;
+}
+
+[data-theme="dark"] .bg-dark {
+    background-color: #eee !important;
+}
+
+[data-theme="dark"] .bg-light {
+    background-color: #222 !important;
+}
+
+[data-theme="dark"] .bg-white {
+    background-color: #000 !important;
+}
+
 .modal {
     display: none;
     position: fixed;
@@ -108,52 +129,11 @@ html {
     font-size: 14px;
     width: 100%;
     display: block;
-    line-height: 31px;
+    font-weight: 700;
 }
 
 @media screen and (max-width: 768px) {
     .storage-info {
         font-size: 12px;
     }
-}
-
-.form__field {
-    font-family: inherit;
-    width: 100%;
-    border: 0;
-    border-bottom: 4px solid #db3939;
-    outline: 0;
-    font-size: 1.1rem;
-    padding: 5px 0;
-    transition: border-color 0.2s;
-}
-
-
-.form__field:placeholder-shown~.form__label {
-    font-size: 1.1rem;
-    cursor: text;
-    top: 20px;
-}
-
-.form__field:focus {
-    padding-bottom: 6px;
-    font-weight: 550;
-    border-width: 4px;
-    border-image: linear-gradient(to right, #11998e, #38ef7d, #11998e, #38ef7d, #11998e);
-    border-image-slice: 1;
-}
-
-.form__field:focus~.form__label {
-    position: absolute;
-    top: 0;
-    display: block;
-    transition: 0.2s;
-    font-size: 1rem;
-    color: #11998e;
-    font-weight: 550;
-}
-
-.form__field:required,
-.form__field:invalid {
-    box-shadow: rebeccapurple 0 0 0 1px inset;
 }

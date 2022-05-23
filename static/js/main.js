@@ -41,6 +41,9 @@ function updateDirList(url) {
                     a += `<button type="button" class="btn btn-primary btn-sm" data-path="${dir.path}" onclick="downloadStart(this)" >Download</button>`;
                     if (dir.type == "Video") {
                         a += `<button type="button" class="btn btn-warning btn-sm" data-src="${dir.path}" data-id="${i}" onclick="playVideo(this)">Play</button>`;
+                        if (dir.ext == ".mkv") {
+                            a += `<button type="button" class="btn btn-danger btn-sm" data-src="${dir.path}" data-id="${i}" onclick="playAudio(this)">-> MP4</button>`;
+                        }
                     } else if (dir.type == "Audio") {
                         a += `<button type="button" class="btn btn-danger btn-sm" data-path="${dir.path}" onclick="playAudio(this)">Play</button>`;
                     } else if (dir.type == "Image") {
@@ -196,7 +199,7 @@ function CreateFolder() {
             type: "GET",
             success: function (data) {
                 ToastMessage("Created " + name, "primary");
-                UpdateDir();
+                updateDirList();
             },
             error: function (data) {
                 ToastMessage("Error: " + data.responseText, "danger");

@@ -3,7 +3,9 @@ package main
 import (
 	"archive/zip"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -261,44 +263,85 @@ func GetPath(path string, file os.FileInfo) string {
 }
 
 func ZipDir(path string, torrName string) (string, error) {
-	path = path + "/"
 	var zipPath = filepath.Join(Root, "torrents", torrName+".zip")
 	if _, err := os.Stat(zipPath); !os.IsNotExist(err) {
 		return zipPath, err
 	}
-	var zipFile, _ = os.Create(zipPath)
-	defer zipFile.Close()
-	var zipWriter = zip.NewWriter(zipFile)
-	defer zipWriter.Close()
-	addFiles(zipWriter, path, "")
+	if err := ZipFiles(zipPath, path); err != nil {
+		return "", err
+	}
 	return zipPath, nil
 }
 
-func addFiles(w *zip.Writer, basePath, baseInZip string) {
-	files, err := ioutil.ReadDir(basePath)
+func ZipFiles(filename string, folder string) error {
+	newZipFile, err := os.Create(filename)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
+	defer newZipFile.Close()
 
-	for _, file := range files {
-		if !file.IsDir() {
-			dat, err := ioutil.ReadFile(basePath + file.Name())
-			if err != nil {
-				fmt.Println(err)
-			}
+	zipWriter := zip.NewWriter(newZipFile)
+	defer zipWriter.Close()
 
-			f, err := w.Create(baseInZip + file.Name())
-			if err != nil {
-				fmt.Println(err)
-			}
-			_, err = f.Write(dat)
-			if err != nil {
-				fmt.Println(err)
-			}
-		} else if file.IsDir() {
+	currDir, _ := os.Getwd()
 
-			newBase := basePath + file.Name() + "/"
-			addFiles(w, newBase, baseInZip+file.Name()+"/")
+	if info, _ := os.Stat(folder); info.IsDir() {
+		localFiles := []string{}
+		filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
+			if fileinfo, err := os.Stat(path); fileinfo.Mode().IsRegular() && err == nil {
+				localFiles = append(localFiles, path)
+			}
+			return nil
+		})
+
+		count := int64(len(localFiles))
+
+		log.Println("Number of files", count)
+
+		upOne, err := filepath.Abs(filepath.Join(folder, ".."))
+		os.Chdir(upOne)
+		if err != nil {
+			panic(err)
 		}
+		for _, loc := range localFiles {
+			relpath, err := filepath.Rel(upOne, loc)
+			if err != nil {
+				panic(err)
+			}
+			if err = addFileToZip(zipWriter, filepath.Join(relpath)); err != nil {
+				return err
+			}
+		}
+		os.Chdir(currDir)
+		return nil
 	}
+	return fmt.Errorf("not a directory")
+}
+
+func addFileToZip(zipWriter *zip.Writer, filename string) error {
+
+	fileToZip, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer fileToZip.Close()
+	info, err := fileToZip.Stat()
+	if err != nil {
+		return err
+	}
+
+	header, err := zip.FileInfoHeader(info)
+	if err != nil {
+		return err
+	}
+
+	header.Name = filename
+	header.Method = zip.Store
+
+	writer, err := zipWriter.CreateHeader(header)
+	if err != nil {
+		return err
+	}
+	_, err = io.Copy(writer, fileToZip)
+	return err
 }

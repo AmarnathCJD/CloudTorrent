@@ -63,6 +63,9 @@ function toggleDarkElements() {
     if (list === null) {
         list = document.getElementById("dir-list");
     }
+    if (list === null) {
+        list = document.getElementById("results");
+    }
     if (list !== null) {
         for (var i = 0; i < list.children.length; i++) {
             if (list.children[i].classList.contains("text-white")) {
@@ -80,14 +83,6 @@ function toggleDarkElements() {
             s.style.backgroundColor = "#212529";
         } else {
             s.style.backgroundColor = "white";
-        }
-    }
-    var input = document.getElementById("input");
-    if (input !== null) {
-        if (input.style.color === "white") {
-            input.style.color = "black";
-        } else {
-            input.style.color = "white";
         }
     }
 }

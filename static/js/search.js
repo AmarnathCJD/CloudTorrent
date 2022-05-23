@@ -1,235 +1,79 @@
-var table = document.getElementById("files-table");
-var searchBox = document.getElementById("search-bar");
-var Input = document.getElementById("search-input");
+var Results = document.getElementById("results");
+var searchBox = document.getElementById("search");
+var Button = document.getElementById("searchBtn");
 
-const DEFAULTS = {
-    treshold: 2,
-    maximumItems: 5,
-    highlightTyped: true,
-    highlightClass: "text-primary",
-};
-
-class Autocomplete {
-    constructor(field, options) {
-        this.field = field;
-        this.options = Object.assign({}, DEFAULTS, options);
-        this.dropdown = null;
-
-        field.parentNode.classList.add("dropdown");
-        field.setAttribute("data-toggle", "dropdown");
-        field.classList.add("dropdown-toggle");
-
-        const dropdown = ce(`<div id="drop-down" class="dropdown-menu" ></div>`);
-        if (this.options.dropdownClass)
-            dropdown.classList.add(this.options.dropdownClass);
-
-        insertAfter(dropdown, field);
-
-        this.dropdown = new bootstrap.Dropdown(field, this.options.dropdownOptions);
-
-        field.addEventListener("click", (e) => {
-            if (this.createItems() === 0) {
-                e.stopPropagation();
-                this.dropdown.hide();
-            }
-        });
-
-        field.addEventListener("input", () => {
-            if (this.options.onInput) this.options.onInput(this.field.value);
-            this.renderIfNeeded();
-        });
-
-        field.addEventListener("keydown", (e) => {
-            if (e.keyCode === 27) {
-                this.dropdown.hide();
-                return;
-            }
-        });
-    }
-
-    setData(data) {
-        this.options.data = data;
-    }
-
-    renderIfNeeded() {
-        if (this.createItems() > 0) this.dropdown.show();
-        else this.field.click();
-    }
-
-    createItem(lookup, item) {
-        let label;
-        if (this.options.highlightTyped) {
-            const idx = item.label.toLowerCase().indexOf(lookup.toLowerCase());
-            const className = Array.isArray(this.options.highlightClass)
-                ? this.options.highlightClass.join(" ")
-                : typeof this.options.highlightClass == "string"
-                    ? this.options.highlightClass
-                    : "";
-            label =
-                item.label.substring(0, idx) +
-                `<span class="${className}">${item.label.substring(
-                    idx,
-                    idx + lookup.length
-                )}</span>` +
-                item.label.substring(idx + lookup.length, item.label.length);
-        } else label = item.label;
-        return ce(
-            `<button type="button" class="dropdown-item" data-value="${item.value}">${label}</button>`
-        );
-    }
-
-    createItems() {
-        const lookup = this.field.value;
-        if (lookup.length < this.options.treshold) {
-            this.dropdown.hide();
-            return 0;
+function SearchTorrents() {
+  var Query = searchBox.value;
+  if (Query == "") {
+    Query = "top100";
+  }
+  var url = `/api/search?q=` + Query;
+  $.ajax({
+    url: url,
+    type: "GET",
+    dataType: "json",
+    success: function (data) {
+      Results.innerHTML = "";
+      var searchCount = document.getElementById("search-count");
+      searchCount.innerHTML = `(${data.length} results)`;
+      for (var i = 0; i < data.length; i++) {
+        var file = data[i];
+        file.magnet = file.magnet.replace(/\s/g, "+");
+        var a = `<a class="list-group-item list-group-item-action flex-column align-items-start ">`;
+        if (IsDark()) {
+          a = `<a class="list-group-item list-group-item-action flex-column align-items-start text-white" style="background-color: #212529">`;
         }
-
-        const items = this.field.nextSibling;
-        items.innerHTML = "";
-
-        let count = 0;
-        for (let i = 0; i < this.options.data.length; i++) {
-            const { label, value } = this.options.data[i];
-            const item = { label, value };
-            if (item.label.toLowerCase().indexOf(lookup.toLowerCase()) >= 0) {
-                items.appendChild(this.createItem(lookup, item));
-                if (
-                    this.options.maximumItems > 0 &&
-                    ++count >= this.options.maximumItems
-                )
-                    break;
-            }
+        a += `<div class="d-flex w-100 justify-content-between">`;
+        a +=
+          `<h6 class="mb-1">1. ` +
+          file.name +
+          `<img width='25px' style='margin-right: 5px; margin-left: 4px;' src="https://img.icons8.com/external-yogi-aprelliyanto-glyph-yogi-aprelliyanto/64/fa314a/external-magnet-marketing-and-seo-yogi-aprelliyanto-glyph-yogi-aprelliyanto.png"/></h5>`;
+        a += `<small>` + file.size + `</small>`;
+        a += `</div>`;
+        a += `<p class="mb-1">Seeds: `;
+        if (file.seeders > 2000) {
+          a += `<b class="text-success">` + file.seeders + `</b>`;
+        } else if (file.seeders > 1000) {
+          a += `<b class="text-warning">` + file.seeders + `</b>`;
+        } else if (file.seeders > 500) {
+          a += `<b class="text-danger">` + file.seeders + `</b>`;
+        } else if (file.seeders < 5) {
+          a += `<b class="text-danger">` + file.seeders + `</b>`;
+          a += `<i class="bi bi-exclamation" style="color: red;"></i>`;
+        } else {
+          a += `<b class="text-secondary">` + file.seeders + `</b>`;
         }
-
-        this.field.nextSibling
-            .querySelectorAll(".dropdown-item")
-            .forEach((item) => {
-                item.addEventListener("click", (e) => {
-                    let dataValue = e.target.getAttribute("data-value");
-                    this.field.value = e.target.innerText;
-                    if (this.options.onSelectItem)
-                        this.options.onSelectItem({
-                            value: e.target.value,
-                            label: e.target.innerText,
-                        });
-                    this.dropdown.hide();
-                });
-            });
-
-        return items.childNodes.length;
-    }
+        a += `, Leeches: <b class='text-muted'>` + file.leechers + `</b></p>`;
+        a += `<div class="mt-2 pt-2 border-top">`;
+        a += `<div class="btn-group" role="group">`;
+        a += `<button class="btn btn-primary btn-sm" onclick="addTorrent('${file.magnet}')">Download <i class="bi bi-download"></i></button>`;
+        a += `<button class="btn btn-danger btn-sm" onclick="copyToClipboard(this)" data-url="${file.magnet}"><i class="bi bi-clipboard"></i></button>`;
+        a += `</div></div>`;
+        a += `</a>`;
+        Results.innerHTML += a;
+      }
+    },
+  });
 }
 
-function ce(html) {
-    let div = document.createElement("div");
-    div.innerHTML = html;
-    return div.firstChild;
-}
+SearchTorrents();
 
-function insertAfter(elem, refElem) {
-    return refElem.parentNode.insertBefore(elem, refElem.nextSibling);
-}
-
-Input.addEventListener("keyup", function (event) {
-    var val = Input.value;
-    if (val.split("").length > 2) {
-        $.ajax({
-            url: "/api/autocomplete?q=" + val,
-            type: "GET",
-            success: function (data) {
-                var match = JSON.parse(data);
-                var data = [];
-                for (var i = 0; i < match.length; i++) {
-                    data.push({
-                        label: match[i].substring(0, 22),
-                        value: i,
-                    });
-                }
-                ac.setData(data);
-            },
-        });
-    }
-});
-
-const ac = new Autocomplete(document.getElementById("search-input"));
-ac.setData([]);
-
-function FetchTorrents() {
-    var Query = Input.value;
-    var url = `/api/search?q=` + Query;
-    var querytype = "Search results for: " + Query;
-    if (Query == "") {
-        url = `/api/search?q=top100`;
-        querytype = "Top Trending";
-    }
-    $.ajax({
-        url: url,
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
-            var table = $("#files-table");
-            table.empty();
-            table.append(
-                "<caption>" +
-                querytype +
-                "</caption><tr><th style='width: 3.66%'>ID</th><th>Name</th><th>Size</th><th>Seeds</th><th>Peers</th><th>Actions</th></tr>"
-            );
-            for (var i = 0; i < data.length; i++) {
-                var file = data[i];
-                var row = $("<tr></tr>");
-                var num = i + 1;
-                row.append("<td>" + num + "</td>");
-                row.append("<td>" + file.name.substring(0, 52) + "..." + "</td>");
-                row.append("<td>" + file.size + "</td>");
-                row.append("<td>" + file.seeders + "</td>");
-                row.append("<td>" + file.leechers + "</td>");
-                row.append(
-                    `<td><div class="btn-group"><button class='btn btn-primary' onclick='addTorrent("` +
-                    file.magnet +
-                    `")'>Add <i class="bi bi-plus-square-dotted"></i></button>` +
-                    `<button class="btn btn-danger" onclick="ToClipboard('` +
-                    i +
-                    `')" data-clipboard-text="` +
-                    file.magnet +
-                    `" id="btn-` +
-                    i +
-                    `"><i class="bi bi-clipboard"></i></button></div>` +
-                    "</td>"
-                );
-                table.append(row);
-                if (i == 24) {
-                    break;
-                }
-            }
-        },
-    });
-}
+Button.addEventListener("click", SearchTorrents);
 
 function addTorrent(magnet) {
-    $.ajax({
-        url: "/api/add",
-        type: "POST",
-        data: {
-            magnet: magnet,
-        },
-        success: function (data) {
-            ToastMessage("Torrent added successfully", "success");
-        },
-    });
+  $.ajax({
+    url: "/api/add",
+    type: "POST",
+    data: {
+      magnet: magnet,
+    },
+    success: function (data) {
+      ToastMessage("Torrent added successfully", "success");
+    },
+    error: function (data) {
+      if (data.status == 500) {
+        ToastMessage("Torrent already added", "warning");
+      }
+    },
+  });
 }
-
-function ToClipboard(id) {
-    elem = document.getElementById("btn-" + id);
-    data = elem.getAttribute("data-clipboard-text");
-    navigator.clipboard.writeText(data).then(
-        function () {
-            ToastMessage("Copied to clipboard", "success");
-        },
-        function () {
-            ToastMessage("Failed to copy to clipboard", "error");
-        }
-    );
-}
-
-FetchTorrents();

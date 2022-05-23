@@ -1,18 +1,26 @@
+var NumToasts = 0;
+
 function ToastMessage(message, bg) {
-    document.querySelector(".toast-container").innerHTML =
+    NumToasts++;
+    document.querySelector(".toast-container").innerHTML +=
         `<div class="toast align-items-center text-white bg-` +
         bg +
-        ` border-0" role="alert" aria-live="assertive" aria-atomic="true" id="toast-main" style="position: absolute; top: 0; right: 0;"><div class="d-flex"><div class="toast-body">` +
+        ` border-0" role="alert" aria-live="assertive" aria-atomic="true" id="toast-main-${NumToasts}"><div class="toast-header">
+        <img src="https://img.icons8.com/material-rounded/24/fa314a/appointment-reminders.png" class="rounded me-2" alt="notif"><strong class="me-auto">Cloud Torrent</strong><small>Just Now</small><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button></div><div class="toast-body">` +
         message +
-        `</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div></div>`;
+        `</div></div>`;
     var Toast = bootstrap.Toast.getOrCreateInstance(
-        document.getElementById("toast-main")
+        document.getElementById("toast-main-" + NumToasts)
     );
     Toast.options = {
         delay: 5000,
         autohide: true,
     };
     Toast.show();
+    var PrevToast = document.getElementById("toast-main-" + (NumToasts - 1));
+    if (PrevToast) {
+        PrevToast.remove();
+    }
 }
 
 function copyToClipboard(e) {
@@ -46,4 +54,17 @@ function zipDir(e) {
 function btnHref(e) {
     var path = $(e).data("path");
     window.location.href = path;
+}
+
+function ToClipboard(id) {
+    elem = document.getElementById("btn-" + id);
+    data = elem.getAttribute("data-clipboard-text");
+    navigator.clipboard.writeText(data).then(
+        function () {
+            ToastMessage("Copied to clipboard", "success");
+        },
+        function () {
+            ToastMessage("Failed to copy to clipboard", "error");
+        }
+    );
 }

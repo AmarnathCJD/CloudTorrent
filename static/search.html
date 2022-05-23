@@ -8,61 +8,80 @@
     <meta name="description" content="" />
     <link type="image/png" sizes="32x32" rel="icon" href="https://img.icons8.com/ios-glyphs/60/4a90e2/cloud.png">
     <link rel="stylesheet" href="/static/css/style.css" />
-    <link rel="stylesheet" href="/static/css/dark.css" />
 </head>
 
 <body>
-    <div class="container d-flex p-3 mx-auto w-100 flex-column">
-        <header class="mb-auto">
-            <div class="float-md-start fw-bold fs-5">
-                <h1>
-                    <i class="bi bi-cloud-download" style="color: cornflowerblue"></i>
-                    Cloud Torrent
-                </h1>
-            </div>
-            <nav class="nav justify-content-center float-md-end">
-                <a class="nav-item nav-link active" href="/"><button class="btn btn-primary navbar-btn">
-                        Home <i class="bi bi-house"></i></button></a>
-                <a class="nav-link" href="/downloads"><button class="btn btn-primary">
-                        Files <i class="bi bi-list-ul"></i></button></a>
-                <a class="nav-link" href="/search/" target="_blank"><button class="btn btn-danger active">
-                        Search <i class="bi bi-search"></i></button></a>
-                <div class="nav-link">
-                    <div class="form-check form-switch">
-                        <input type="checkbox" class="form-check-input" id="darkSwitch" />
-                        <label class="custom-control-label" for="darkSwitch" id="dark-icon"><i
-                                class="bi bi-brightness-high"></i></label>
+    <div class="m-4">
+    <header>
+        
+            <nav class="navbar navbar-expand-lg navbar-light" id="main-nav">
+                <div class="container-fluid">
+                    <a href="#" class="navbar-brand">
+                        <h1>
+                            <img src="https://img.icons8.com/pastel-glyph/64/fa314a/cloud--v2.png" alt="" height="55">
+                            Cloud Torrent
+                        </h1>
+                        <div class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input" id="darkSwitch" />
+                            <label class="custom-control-label" for="darkSwitch" id="dark-icon"><i
+                                    class="bi bi-brightness-high"></i></label>
+                        </div>
+                    </a>
+                    <div class="nav-link">
+                        <nav class="nav nav-pills flex-column flex-sm-row">
+                            <a class="flex-sm-fill text-sm-center nav-link" href="/">Home</a>
+                            <a class="flex-sm-fill text-sm-center nav-link" href="/downloads/">Files</a>
+                            <a class="flex-sm-fill text-sm-center nav-link active bg-danger" href="/search">Search</a>
+                        </nav>
                     </div>
                 </div>
             </nav>
-        </header>
-        <div class="align-self-end" style="margin-top: 20px">
-            <div class="input-group">
-                <div class="form-outline" id="search-bar">
-                    <input id="search-input" type="search" id="form1" class="form-control dropdown-toggle show"
-                        aria-label="Search" placeholder="Type query" data-provide="typeahead" />
-                </div>
-                <button id="search-button" type="button" class="btn btn-primary" onclick="FetchTorrents()">
-                    <i class="bi bi-search"></i>
-                </button>
+        </div>
+    </header>
+    <div class="container">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="basic-addon2" id="search">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="searchBtn"><i class="bi bi-search"></i></button>
             </div>
         </div>
-        <main>
-            <div class="table-responsive text-nowrap">
-                <table id="files-table" class="table caption-top primary table-hover table-striped"></table>
+        <div id="search-results" class="row" style="margin-top: 10px;">
+            <div style="font-size: 15px;"><b class="text-muted">Results for:</b><strong> "<span
+                        id="search-term">Top Trending</span>"</strong><br>
+                <span id="search-count">(0 results)</span>
+                <b class="text-muted">Jump to:</b> <b>Tpb</b> |
+                <b>Kickass</b> |
+                <b>BitTorrent</b> |
+                <b>Yts</b> |
+                <b>Rarbg</b> |
+                <b>Torrentz</b> |
+                <b>1337x</b> |
+                <b>ImDB</b>
             </div>
-            <div class="toast-container top-0 end-0"></div>
-        </main>
+            <div style="color: darkgoldenrod; font-weight: 700; font-size: 20px; margin-top: 5px;">
+                <b>Torrents</b>
+            </div>
+            <div id="results"></div>
+            <div class="toast-container position-fixed top-0 start-50 translate-middle-x">
+            </div>
+        </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-        crossorigin="anonymous"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
-    <script src="/static/js/addons.js"></script>
-    <script src="/static/js/search.js"></script>
-    <script src="/static/js/dark.js"></script>
+</div>
+            <!--Grid column
+                 TODO add search providers
+                -->
+              
+            <!--- https://v2.sg.media-imdb.com/suggestion/a/aveng.json
+                soon
+                musicplayer.html
+            --->
+            <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+                crossorigin="anonymous"></script>
+            <script src="/static/js/addons.js"></script>
+            <script src="/static/js/search.js"></script>
+            <script src="/static/js/dark.js"></script>
 </body>
 
 </html>

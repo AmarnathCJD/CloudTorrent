@@ -43,5 +43,3 @@ func HTMLServe() {
 	// static files
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 }
-
-// TODO Zip Folder ZipDIr()

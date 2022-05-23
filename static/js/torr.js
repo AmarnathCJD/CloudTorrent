@@ -42,7 +42,16 @@ function updateTorrentList(data) {
     var list = $("#torrent-list");
     list.empty();
     if (torrents == null || torrents.length == 0) {
-        list.append("<li class='list-group-item'>No torrents found.</li>");
+        var a = "<a class='list-group-item list-group-item-action flex-column align-items-start '>"
+        if (IsDark()) {
+            a = "<a class='list-group-item list-group-item-action flex-column align-items-start text-white' style='background-color: #212529'>"
+        }
+        a += "<div class='d-flex w-100 justify-content-between'>"
+        a += "<h5 class='mb-1'>No torrents</h5>"
+        a += "</div>"
+        a += "<p class='mb-1'>There are no torrents currently being downloaded.</p>"
+        a += "</a>"
+        list.append(a);
         return;
     }
     for (var i = 0; i < torrents.length; i++) {
