@@ -2,13 +2,17 @@ package main
 
 import (
 	"archive/zip"
+	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strconv"
@@ -344,4 +348,35 @@ func addFileToZip(zipWriter *zip.Writer, filename string) error {
 	}
 	_, err = io.Copy(writer, fileToZip)
 	return err
+}
+
+func GetRealtimeOutput(vid string) {
+	command := fmt.Sprintf("ffmpeg -i '%s' -c:v libx265 -an -x265-params crf=25 OUT.mp4 -progress -", vid)
+	cmd := exec.Command("/bin/bash", "-c", command)
+	Frames, _ := GetTotalFramesInVideo(vid)
+	stderr, _ := cmd.StderrPipe()
+	cmd.Start()
+	scanner := bufio.NewScanner(stderr)
+	scanner.Split(bufio.ScanWords)
+	for scanner.Scan() {
+		m := scanner.Text()
+		frameRe := regexp.MustCompile(`frame=\n(\d+)`) // fix regex asap
+		if frameRe.MatchString(m) {
+			fmt.Println(m)
+			fmt.Println(Frames)
+		}
+	}
+	cmd.Wait()
+}
+
+func GetTotalFramesInVideo(path string) (int, error) {
+	cd := "ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 '" + path + "'"
+	var cmd = exec.Command("/bin/bash", "-c", cd)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println(err)
+	}
+	return strconv.Atoi(strings.ReplaceAll(out.String(), "\n", ""))
 }
