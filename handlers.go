@@ -281,7 +281,7 @@ func AutoComplete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var client = http.DefaultClient
-	resp, err := client.Get("https://streamm4u.ws/searchJS?term=" + url.QueryEscape(q))
+	resp, err := client.Get("https://streamm4u.ws/searchJS?term=" + url.QueryEscape(q)) // Will improve
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

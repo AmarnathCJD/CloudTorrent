@@ -360,10 +360,10 @@ func GetRealtimeOutput(vid string) {
 	scanner.Split(bufio.ScanWords)
 	for scanner.Scan() {
 		m := scanner.Text()
-		frameRe := regexp.MustCompile(`frame=\n(\d+)`) // fix regex asap
+		frameRe := regexp.MustCompile(`frame=\n(\d+)`) // fix regex
 		if frameRe.MatchString(m) {
 			fmt.Println(m)
-			fmt.Println(Frames)
+			fmt.Println(Frames) // Working on FFMPEG Conversion
 		}
 	}
 	cmd.Wait()
