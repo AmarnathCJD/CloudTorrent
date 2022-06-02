@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 	"time"
 
@@ -153,8 +152,18 @@ func SystemStats(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 	Disk := DiskUsage(Root)
-	SystemStat := "<p><b>IP:</b> " + GetIP(r) + " " + "<b>OS:</b> " + runtime.GOOS + " " + "<b>Arch:</b> " + runtime.GOARCH + " " + "<b>CPU:</b> " + fmt.Sprint(runtime.NumCPU()) + " " + "<b>RAM:</b> " + MemUsage() + " " + "<b>Disk:</b> " + fmt.Sprintf("%s/%s", Disk.Used, Disk.All) + " " + "<b>Downloads:</b> " + strconv.Itoa(GetLenTorrents()) + "</p>"
-	w.Write([]byte(SystemStat))
+	Details := SysInfo{
+		IP:        GetIP(r),
+		OS:        runtime.GOOS,
+		Arch:      runtime.GOARCH,
+		CPU:       fmt.Sprint(runtime.NumCPU()),
+		Mem:       MemUsage(),
+		Disk:      fmt.Sprintf("%s/%s", Disk.Used, Disk.All),
+		Downloads: fmt.Sprint(GetLenTorrents()),
+	}
+	b, _ := json.Marshal(Details)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(b)
 }
 
 func DeleteFileHandler(w http.ResponseWriter, r *http.Request) {

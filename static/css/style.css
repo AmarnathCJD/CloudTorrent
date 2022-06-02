@@ -117,23 +117,3 @@ html {
         max-width: 100%;
     }
 }
-
-.system-info {
-    background-color: #afcfdf;
-    color: rgba(0, 0, 0, 0.5);
-    padding: 5px;
-    margin-top: 5px;
-}
-
-.storage-info {
-    font-size: 14px;
-    width: 100%;
-    display: block;
-    font-weight: 700;
-}
-
-@media screen and (max-width: 768px) {
-    .storage-info {
-        font-size: 12px;
-    }
-}

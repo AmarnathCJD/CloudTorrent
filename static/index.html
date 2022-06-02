@@ -22,14 +22,15 @@
                             <i class="bi bi-cloud-download" style="color: cornflowerblue"></i>
                             Cloud Torrent
                         </h1>
-                        <div class="form-check form-switch">
-                            <input type="checkbox" class="form-check-input" id="darkSwitch" />
-                            <label class="custom-control-label" for="darkSwitch" id="dark-icon"><i
-                                    class="bi bi-brightness-high"></i></label>
-                        </div>
+
                     </a>
                     <div class="nav-link">
                         <nav class="nav nav-pills flex-column flex-sm-row">
+                            <div class="form-check form-switch flex-sm-fill text-sm-center nav-link">
+                                <input type="checkbox" class="form-check-input" id="darkSwitch" />
+                                <label class="custom-control-label" for="darkSwitch" id="dark-icon"><i
+                                        class="bi bi-brightness-high"></i></label>
+                            </div>
                             <a class="flex-sm-fill text-sm-center nav-link active" href="/">Home</a>
                             <a class="flex-sm-fill text-sm-center nav-link" href="/downloads/">Files</a>
                             <a class="flex-sm-fill text-sm-center nav-link" href="/search">Search</a>
@@ -39,47 +40,61 @@
             </nav>
         </div>
     </header>
+    </div>
     <div class="container">
         <div class="m-4">
             <nav class="navbar navbar-expand-lg navbar-light" id="main-nav">
                 <div class="container-fluid">
                     <div class="btn-group">
                         <div class="form-outline">
-                            <input type="text" id="input" class="form-control" placeholder="Search" />
+                            <input type="text" id="input" class="form-control" placeholder="magnet uri:" />
+                            <div class="text-muted">
+                                <small>
+                                    <i class="fas fa-info-circle"></i>
+                                    Enter a magnet link to download torrent
+                                </small>
+                            </div>
                         </div>
-                        <button type="button" class="btn btn-primary" style="height: 38px; width: 40px"
-                            onclick="addTorrent()">
-                            <i class="bi bi-magnet"></i>
+                        <button type="button" class="btn btn-primary btn-sm" style="height: 38px; width: 40px"
+                            onclick="addTorrent()"><img
+                                src="https://img.icons8.com/material/96/undefined/download--v1.png" width="22px" />
                         </button>
                     </div>
-                    <div class="btn-group" role="group" style="margin-top: 5px">
-                        <button type="button" class="btn btn-primary btn-sm" onclick="startAll()"
-                            style="font-weight: 600">
-                            <i class="bi bi-play"></i> Start All
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="stopAll()"
-                            style="font-weight: 600">
-                            <i class="bi bi-stop-circle"></i> Stop All
-                        </button>
-                        <button type="button" class="btn btn-success btn-sm" onclick="removeAll()"
-                            style="font-weight: 600">
-                            <i class="bi bi-shield-x"></i> Remove All
-                        </button>
-                    </div>
-                </div>
-            </nav>
-            <main>
-                <hr class="my-4" />
-                <ol class="list-group" id="torrent-list"></ol>
-                <table id="files-table" class="table caption-top primary table-hover"></table>
-                <div class="text-center">
-                    <div class="storage-info">
-                        <div class="system-info"></div>
+                    <div class="btn-group">
+                        <div class="btn-group me-2" role="group" style="margin-top: 5px">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="startAll()"
+                                style="font-weight: 600">
+                                Start All
+                            </button>
+                        </div>
+                        <div class="btn-group me-2" role="group" style="margin-top: 5px">
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="stopAll()"
+                                style="font-weight: 600">
+                                Stop All
+                            </button>
+                        </div>
+                        <div class="btn-group me-2" role="group" style="margin-top: 5px">
+                            <button type="button" class="btn btn-outline-success btn-sm" onclick="removeAll()"
+                                style="font-weight: 600">
+                                Remove All
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </main>
         </div>
-        <div class="toast-container position-fixed top-0 start-50 translate-middle-x"></div>
+        </nav>
+        <main>
+            <hr class="my-4" />
+            <ol class="list-group" id="torrent-list"></ol>
+            <table id="files-table" class="table caption-top primary table-hover"></table>
+            <div class="text-center">
+                <div class="storage-info">
+                    <div class="system-info" id="system-info"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="toast-container position-fixed top-0 start-50 translate-middle-x"></div>
     </div>
     <script src="/static/js/addons.js"></script>
     <script src="/static/js/dark.js"></script>

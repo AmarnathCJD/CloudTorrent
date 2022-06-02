@@ -36,6 +36,16 @@ type FileInfo struct {
 	Icon  string `json:"icon,omitempty"`
 }
 
+type SysInfo struct {
+	IP        string `json:"ip,omitempty"`
+	OS        string `json:"os,omitempty"`
+	Arch      string `json:"arch,omitempty"`
+	CPU       string `json:"cpu,omitempty"`
+	Mem       string `json:"mem,omitempty"`
+	Disk      string `json:"disk,omitempty"`
+	Downloads string `json:"downloads,omitempty"`
+}
+
 type TopTorr struct {
 	Name     string  `json:"name,omitempty"`
 	Size     float64 `json:"size,omitempty"`
@@ -185,7 +195,7 @@ func GetOutboundPort() string {
 			return p
 		}
 	}
-	return ":80"
+	return ":3000"
 }
 
 func isDirectory(path string) (bool, error) {
