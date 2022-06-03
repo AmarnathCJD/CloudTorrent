@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -16,13 +17,13 @@ import (
 )
 
 var (
-	client  = InitClient()
-	hClient = &http.Client{Timeout: time.Second * 10}
+	client   *torrent.Session
+	hClient  = &http.Client{Timeout: time.Second * 10}
+	Trackers []string
 )
 
 func InitClient() *torrent.Session {
 	config := torrent.DefaultConfig
-	PrepareWD()
 	config.DataDir = Root + "/torrents/"
 	config.Database = Root + "/torrents.db"
 	client, err := torrent.NewSession(config)
@@ -51,11 +52,29 @@ func AddTorrentByMagnet(magnet string) (bool, error) {
 	if CheckDuplicateTorrent(magnet) {
 		return false, fmt.Errorf("torrent already exists")
 	}
-	_, err := client.AddURI(magnet, &torrent.AddTorrentOptions{StopAfterDownload: true})
+	m, err := client.AddURI(magnet, &torrent.AddTorrentOptions{StopAfterDownload: true})
 	if err != nil {
 		return false, err
 	}
+	for i := range Trackers {
+		m.AddTracker(Trackers[i])
+	}
 	return true, nil
+}
+
+func GetTrakers() {
+	url := "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt"
+	resp, err := hClient.Get(url)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	t, _ := ioutil.ReadAll(resp.Body)
+	for _, line := range strings.Split(string(t), "\n") {
+		if strings.HasPrefix(line, "udp://") {
+			Trackers = append(Trackers, line)
+		}
+	}
 }
 
 func DeleteTorrentByID(id string) (bool, error) {
@@ -269,4 +288,10 @@ func GatherSearchResults(query string) []byte {
 
 func GetLenTorrents() int {
 	return len(GetTorrents())
+}
+
+func init() {
+	PrepareWD()
+	GetTrakers()
+	client = InitClient()
 }
