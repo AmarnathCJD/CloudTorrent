@@ -195,7 +195,7 @@ func GetOutboundPort() string {
 			return p
 		}
 	}
-	return ":3000"
+	return ":80"
 }
 
 func isDirectory(path string) (bool, error) {
