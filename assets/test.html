@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cloud Torrent</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tailwindcss/ui@latest/dist/tailwind-ui.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <nav class="flex items-center justify-between flex-wrap bg-gray-500 p-6">
+        <div class="flex items-center flex-shrink-0 text-white mr-6">
+            <span class="font-semibold text-xl tracking-tight">Cloud Torrent</span>
+        </div>
+        <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
+            <div class="text-sm lg:flex-grow">
+                <a href="#responsive-header"
+                    class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+                    Home
+                </a>
+                <a href="#responsive-header"
+                    class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+                    About
+                </a>
+                <a href="#responsive-header"
+                    class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+                    Contact
+                </a>
+            </div>
+            <div>
+                <a href="#"
+                    class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-teal-500 hover:bg-white mt-4 lg:mt-0">
+                    Sign Up
+                </a>
+                <a href="#"
+                    class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-teal-500 hover:bg-white mt-4 lg:mt-0">
+                    Log In
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div id="toast"
+        class="hidden flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800"
+        role="alert">
+        <div
+            class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <div id='toast-content' class="ml-3 text-sm font-normal"></div>
+        <button type="button"
+            class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
+            data-dismiss-target="#toast-success" aria-label="Close">
+            <span class="sr-only">Close</span>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd"></path>
+            </svg>
+        </button>
+    </div>
+    <div class="container mx-auto px-4" style="margin-top: 10px;">
+        <div class="flex flex-wrap justify-center">
+            <div class="w-full">
+                <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                    <div class="input-group relative flex flex-wrap items-stretch w-full mb-4">
+                        <input
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            id="input-magnet" type="text" placeholder="magnet link">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <button href="#" class="
+                      rounded
+                      px-6
+                      py-2.5
+                      bg-blue-600
+                      text-white
+                      font-medium
+                      text-xs
+                      leading-tight
+                      uppercase
+                      hover:bg-blue-700
+                      focus:bg-blue-700 focus:outline-none focus:ring-0
+                      active:bg-blue-800
+                      transition
+                      duration-150
+                      ease-in-out
+                    " id="submit-magnet">
+                            Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div name="controls" class="container mx-auto px-4">
+        <div class="flex flex-wrap justify-center">
+            <div class="flex items-center justify-center">
+                <div class="inline-flex shadow-md hover:shadow-lg focus:shadow-lg" role="group">
+                    <a href="#" aria-current="page" class="
+                      rounded-l
+                      px-6
+                      py-2.5
+                      bg-red-600
+                      text-white
+                      font-medium
+                      text-xs
+                      leading-tight
+                      uppercase
+                      hover:bg-red-700
+                      focus:bg-red-700 focus:outline-none focus:ring-0
+                      active:bg-red-800
+                      transition
+                      duration-150
+                      ease-in-out
+                    ">
+                        Stop
+                    </a>
+                    <a href="#" class="
+                      px-6
+                      py-2.5
+                      bg-green-600
+                      text-white
+                      font-medium
+                      text-xs
+                      leading-tight
+                      uppercase
+                      hover:bg-green-700
+                      focus:bg-green-700 focus:outline-none focus:ring-0
+                      active:bg-green-800
+                      transition
+                      duration-150
+                      ease-in-out
+                    ">
+                        Start
+                    </a>
+                    <a href="#" class="
+                      rounded-r
+                      px-6
+                      py-2.5
+                      bg-blue-600
+                      text-white
+                      font-medium
+                      text-xs
+                      leading-tight
+                      uppercase
+                      hover:bg-blue-700
+                      focus:bg-blue-700 focus:outline-none focus:ring-0
+                      active:bg-blue-800
+                      transition
+                      duration-150
+                      ease-in-out
+                    ">
+                        Remove
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container mx-auto px-4 shadow-lg rounded-lg p-2">
+        <div class="flex flex-wrap justify-center">
+            <div name="torrent-heading" class="w-full">
+                <h1 class="text-left text-xl font-bold text-yellow-600 px-4 py-2">
+                    Torrents
+                </h1>
+            </div>
+        </div>
+        <div class="flex flex-wrap" id="torrents"></div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="/assets/js/app.js"></script>
+</body>

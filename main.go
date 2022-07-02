@@ -43,3 +43,12 @@ func HTMLServe() {
 	// static files
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 }
+
+func init() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	http.HandleFunc("/test/", func(w http.ResponseWriter, r *http.Request) {
+		template := template.Must(template.ParseFiles("./assets/test.html"))
+		template.Execute(w, nil)
+	})
+	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
+}
