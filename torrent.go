@@ -107,6 +107,33 @@ func ResumeTorrentByID(id string) (bool, error) {
 	return false, nil
 }
 
+func GetTorrentByID(id string) TorrentData {
+	t := client.GetTorrent(id)
+	Stats, Icon := GetStats(t)
+	Perc := GetDownloadPercentage(t)
+	var Path = ServerPath(GetTorrentPath(t))
+	if f, err := os.Stat(Path); err != nil && os.IsNotExist(err) || !f.IsDir() {
+		Path = strings.Replace(Path, filepath.Base(Path), "", 1)
+	}
+	if t != nil {
+		torrent := TorrentData{
+			Name:     t.Stats().Name,
+			Size:     ByteCountSI(t.Stats().Bytes.Total),
+			Status:   Stats,
+			Magnet:   t.Stats().InfoHash.String(),
+			UID:      t.ID(),
+			Perc:     Perc,
+			Eta:      fmt.Sprint(t.Stats().ETA),
+			Speed:    GetDownloadSpeed(t),
+			Progress: GetProgress(Perc),
+			Icon:     Icon,
+			Path:     Path,
+		}
+		return torrent
+	}
+	return TorrentData{}
+}
+
 func StopAll() {
 	client.StopAll()
 }
@@ -128,27 +155,24 @@ func GetTorrents() []*torrent.Torrent {
 	return client.ListTorrents()
 }
 
-func GetTorrentPath(id string) string {
-	if Torr := client.GetTorrent(id); Torr != nil {
-		return "/downloads/torrents/" + Torr.ID() + "/" + Torr.Stats().Name
-	}
-	return "404 Not Found"
+func GetTorrentPath(Torr *torrent.Torrent) string {
+	return "/downloads/torrents/" + Torr.ID() + "/" + Torr.Stats().Name
 }
 
 func GetAllTorrents() []TorrentData {
 	var Torrents []TorrentData
 	for _, t := range GetTorrents() {
-		Perc := GetDownloadPercentage(t.ID())
+		Perc := GetDownloadPercentage(t)
 		Name := t.Stats().Name
 		Icon := "bi bi-pause-circle"
 		if Name == "" {
 			Name = "fetching metadata..."
 		}
-		var Path = ServerPath(GetTorrentPath(t.ID()))
+		var Path = ServerPath(GetTorrentPath(t))
 		if f, err := os.Stat(Path); err != nil && os.IsNotExist(err) || !f.IsDir() {
 			Path = strings.Replace(Path, filepath.Base(Path), "", 1)
 		}
-		Stats, Icon := GetStats(t.ID())
+		Stats, Icon := GetStats(t)
 		Torrents = append(Torrents, TorrentData{
 			Name:     Name,
 			Size:     ByteCountSI(t.Stats().Bytes.Total),
@@ -170,8 +194,7 @@ func GetAllTorrents() []TorrentData {
 	return Torrents
 }
 
-func GetDownloadPercentage(id string) string {
-	torr := client.GetTorrent(id)
+func GetDownloadPercentage(torr *torrent.Torrent) string {
 	if torr != nil {
 		if torr.Stats().Pieces.Total != 0 {
 			return fmt.Sprintf("%.2f", float64(torr.Stats().Pieces.Have)/float64(torr.Stats().Pieces.Total)*100) + "%"
@@ -227,8 +250,7 @@ func ParseHashFromMagnet(magnet string) string {
 	return strings.ToLower(argv[1])
 }
 
-func GetStats(id string) (string, string) {
-	torr := client.GetTorrent(id)
+func GetStats(torr *torrent.Torrent) (string, string) {
 	if torr != nil {
 		if torr.Stats().Bytes.Total == 0 || torr.Stats().Status == torrent.DownloadingMetadata {
 			return "Fetching Metadata", "bi bi-meta"

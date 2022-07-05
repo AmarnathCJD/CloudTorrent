@@ -20,6 +20,27 @@ var (
 	SSEFeed = sse.New()
 )
 
+func GetTorrent(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}()
+	r.ParseForm()
+	id := r.FormValue("uid")
+	if id == "" {
+		http.Error(w, "No uid provided", http.StatusBadRequest)
+		return
+	}
+	torrent := GetTorrentByID(id)
+	if torrent.Status == "" {
+		http.Error(w, "Torrent not found", http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(torrent)
+}
+
 func AddTorrent(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err, ok := recover().(error); ok {
@@ -348,6 +369,7 @@ func init() {
 	var API = []Handle{
 		{"/api/add", AddTorrent},
 		{"/api/torrents", ActiveTorrents},
+		{"/api/torrent", GetTorrent},
 		{"/api/status", SystemStats},
 		{"/api/remove", DeleteTorrent},
 		{"/api/pause", PauseTorrent},
