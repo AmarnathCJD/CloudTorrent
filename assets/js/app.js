@@ -136,11 +136,14 @@ function AddTorrent() {
         data: {
             magnet: $('#input-magnet').val(),
         },
-        success: function (data) {
-            getTorrents();
-            tata.success('Success!', 'Torrent added');
+        error: function (xhr, status, error) {
+            tata.error("Failed Adding torrent", xhr.responseText);
+            return;
         }
     });
+    tata.success('Success!', 'Torrent added');
+    $('#input-magnet').val('');
+    getTorrents();
 }
 
 
